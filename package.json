@@ -23,7 +23,8 @@
     "dev": "pnpm build && pnpm --filter @ai-daily/api dev",
     "dev:web": "pnpm --filter @ai-daily/web dev",
     "db:local": "pnpm --filter @ai-daily/api db:migrate:local && node scripts/json2sql.js --all && pnpm --filter @ai-daily/api exec wrangler d1 execute ai-daily --local --file=../../sql/all.sql --yes",
-    "deploy:dry": "bash scripts/deploy.sh --dry-run"
+    "deploy:dry": "bash scripts/deploy.sh --dry-run",
+    "deploy:preview": "bash scripts/deploy-preview.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

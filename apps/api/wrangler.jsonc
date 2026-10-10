@@ -26,4 +26,20 @@
     },
   ],
   "vars": { "FAVORITES_MAX": "2000" },
+  // Preview environment: `wrangler deploy -c apps/api/wrangler.jsonc --env preview` (or `pnpm deploy:preview`).
+  // Deploys a separate Worker named `ai-daily-preview` with its own D1, so PRs can be checked on a real URL
+  // without touching production. d1_databases and vars are not inherited by envs, so they are repeated here.
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "ai-daily-preview",
+          "database_id": "542c4f6c-f324-4e3f-bd2f-7882d993cb89",
+          "migrations_dir": "../../migrations",
+        },
+      ],
+      "vars": { "FAVORITES_MAX": "2000" },
+    },
+  },
 }

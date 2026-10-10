@@ -34,7 +34,8 @@ if [ -z "$DBID" ]; then
 fi
 [ -n "$DBID" ] || { echo "无法获取 D1 database_id"; exit 1; }
 echo "database_id=$DBID"
-node -e "const fs=require('fs');const p='$CFG';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace(/\"database_id\": \"[^\"]*\"/,'\"database_id\": \"$DBID\"'))"
+# only rewrite the id that follows "database_name": "ai-daily" (production), never env.preview's entry
+node -e "const fs=require('fs');const p='$CFG';const s=fs.readFileSync(p,'utf8');const re=/(\"database_name\": \"ai-daily\",[^}]*?\"database_id\": \")[^\"]*(\")/;if(!re.test(s)){console.error('wrangler.jsonc 里找不到生产 D1 配置');process.exit(1)}fs.writeFileSync(p,s.replace(re,'\$1$DBID\$2'))"
 echo "== 3. 迁移"; $W d1 migrations apply ai-daily --remote -c "$CFG"
 echo "== 4. 导入全部历史数据"; node scripts/json2sql.js --all "$DATA_DIR"; $W d1 execute ai-daily --remote -c "$CFG" --file=sql/all.sql --yes
 echo "== 5. 构建前端 + 部署 Worker"; build_web; $W deploy -c "$CFG" | tee /tmp/cf-deploy.log
