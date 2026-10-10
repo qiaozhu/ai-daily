@@ -26,6 +26,18 @@ export function safeDecode(s: string): { ok: true; value: string } | { ok: false
   }
 }
 
+/** story ids are the D1 primary key, `YYYY-MM-DD-<slug>` (PRD v6 §3.0) */
+export const STORY_ID_MAX = 200;
+
+/** a raw (percent-encoded) path segment -> story id, or null when it cannot be one (bad encoding / shape) */
+export function storyIdFromSegment(raw: string): string | null {
+  const dec = safeDecode(raw);
+  if (!dec.ok) return null;
+  const id = dec.value;
+  if (!id || id.length > STORY_ID_MAX || /[/\s]/.test(id)) return null;
+  return isCalendarDate(id.slice(0, 10)) && id[10] === '-' && id.length > 11 ? id : null;
+}
+
 export const MESSAGES = {
   badDate: '日期格式应为 YYYY-MM-DD',
   badEncoding: 'URL 编码无效',

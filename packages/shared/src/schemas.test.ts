@@ -3,6 +3,7 @@ import {
   DayParamSchema,
   FavoriteBodySchema,
   FavoriteIdParamSchema,
+  storyIdFromSegment,
   isCalendarDate,
   MESSAGES,
   parseLimit,
@@ -117,5 +118,27 @@ describe('FavoriteIdParamSchema (BUG-3)', () => {
   });
   it('invalid percent-encoding -> validation error', () => {
     expect(FavoriteIdParamSchema.safeParse('%ZZ').success).toBe(false);
+  });
+});
+
+describe('storyIdFromSegment', () => {
+  it('accepts date-prefixed ids (percent-decoded)', () => {
+    expect(storyIdFromSegment('2026-10-10-claude-dashboards-motion')).toBe('2026-10-10-claude-dashboards-motion');
+    expect(storyIdFromSegment('2026-10-10-%E4%B8%AD%E6%96%87')).toBe('2026-10-10-中文');
+  });
+  it('rejects bad encodings, shapes and lengths', () => {
+    for (const s of [
+      '',
+      'abc',
+      '2026-10-10',
+      '2026-10-10-',
+      '2026-13-01-x',
+      '2026-10-10x',
+      '%ZZ',
+      '2026-10-10-a%2Fb',
+      '2026-10-10-a b',
+      '2026-10-10-' + 'x'.repeat(200),
+    ])
+      expect(storyIdFromSegment(s)).toBeNull();
   });
 });

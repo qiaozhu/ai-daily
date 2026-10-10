@@ -1,12 +1,13 @@
 import { onLinkClick } from '../lib/router.ts';
-import { TABS, type Page } from '../state/route.ts';
+import { TABS, type TabPage } from '../state/route.ts';
 import { Icon, type IconName } from './Icon.tsx';
 import { Logo } from './Logo.tsx';
 
-const ICON: Record<Page, IconName> = { day: 'today', archive: 'past', search: 'search', me: 'me' };
+const ICON: Record<TabPage, IconName> = { day: 'today', archive: 'past', search: 'search', me: 'me' };
 
 interface Props {
-  active: Page;
+  /** highlighted entry; null on 404 pages (PR #20: tab bar shown, nothing selected) */
+  active: TabPage | null;
   favCount: number;
 }
 
@@ -47,7 +48,7 @@ export function SideNav({ active, favCount }: Props) {
 }
 
 /** phone (< 1024px) bottom tab bar: 80% opaque + 20px blur, 0.5px separator, clears the home indicator */
-export function TabBar({ active }: { active: Page }) {
+export function TabBar({ active }: { active: TabPage | null }) {
   return (
     <nav
       id="tabbar"

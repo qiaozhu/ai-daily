@@ -125,3 +125,18 @@ export interface ExportResponse {
 export interface ApiError {
   error: string;
 }
+
+// ---- v6 F2 (PRD §3.2): story page endpoints ----
+
+/** GET /api/stories/:id — all story fields + the §3.1 badge of its day */
+export type StoryDetail = DayStory;
+
+/** GET /api/stories/:id/trend — oldest first; 1 point = 首次出现 */
+export interface StoryTrendResponse {
+  points: { date: string; heat: number | null; story_id: string }[];
+}
+
+/** GET /api/stories/:id/related — at most 5 */
+export interface StoryRelatedResponse {
+  stories: { id: string; date: string; headline_zh: string; heat: number | null; shared_topics: string[] }[];
+}

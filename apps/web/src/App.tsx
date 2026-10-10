@@ -7,15 +7,22 @@ import { queryTerms } from './lib/highlight.ts';
 import { navigate, useUrl } from './lib/router.ts';
 import { applyTheme, initialTheme, type Theme } from './lib/theme.ts';
 import { HomePage, type Boot } from './pages/HomePage.tsx';
-import { parseRoute } from './state/route.ts';
-import { UiContext, type UiContextValue } from './state/ui-context.ts';
+import { parseRoute, type TabPage } from './state/route.ts';
+import { NotFoundContext, UiContext, type UiContextValue } from './state/ui-context.ts';
 
 // the home page ships in the entry chunk; the other tabs are loaded on demand (#16 first-load budget)
 const SearchPage = lazy(() => import('./pages/SearchPage.tsx'));
 const ArchivePage = lazy(() => import('./pages/ArchivePage.tsx'));
 const MePage = lazy(() => import('./pages/MePage.tsx'));
+const StoryPage = lazy(() => import('./pages/StoryPage.tsx'));
 
-const TITLE: Record<string, string> = { day: 'AI 热点日报', search: '搜索', archive: '往期', me: '我的' };
+const TITLE: Record<string, string> = {
+  day: 'AI 热点日报',
+  search: '搜索',
+  archive: '往期',
+  me: '我的',
+  story: '话题',
+};
 
 export function App() {
   const url = useUrl();
@@ -86,6 +93,8 @@ export function App() {
   );
   const onFavsLoaded = useCallback((ids: string[]) => setFavs(new Set(ids)), []);
 
+  // a NotFound page on screen -> no tab highlighted (PR #20); the story page belongs to 今日
+  const [notFound, setNotFound] = useState(false);
   const route = 'route' in parsed ? parsed.route : null;
   const q = route?.page === 'search' ? route.q : '';
   const ui: UiContextValue = useMemo(
@@ -94,7 +103,8 @@ export function App() {
   );
 
   useEffect(() => {
-    if (route) document.title = route.page === 'day' ? 'AI 热点日报' : `${TITLE[route.page]} · AI 热点日报`;
+    if (route && route.page !== 'story')
+      document.title = route.page === 'day' ? 'AI 热点日报' : `${TITLE[route.page]} · AI 热点日报`;
   }, [route?.page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!route) return null;
@@ -121,29 +131,36 @@ export function App() {
     case 'archive':
       page = <ArchivePage tab={route.tab} days={days} latest={latest} />;
       break;
+    case 'story':
+      page = <StoryPage key={route.id} id={route.id} />;
+      break;
     case 'me':
       page = <MePage favVersion={favVersion} onFavsLoaded={onFavsLoaded} theme={theme} onToggleTheme={toggleTheme} />;
       break;
   }
 
+  const tab: TabPage | null = notFound ? null : route.page === 'story' ? 'day' : route.page;
+
   return (
     <UiContext.Provider value={ui}>
-      <div
-        className="lg:grid lg:grid-cols-[240px_minmax(0,680px)] lg:justify-center lg:gap-8 lg:px-6 xl:grid-cols-[240px_680px_320px]"
-        data-page={route.page}
-      >
-        <SideNav active={route.page} favCount={favs.size} />
-        <Suspense
-          fallback={
-            <Main>
-              <ListSkeleton n={3} />
-            </Main>
-          }
+      <NotFoundContext.Provider value={setNotFound}>
+        <div
+          className="lg:grid lg:grid-cols-[240px_minmax(0,680px)] lg:justify-center lg:gap-8 lg:px-6 xl:grid-cols-[240px_680px_320px]"
+          data-page={route.page}
         >
-          {page}
-        </Suspense>
-      </div>
-      <TabBar active={route.page} />
+          <SideNav active={tab} favCount={favs.size} />
+          <Suspense
+            fallback={
+              <Main>
+                <ListSkeleton n={3} />
+              </Main>
+            }
+          >
+            {page}
+          </Suspense>
+        </div>
+        <TabBar active={tab} />
+      </NotFoundContext.Provider>
     </UiContext.Provider>
   );
 }

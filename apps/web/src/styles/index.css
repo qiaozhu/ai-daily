@@ -31,6 +31,14 @@
   --text-large-d--line-height: 48px;
   --text-large-d--letter-spacing: -0.8px;
   --text-large-d--font-weight: 700;
+  --text-title1: 26px;
+  --text-title1--line-height: 32px;
+  --text-title1--letter-spacing: -0.5px;
+  --text-title1--font-weight: 700;
+  --text-title1-d: 30px;
+  --text-title1-d--line-height: 36px;
+  --text-title1-d--letter-spacing: -0.5px;
+  --text-title1-d--font-weight: 700;
   --text-title2: 20px;
   --text-title2--line-height: 25px;
   --text-title2--letter-spacing: -0.3px;

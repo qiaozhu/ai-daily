@@ -4,7 +4,6 @@ import { Icon } from '../components/Icon.tsx';
 import { Footnote, Main } from '../components/Layout.tsx';
 import { EmptyState, ErrorState, ListSkeleton } from '../components/States.tsx';
 import { CategoryFilter, StoryList } from '../components/StoryList.tsx';
-import { useExpanded } from '../state/useExpanded.ts';
 import { navigate } from '../lib/router.ts';
 import { buildPath, Q_MAX } from '../state/route.ts';
 import { useAsync } from '../state/useAsync.ts';
@@ -28,7 +27,6 @@ export default function SearchPage({ q, cat, dayCount }: { q: string; cat: strin
   }, []);
   const [reload, setReload] = useState(0);
   const res = useAsync(q ? 'search:' + q : null, () => api.search(q), reload);
-  const expanded = useExpanded();
 
   const onInput = (v: string) => {
     setInput(v);
@@ -65,14 +63,7 @@ export default function SearchPage({ q, cat, dayCount }: { q: string; cat: strin
           </div>
         )}
         {r.stories.length ? (
-          <StoryList
-            stories={r.stories}
-            cat={cat}
-            title="搜索结果"
-            showDate
-            empty="该分类下暂无内容"
-            expanded={expanded}
-          />
+          <StoryList stories={r.stories} cat={cat} title="搜索结果" showDate empty="该分类下暂无内容" />
         ) : (
           <EmptyState>没有匹配的内容</EmptyState>
         )}

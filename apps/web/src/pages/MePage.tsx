@@ -4,7 +4,6 @@ import { Icon, type IconName } from '../components/Icon.tsx';
 import { Footnote, Main } from '../components/Layout.tsx';
 import { EmptyState, ErrorState, ListSkeleton } from '../components/States.tsx';
 import { StoryList } from '../components/StoryList.tsx';
-import { useExpanded } from '../state/useExpanded.ts';
 import type { Theme } from '../lib/theme.ts';
 import { useAsync } from '../state/useAsync.ts';
 
@@ -37,7 +36,6 @@ export default function MePage({ favVersion, onFavsLoaded, theme, onToggleTheme 
       }),
     favVersion + reload,
   );
-  const expanded = useExpanded();
   const dark = theme === 'dark';
 
   let favs: React.ReactNode;
@@ -45,14 +43,7 @@ export default function MePage({ favVersion, onFavsLoaded, theme, onToggleTheme 
   else if (res.status === 'error') favs = <ErrorState onRetry={() => setReload((n) => n + 1)} />;
   else
     favs = res.data.count ? (
-      <StoryList
-        stories={res.data.stories}
-        cat={null}
-        title={`收藏 · ${res.data.count}`}
-        showDate
-        empty=""
-        expanded={expanded}
-      />
+      <StoryList stories={res.data.stories} cat={null} title={`收藏 · ${res.data.count}`} showDate empty="" />
     ) : (
       <>
         <h2 className="mb-2.5 text-title2">收藏</h2>

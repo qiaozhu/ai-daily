@@ -54,11 +54,14 @@ export function placeholderPng(w, h, [r, g, b] = [0x7d, 0x5a, 0xf0]) {
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]);
 }
 
-async function loadRenderer() {
+// packages/share-card exports IS_PLACEHOLDER = true while renderCard is still the F2 skeleton (solid colour):
+// such a renderer counts as 'placeholder', so the production guard below still refuses to write it to KV.
+export async function loadRenderer() {
   const entry = join(REPO, 'packages/share-card/src/index.ts');
   if (existsSync(entry)) {
     const mod = await import(pathToFileURL(entry).href);
-    if (typeof mod.renderCard === 'function') return { name: 'share-card', render: mod.renderCard };
+    if (typeof mod.renderCard === 'function')
+      return { name: mod.IS_PLACEHOLDER === true ? 'placeholder' : 'share-card', render: mod.renderCard };
   }
   return { name: 'placeholder', render: ({ size }) => placeholderPng(...SIZES[size]) };
 }

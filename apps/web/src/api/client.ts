@@ -5,6 +5,9 @@ import type {
   FavoriteRemoved,
   FavoritesResponse,
   StoriesResponse,
+  StoryDetail,
+  StoryRelatedResponse,
+  StoryTrendResponse,
   TrendsResponse,
 } from '@ai-daily/shared';
 
@@ -41,6 +44,9 @@ export const api = {
     }
     return p;
   },
+  story: (id: string) => request<StoryDetail>('/api/stories/' + encodeURIComponent(id)),
+  storyTrend: (id: string) => request<StoryTrendResponse>('/api/stories/' + encodeURIComponent(id) + '/trend'),
+  storyRelated: (id: string) => request<StoryRelatedResponse>('/api/stories/' + encodeURIComponent(id) + '/related'),
   search: (q: string) => request<StoriesResponse>('/api/stories?q=' + encodeURIComponent(q)),
   trends: () => request<TrendsResponse>('/api/trends'),
   favorites: () => request<FavoritesResponse>('/api/favorites'),

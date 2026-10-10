@@ -11,7 +11,7 @@
 | `renderCard({ kind, size, data }) => Promise<Uint8Array>` | `kind`: `'day'` \| `'story'`；`size`: `'og'`（横版 1200×630）\| `'save'`（竖版 1080×1440）；`data`: 每日卡片传当天的日报 JSON，话题卡片传 `{ day, story }`。返回 PNG 字节。 |
 | `CARD_SIZES` | `{ og: {width:1200,height:630}, save: {width:1080,height:1440} }` |
 | `cardKey(kind, idOrDate, size)` | KV key：`card/{kind}/{id 或日期}/{og\|save}.png`，Worker 读取时用的是同一套规则 |
-| `IS_PLACEHOLDER` | 占位实现期间为 `true`。预生成脚本应据此拒绝把占位图写进生产 KV（脚本现在按"能不能 import 到 renderCard"来判断，F2 合并后就能 import 到了，所以请改成检查这个标志） |
+| `IS_PLACEHOLDER` | 占位实现期间为 `true`。`scripts/prerender-cards.mjs` 的 `loadRenderer()` 读到它时仍把渲染器记为 `placeholder`，所以生产 KV 的保护照样生效（不加 `--allow-placeholder` 就拒绝写入）。F3 换成 satori 后改成 `false` |
 
 ## 在 Node 里导入
 

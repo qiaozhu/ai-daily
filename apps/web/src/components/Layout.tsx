@@ -15,8 +15,8 @@ export function Main({ children }: { children: React.ReactNode }) {
 }
 
 /** desktop right column (>= 1280px only) */
-export function Aside({ children }: { children?: React.ReactNode }) {
-  return <aside className="rcol hidden pt-[118px] pb-10 xl:block">{children}</aside>;
+export function Aside({ children, top = 'pt-[118px]' }: { children?: React.ReactNode; top?: string }) {
+  return <aside className={`rcol hidden ${top} pb-10 xl:block`}>{children}</aside>;
 }
 
 export function Footnote({ className = '' }: { className?: string }) {
