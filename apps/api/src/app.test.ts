@@ -1,7 +1,8 @@
 // Unit tests of the Hono app with an in-memory D1 stub (no Worker runtime). Full behaviour against real D1 is
 // covered by the black-box suite in tests/api.
+import { dayFromPath, redirectKeepingQuery } from './routes/pages.ts';
 import { describe, expect, it, vi } from 'vitest';
-import { createApp, isFileLike, isSpaFallbackForFile } from './app.ts';
+import { assetOr404, createApp, isApi, isFileLike, isSpaFallbackForFile } from './app.ts';
 import { SQL } from './db/sql.ts';
 
 type Handler = (sql: string, args: unknown[]) => { first?: unknown; all?: unknown[]; changes?: number };
@@ -175,5 +176,67 @@ describe('SPA fallback vs. missing files', () => {
     const r = await app.request('http://localhost/api/nope', {}, { DB: db, ASSETS: { fetch: async () => html() } });
     expect(r.status).toBe(404);
     expect(await r.json()).toEqual({ error: 'not found' });
+  });
+});
+
+describe('/api without a trailing slash (#16)', () => {
+  it('isApi', () => {
+    expect(isApi('/api')).toBe(true);
+    expect(isApi('/api/days')).toBe(true);
+    expect(isApi('/apix')).toBe(false);
+    expect(isApi('/')).toBe(false);
+  });
+  it('GET /api -> JSON 404, POST /api -> 405 (never the SPA shell)', async () => {
+    const { db } = fakeDb();
+    const app = createApp();
+    const env = {
+      DB: db,
+      ASSETS: { fetch: async () => new Response('<!doctype html>', { headers: { 'Content-Type': 'text/html' } }) },
+    };
+    const r = await app.request('http://localhost/api', {}, env);
+    expect(r.status).toBe(404);
+    expect(await r.json()).toEqual({ error: 'not found' });
+    expect((await app.request('http://localhost/api', { method: 'POST' }, env)).status).toBe(405);
+  });
+});
+
+describe('page routes (old URLs, /day/<date>)', () => {
+  it('redirectKeepingQuery', () => {
+    const r = redirectKeepingQuery('http://x/trend?c=a&tab=daily', '/archive?tab=trend');
+    expect(r.status).toBe(301);
+    expect(r.headers.get('Location')).toBe('/archive?tab=trend&c=a');
+    expect(redirectKeepingQuery('http://x/fav', '/me').headers.get('Location')).toBe('/me');
+  });
+  it('dayFromPath', () => {
+    expect(dayFromPath('/day/2026-10-10')).toBe('2026-10-10');
+    expect(dayFromPath('/day/2026-10-10/')).toBe('2026-10-10');
+    expect(dayFromPath('/day/2026-13-45')).toBeNull();
+    expect(dayFromPath('/day/%ZZ')).toBeNull();
+    expect(dayFromPath('/day/a/b')).toBeNull();
+  });
+});
+
+describe('assetOr404 (/assets/*)', () => {
+  it('passes an existing file through with its cache header', () => {
+    const r = assetOr404(
+      new Response('x', {
+        headers: { 'Content-Type': 'text/javascript', 'Cache-Control': 'public, max-age=31536000, immutable' },
+      }),
+    );
+    expect(r.status).toBe(200);
+    expect(r.headers.get('Cache-Control')).toContain('immutable');
+    expect(r.headers.get('X-Frame-Options')).toBe('DENY');
+  });
+  it('SPA fallback HTML or a 404 -> 404 no-store', () => {
+    for (const res of [
+      new Response('<html>', {
+        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'max-age=31536000' },
+      }),
+      new Response(null, { status: 404 }),
+    ]) {
+      const r = assetOr404(res);
+      expect(r.status).toBe(404);
+      expect(r.headers.get('Cache-Control')).toBe('no-store');
+    }
   });
 });

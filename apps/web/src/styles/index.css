@@ -1,12 +1,93 @@
 /*
- * Styles entry.
- * - Tailwind CSS v4 theme + utilities are loaded; Preflight is intentionally NOT loaded yet so the legacy v5
- *   stylesheet renders exactly as before (the headless UI test pins computed colours/borders).
- * - Design tokens for the upcoming redesign live in ./theme.css (@theme). When the new design lands:
- *   add `@import "tailwindcss/preflight.css" layer(base);`, move components to utilities, delete legacy.css.
+ * Styles entry: Tailwind CSS v4 (with Preflight) + the visual spec v1 tokens (docs/design/tokens.css).
+ * Components use utility classes only; this file holds the type scale and a few base rules.
  */
-@layer theme, base, components, utilities;
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
-@import './theme.css';
-@import './legacy.css';
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* app-level additions to the spec tokens: translucent bars (§5) and the selected segment (§7).
+ * Text on grey fills uses the spec token text-on-fill; text-3 is never used for text (contrast < 4.5). */
+:root {
+  --ad-bar: rgb(245 245 247 / 0.8);
+  --ad-seg-on: #ffffff;
+}
+[data-theme='dark'] {
+  --ad-bar: rgb(0 0 0 / 0.8);
+  --ad-seg-on: #636366;
+}
+
+@theme inline {
+  --color-bar: var(--ad-bar);
+  --color-seg-on: var(--ad-seg-on);
+}
+
+/* type scale (visual spec §4) */
+@theme {
+  --text-large: 34px;
+  --text-large--line-height: 41px;
+  --text-large--letter-spacing: -0.8px;
+  --text-large--font-weight: 700;
+  --text-large-d: 40px;
+  --text-large-d--line-height: 48px;
+  --text-large-d--letter-spacing: -0.8px;
+  --text-large-d--font-weight: 700;
+  --text-title2: 20px;
+  --text-title2--line-height: 25px;
+  --text-title2--letter-spacing: -0.3px;
+  --text-title2--font-weight: 700;
+  --text-headline: 17px;
+  --text-headline--line-height: 23px;
+  --text-headline--letter-spacing: -0.2px;
+  --text-headline--font-weight: 600;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-subhead: 14px;
+  --text-subhead--line-height: 20px;
+  --text-footnote: 13px;
+  --text-footnote--line-height: 18px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-caption--font-weight: 600;
+}
+
+@layer base {
+  html {
+    background: var(--ad-bg);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--ad-bg);
+    color: var(--ad-text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 22px;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  mark {
+    background: var(--ad-brand-soft);
+    color: var(--ad-brand-text);
+    border-radius: 3px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ad-brand);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* hide scrollbars of horizontal scrollers (category segmented control) */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -72,3 +72,18 @@ export function generatedClock(generatedAt: string | null | undefined): string {
   const gen = (generatedAt || '').replace('T', ' ').slice(0, 16);
   return gen.slice(11) || gen;
 }
+
+const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+/** 2026-10-10 -> 星期六 ('' for a malformed date) */
+export function weekdayCN(d: string | null | undefined): string {
+  const t = Date.parse(String(d || '') + 'T00:00:00Z');
+  return Number.isNaN(t) ? '' : (WEEKDAYS[new Date(t).getUTCDay()] as string);
+}
+
+/** today's date in Beijing time (the daily report's timezone), YYYY-MM-DD */
+export const todayBJ = (now = Date.now()): string => new Date(now + 8 * 3600e3).toISOString().slice(0, 10);
+
+/** 2026-10-09 -> "10 月 9 日" (404 page copy) */
+export const dateSpacedCN = (d: string | null | undefined): string =>
+  String(d || '').replace(/^\d+-0?(\d+)-0?(\d+)$/, '$1 月 $2 日');

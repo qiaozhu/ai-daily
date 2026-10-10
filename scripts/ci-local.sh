@@ -2,8 +2,9 @@
 # Local CI — the single entry point that every bot MUST run (and pass) before every commit/push.
 # .github/workflows/ci.yml calls this same script, so local == CI by construction.
 #
-# Same as `pnpm ci` / `pnpm run ci`. Steps: pnpm install → lint (ESLint + Prettier) → typecheck (tsc) → unit tests (Vitest)
-# → check.sh (vite build, syntax, data, assets, wrangler dry-run) → daily.sh --dry-run → secret scan
+# Same as `pnpm ci` / `pnpm run ci`. Steps: pnpm install (or, when skipped, a frozen-lockfile check) → lint (ESLint + Prettier) → typecheck (tsc) → unit tests (Vitest)
+# → check.sh (vite build, syntax, data, assets, wrangler dry-run) → bundle budget (first-load JS gzip) → daily.sh --dry-run
+# → secret scan
 # → black-box unit/API tests (node:test, real Worker + local D1) → [--ui] headless UI test.
 #
 # Usage: bash scripts/ci-local.sh [--fast] [--ui [URL]] [--no-tests]
@@ -46,16 +47,29 @@ step() {  # step <name> <command...>   — runs command, records PASS/FAIL + dur
       RESULTS+=("| $name | ✅ PASS ($vt) | ${e}s |")
     elif grep -qE '^# (tests|pass) ' "$log"; then grep -E '^# (tests|pass|fail|skipped|todo) ' "$log" | tr '\n' ' ' | sed 's/^/  /'; echo
       RESULTS+=("| $name | ✅ PASS ($(grep -E '^# (pass|fail|todo) ' "$log" | sed 's/^# //' | tr '\n' ',' | sed 's/,$//; s/,/, /g')) | ${e}s |")
+    elif grep -qE '^OK ' "$log"; then local ok; ok=$(grep -E '^OK ' "$log" | tail -1 | sed 's/^OK //'); echo "  $ok"
+      RESULTS+=("| $name | ✅ PASS ($ok) | ${e}s |")
     else tail -n 3 "$log" | sed 's/^/  /'; RESULTS+=("| $name | ✅ PASS | ${e}s |"); fi
   else tail -n 40 "$log" | sed 's/^/  /'; RESULTS+=("| $name | ❌ FAIL (exit $rc) | ${e}s |"); FAILED=1; fi
 }
 skip() { echo; echo "▷ $1 — SKIPPED: $2"; RESULTS+=("| $1 | ⏭ skipped: $2 | – |"); }
 
 # 1. dependencies (CI: pnpm install --frozen-lockfile)
-deps_fresh() { [ -f node_modules/.pnpm/lock.yaml ] && [ ! pnpm-lock.yaml -nt node_modules/.pnpm/lock.yaml ]; }
+# node_modules counts as fresh only if neither the lockfile nor any package.json changed since the last install.
+deps_fresh() {
+  [ -f node_modules/.pnpm/lock.yaml ] || return 1
+  local f; for f in pnpm-lock.yaml package.json apps/*/package.json packages/*/package.json; do
+    [ -f "$f" ] && [ "$f" -nt node_modules/.pnpm/lock.yaml ] && return 1
+  done; return 0
+}
+# Even when the install is skipped, pnpm-lock.yaml must match every package.json exactly as deploy.sh/CI see it
+# (`pnpm install --frozen-lockfile` fails on a specifier mismatch). --lockfile-only --offline: no network, no writes.
+LOCK_CHECK="lockfile matches package.json (pnpm install --frozen-lockfile --lockfile-only --offline)"
 if deps_fresh; then skip "pnpm install" "node_modules is up to date"
+  step "$LOCK_CHECK" pnpm install --frozen-lockfile --lockfile-only --offline
 elif [ $FAST = 1 ]; then
   if [ -d node_modules ]; then skip "pnpm install" "--fast (node_modules may be stale; run without --fast)"; else step "pnpm install" false; echo "  node_modules missing: run bash scripts/ci-local.sh (without --fast)"; fi
+  step "$LOCK_CHECK" pnpm install --frozen-lockfile --lockfile-only --offline
 else step "pnpm install --frozen-lockfile" pnpm install --frozen-lockfile; fi
 
 # 2. lint + format check, 3. typecheck, 4. Vitest unit tests (TypeScript workspaces)
@@ -66,6 +80,8 @@ else step "unit tests (vitest)" pnpm exec vitest run; fi
 
 # 5. vite build + syntax + data validation + static assets + wrangler deploy --dry-run
 step "check.sh (vite build, syntax, data, assets, wrangler dry-run)" bash scripts/check.sh
+# 5b. first-load JS budget (#16): gzip of the scripts index.html loads up front, lazy chunks excluded
+step "bundle budget (first-load JS gzip ≤ 60 KB)" node scripts/check-bundle.mjs apps/web/dist
 
 # 6. daily.sh dry-run on the repo data snapshot
 LATEST=$(ls data/*.json 2>/dev/null | sort | tail -1 | xargs -r basename -s .json)
