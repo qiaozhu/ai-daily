@@ -1,0 +1,16 @@
+{
+  "name": "@ai-daily/share-card",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Share card renderer (F3). F2 ships the interface + a placeholder; satori rendering lands in F3.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}
