@@ -39,17 +39,31 @@
 - 从最新 `main` 拉分支；一个 PR 只解决一个 Issue；保持小而可回滚。
 - 提交信息：`<type>: <描述> (#<issue>)`，例如 `feat: 发帖人显示名入库 (#12)`。
 - `main` 受分支保护，只能经 PR 合并（squash merge）：
-  - 必须通过 PR 合并；必须通过 CI 状态检查 `check`（且分支需与 main 同步）；禁止 force-push、禁止删除 main。
+  - 必须通过 PR 合并；禁止 force-push、禁止删除 main。
+  - **CI 必需状态检查暂时移除**（2026-10-10）：账号因计费问题无法运行 GitHub Actions，必需检查会卡死所有 PR。在 Actions 恢复前，以**本地 CI**（§5.1）为准，测试 bot 是合并关卡。Actions 恢复后重新加回 `check`（命令见 runbook）。
   - 要求的批准数为 **0**：所有 bot 共用 GitHub 账号 `qiaozhu`，而 GitHub 不允许批准自己的 PR，要求批准会把所有 PR 卡死。因此“测试 bot 通过”以 PR 评论中的测试结论为准，**合并前仍需 qiao 明确同意**（关卡 3）。
   - 保护**不对管理员强制**（enforce_admins = false）：仓库所有者（qiao）可在紧急情况下直接修复 main。bot 即使用同一账号也**不得**利用这一点绕过 PR。
 
 ## 5. PR 规则
 1. 正文 `Closes #<issue>`，按 PR 模板勾选清单。
-2. CI（`.github/workflows/ci.yml`：语法、数据校验、wrangler 干跑打包、密钥扫描）必须通过。
+2. **本地 CI 必须通过**，并把结果粘贴到 PR 的 “Local CI result” 部分（见 §5.1）。GitHub Actions 恢复后，CI（`.github/workflows/ci.yml`，调用同一个脚本）也必须通过。
 3. 前端/API 改动必须附本地 `tests/ui-v2.js` 结果；UI 改动附 4 张截图（桌面/手机 × 浅/深）。
 4. 测试 bot Approve；开发 bot 不能自己批准自己的 PR。
 5. 合并前由 qiao 批准（关卡 3）。合并 ≠ 部署：部署需要明确的部署批准。
 6. 数据库变更必须是新的 migration 文件，并在 PR 中写明部署顺序和回滚方式。
+
+### 5.1 提交前必须跑本地 CI（qiao 的硬性规定，适用于所有 bot）
+**每次 commit 和 push 之前**都必须运行本地 CI，**只有通过才能提交/推送**：
+```bash
+bash scripts/ci-local.sh          # 标准（PR 前必跑；= npm run ci）
+bash scripts/ci-local.sh --ui     # 前端 / API 改动必须加 --ui（本地起 wrangler dev 跑无头 UI 测试）
+```
+- 它与 `.github/workflows/ci.yml` 完全一致（CI 直接调用这个脚本）：`npm ci`（依赖已是最新则跳过）→ `scripts/check.sh`（语法、数据校验、静态资源、`wrangler deploy --dry-run`）→ `daily.sh --dry-run`（仓库 `data/`）→ 密钥扫描（gitleaks 全历史 + 暂存区 + grep 扫未跟踪文件）→ 单元/API 测试（`tests/unit`、`tests/api`）→（`--ui`）无头 UI 测试。不需要也不会使用任何 Cloudflare 密钥。
+- 失败时退出码非 0；末尾打印可直接粘贴的结果块，同时保存在 `.ci-local/last-result.md`（各步骤日志在 `.ci-local/*.log`，已被 git 忽略）。
+- **把结果块原样粘贴到 PR 的 “Local CI result” 部分**；之后每次推送新提交都要重新运行并更新。
+- 每个克隆/工作树先执行一次 `bash scripts/install-hooks.sh`：`pre-commit` 与 `pre-push` 钩子会自动运行 `scripts/ci-local.sh --fast`，失败即阻止提交/推送。**bot 禁止使用 `--no-verify` 绕过。**
+- 共享工作机提示：本地 CI 检查的是整个工作区（包括其他 bot 未提交的文件）。请在自己独立的 worktree/克隆中工作（`git worktree add ../my-branch -b feat/<issue>-<slug> origin/main`），避免被他人的半成品影响或误提交。
+- **Actions 不可用期间（计费锁定），测试 bot 是合并关卡**：测试 bot 在自己的干净 worktree 中检出 PR 分支，重新运行 `bash scripts/ci-local.sh`（前端/API 改动加 `--ui`），把自己的结果贴到 PR 评论并给出“通过/不通过”结论；没有测试 bot 的通过结论不得合并（qiao 另行批准的配置类改动除外）。
 
 ## 6. 人工关卡（必须由 qiao 明确同意）
 | 关卡 | 什么时候 | 怎么表示同意 |
@@ -68,7 +82,7 @@
 - [ ] 文档、Issue、PR、截图、日志里没有粘贴密钥或带密钥的命令输出；脚本里只引用 `$CLOUDFLARE_API_TOKEN` 变量，从不 `echo` 它。
 - [ ] 没有个人邮箱/手机号等隐私信息；提交作者使用 noreply 邮箱（`25722049+qiaozhu@users.noreply.github.com`）。
 - [ ] Cloudflare 账号 ID 等账号标识不写进仓库（`env.sh` 运行时自动查询）。D1 `database_id` 与线上 URL 可以公开。
-- [ ] 推送前本地跑一次扫描：`gitleaks git --redact .`（或 `npm run check`，CI 中也有简单的密钥扫描）。
+- [ ] 推送前跑本地 CI `bash scripts/ci-local.sh`（含 gitleaks 全历史 + 暂存区扫描；gitleaks 已装在 `~/.local/bin`）。
 - [ ] 一次只 `git add` 自己改动的文件（共享工作机上可能有其他 bot 未提交的改动），提交前看 `git status` / `git diff --cached`。
 
 **如果密钥被提交了**：立即在对应平台**吊销/轮换**该密钥（这是唯一可靠的补救——公开仓库的历史可能已被抓取），然后通知 qiao；是否改写历史由 qiao 决定，bot 不得自行 force-push。

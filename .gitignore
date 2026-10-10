@@ -17,3 +17,6 @@ secrets/
 screenshots/
 *.log
 .DS_Store
+
+# local CI output
+.ci-local/

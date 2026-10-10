@@ -21,13 +21,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      # syntax + data validation + `wrangler deploy --dry-run` (local bundle only; no Cloudflare secrets needed)
-      - run: bash scripts/check.sh
-      - name: daily.sh dry-run against the repo data snapshot
-        run: |
-          DATA_DIR="$PWD/data" bash scripts/daily.sh --dry-run "$(ls data/*.json | tail -1 | xargs basename -s .json)"
-      - name: Secret scan (cheap grep; fails on token-looking strings)
-        run: |
-          if git grep -nIE '(CLOUDFLARE_API_TOKEN|api[_-]?token|secret)\s*[:=]\s*["'"'"']?[A-Za-z0-9_\-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY' -- . ':!package-lock.json'; then
-            echo "::error::possible secret committed"; exit 1; fi
+      # Same entry point bots run locally before every commit/push (see docs/workflow.md).
+      # It runs: npm ci (if needed) → scripts/check.sh (syntax, data, assets, wrangler deploy --dry-run)
+      # → daily.sh --dry-run on data/ → secret scan → unit/API tests. No Cloudflare secrets needed.
+      - run: bash scripts/ci-local.sh
+      - name: Local-CI summary
+        if: always()
+        run: cat .ci-local/last-result.md >> "$GITHUB_STEP_SUMMARY" || true

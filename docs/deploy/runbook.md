@@ -66,15 +66,15 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST $U/api/ingest     # 期望 405
 | 设置 | 值 |
 |---|---|
 | 合并前必须走 PR | 是（要求批准数 0：bot 共用账号，GitHub 不允许自批） |
-| 必须通过的状态检查 | `check`（CI 工作流的 job），strict（分支须与 main 同步） |
+| 必须通过的状态检查 | **暂时无**（2026-10-10 移除：Actions 因计费锁定无法运行）。以本地 CI `bash scripts/ci-local.sh` + 测试 bot 结论为合并关卡；Actions 恢复后重新要求 `check` |
 | 禁止 force-push / 删除 | 是 / 是 |
 | 对管理员强制 | **否**：仓库所有者可紧急直接修复 main；bot 不得借此绕过 PR |
 
-查看 / 重新应用：
+查看 / 重新应用（当前设置；Actions 恢复后把 `required_status_checks` 改为 `{"strict":true,"contexts":["check"]}`）：
 ```bash
 gh api repos/qiaozhu/ai-daily/branches/main/protection
 gh api -X PUT repos/qiaozhu/ai-daily/branches/main/protection --input - <<'JSON'
-{"required_status_checks":{"strict":true,"contexts":["check"]},"enforce_admins":false,
+{"required_status_checks":null,"enforce_admins":false,
  "required_pull_request_reviews":{"required_approving_review_count":0,"dismiss_stale_reviews":false},
  "restrictions":null,"allow_force_pushes":false,"allow_deletions":false}
 JSON
