@@ -206,19 +206,31 @@ describe('/day/<date> og tags', () => {
     assert.match(meta(r.text, 'og:url'), /\/day\/2026-09-04$/);
     assert.equal(meta(r.text, 'twitter:card'), 'summary_large_image');
   });
-  it('existing day/story pages: short HTML cache, no static ETag', async () => {
-    for (const p of ['/day/2026-09-04', '/story/2026-09-04-sora']) {
+  it('pages with og tags: browser revalidates (max-age=0 + ETag -> 304), edge s-maxage=300, never immutable', async () => {
+    const statik = (await get('/index.html')).headers.get('etag');
+    for (const p of ['/day/2026-09-04', '/story/2026-09-04-sora', '/', '/search', '/archive', '/me']) {
       const r = await get(p);
-      assert.equal(r.headers.get('cache-control'), 'public, max-age=300', p);
-      assert.equal(r.headers.get('etag'), null, p);
+      const cc = r.headers.get('cache-control');
+      assert.equal(cc, 'public, max-age=0, must-revalidate, s-maxage=300', p);
+      assert.doesNotMatch(cc, /immutable/);
+      const etag = r.headers.get('etag');
+      assert.match(etag || '', /^W\/"[0-9a-f]{16}"$/, p);
+      assert.notEqual(etag, statik, `${p}: not the static file's ETag`);
+      const again = await get(p, { headers: { 'If-None-Match': etag } });
+      assert.equal(again.status, 304, p);
+      assert.equal(again.text, '');
     }
   });
-  it('conditional request does not get a 304 for the static file', async () => {
-    const first = await get('/index.html');
-    const etag = first.headers.get('etag');
+  it("the static file's ETag does not give a 304 (the body is rewritten)", async () => {
+    const etag = (await get('/index.html')).headers.get('etag');
     const r = await get('/day/2026-09-04', { headers: etag ? { 'If-None-Match': etag } : {} });
     assert.equal(r.status, 200);
     assert.match(r.text, /og:image/);
+  });
+  it('different pages have different ETags', async () => {
+    const a = (await get('/day/2026-09-04')).headers.get('etag');
+    const b = (await get('/story/2026-09-04-sora')).headers.get('etag');
+    assert.notEqual(a, b);
   });
 });
 
@@ -231,7 +243,7 @@ describe('og tags on the other pages (PRD #26)', () => {
     assert.match(meta(r.text, 'og:image'), /^https?:\/\/[^/]+\/og\/day\/2026-10-10\.png$/);
     assert.match(meta(r.text, 'og:url'), /^https?:\/\/[^/]+\/$/);
     assert.equal(meta(r.text, 'twitter:card'), 'summary_large_image');
-    assert.equal(r.headers.get('cache-control'), 'public, max-age=300');
+    assert.equal(r.headers.get('cache-control'), 'public, max-age=0, must-revalidate, s-maxage=300');
     assert.equal((r.text.match(/property="og:image"/g) || []).length, 1);
   });
   it('`/?d=<bad>` is still a 200 shell (the front end replaces it with /day/<value>)', async () => {
@@ -249,7 +261,7 @@ describe('og tags on the other pages (PRD #26)', () => {
       assert.match(meta(r.text, 'og:image'), /^https?:\/\/[^/]+\/og\/default-og\.png$/);
       assert.match(meta(r.text, 'og:url'), new RegExp(p.replace('/', '\\/') + '$'));
       assert.equal(meta(r.text, 'twitter:card'), 'summary_large_image');
-      assert.equal(r.headers.get('cache-control'), 'public, max-age=300');
+      assert.equal(r.headers.get('cache-control'), 'public, max-age=0, must-revalidate, s-maxage=300');
       const img = await raw(new URL(meta(r.text, 'og:image')).pathname);
       assert.equal(img.status, 200);
       assert.equal(img.headers.get('content-type'), 'image/png');

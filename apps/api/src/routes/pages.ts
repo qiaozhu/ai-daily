@@ -51,8 +51,18 @@ interface Ctx {
   env: AppEnv['Bindings'];
 }
 
-/** Cache-Control of HTML pages with og tags: short, so crawlers see the new day's card soon after 08:50 */
-export const HTML_CACHE = 'public, max-age=300';
+/**
+ * Cache-Control of HTML pages with og tags (docs/adr/0003): browsers always revalidate (max-age=0 + ETag -> 304),
+ * so after a deploy they never run an old shell that points at deleted hashed /assets; shared caches may keep it
+ * 5 minutes (s-maxage=300), so crawlers see the new day's card at most ~5 minutes after 08:50.
+ */
+export const HTML_CACHE = 'public, max-age=0, must-revalidate, s-maxage=300';
+
+/** weak ETag from the final HTML (sha-256, first 16 hex chars) */
+async function etagOf(body: string): Promise<string> {
+  const d = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body)));
+  return `W/"${[...d.slice(0, 8)].map((b) => b.toString(16).padStart(2, '0')).join('')}"`;
+}
 
 /** the SPA shell (index.html) with the given status and the security headers; og tags only on 200 */
 async function shell(c: Ctx, status: 200 | 404, og?: OgMeta): Promise<Response> {
@@ -60,11 +70,20 @@ async function shell(c: Ctx, status: 200 | 404, og?: OgMeta): Promise<Response> 
   const res = await c.env.ASSETS.fetch(new Request(new URL('/', c.req.raw.url)));
   const h = new Headers(res.headers);
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) h.set(k, v);
-  if (status === 404 || og) h.set('Cache-Control', status === 404 ? 'no-store' : HTML_CACHE);
-  if (og) h.delete('ETag'); // the body differs from the static index.html
-  const out = new Response(res.body, { status: res.ok ? status : res.status, headers: h });
-  if (!res.ok) return out;
-  return status === 200 && og ? injectOg(out, og) : stripOg(out);
+  h.delete('ETag');
+  if (!res.ok) return new Response(res.body, { status: res.status, headers: h });
+  if (status === 404 || !og) {
+    h.set('Cache-Control', 'no-store');
+    return stripOg(new Response(res.body, { status, headers: h }));
+  }
+  const html = await injectOg(new Response(res.body, { status, headers: h }), og).text();
+  const etag = await etagOf(html);
+  h.set('ETag', etag);
+  h.set('Cache-Control', HTML_CACHE);
+  h.delete('Content-Length');
+  const inm = c.req.raw.headers.get('If-None-Match');
+  if (inm && inm.split(',').some((t) => t.trim() === etag)) return new Response(null, { status: 304, headers: h });
+  return new Response(c.req.raw.method === 'HEAD' ? null : html, { status, headers: h });
 }
 
 export function dayOg(origin: string, d: Pick<DayRow, 'date' | 'highlights_json'>): OgMeta {
