@@ -2,11 +2,11 @@
 // Pre-render share cards for one day and upload them to Workers KV (binding CARDS).
 // Runs in Node (no Worker CPU limit). Called after daily.sh by the daily pipeline; daily.sh itself is untouched.
 //
-// Usage: node scripts/prerender-cards.mjs <YYYY-MM-DD> [--env preview] [--dry-run] [--out <dir>]
-//   --env preview  upload to the preview KV namespace instead of production
+// Usage: node scripts/prerender-cards.mjs <YYYY-MM-DD> --env production|preview [--dry-run] [--out <dir>]
+//   --env          REQUIRED: which KV namespace to write (production | preview). Unknown flags are rejected.
 //   --dry-run      render only, write PNGs to --out (default .cards/<date>/), no Cloudflare calls
 // Exit code is non-zero on any failure. It is independent of daily.sh: the pipeline should run it AFTER daily.sh
-// and only log a failure (e.g. `node scripts/prerender-cards.mjs "$DATE" || echo "prerender failed" >&2`),
+// and only log a failure (e.g. `node scripts/prerender-cards.mjs "$DATE" --env production || echo "prerender failed" >&2`),
 // so a card problem never blocks or rolls back the day's data. Placeholder cards are refused for production.
 // Env: DATA_DIR (day JSON dir, from scripts/env.sh), CLOUDFLARE_API_TOKEN (not needed for --dry-run).
 //
@@ -17,6 +17,7 @@ import { join, dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { deflateSync, crc32 } from 'node:zlib';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { parseArgs } from 'node:util';
 
 export const SIZES = { og: [1200, 630], save: [1080, 1440] };
 export const CARD_TTL_DAYS = 180;
@@ -74,13 +75,40 @@ async function withRetry(label, fn, attempts = 3) {
   }
 }
 
+const USAGE = '用法: node scripts/prerender-cards.mjs <YYYY-MM-DD> --env production|preview [--dry-run] [--out <dir>] [--allow-placeholder]';
+
+// Strict CLI parsing: unknown flags, a missing/invalid --env, or a malformed date are errors (never default to production).
+export function parseCli(argv) {
+  let parsed;
+  try {
+    parsed = parseArgs({
+      args: argv,
+      allowPositionals: true,
+      strict: true,
+      options: {
+        env: { type: 'string' },
+        'dry-run': { type: 'boolean', default: false },
+        out: { type: 'string' },
+        'allow-placeholder': { type: 'boolean', default: false },
+      },
+    });
+  } catch (e) {
+    throw new Error(`${e.message}\n${USAGE}`);
+  }
+  const { values, positionals } = parsed;
+  if (positionals.length !== 1 || !/^\d{4}-\d{2}-\d{2}$/.test(positionals[0])) throw new Error(`需要且只能有一个日期参数 YYYY-MM-DD\n${USAGE}`);
+  if (values.env !== 'production' && values.env !== 'preview') throw new Error(`--env 必须是 production 或 preview\n${USAGE}`);
+  return {
+    date: positionals[0],
+    env: values.env,
+    dry: values['dry-run'],
+    out: values.out ? resolve(values.out) : join(REPO, '.cards', positionals[0]),
+    allowPlaceholder: values['allow-placeholder'],
+  };
+}
+
 async function main(argv) {
-  const date = argv.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a));
-  if (!date) { console.error('用法: node scripts/prerender-cards.mjs <YYYY-MM-DD> [--env preview] [--dry-run] [--out <dir>]'); process.exit(2); }
-  const env = argv.includes('--env') ? argv[argv.indexOf('--env') + 1] : null;
-  if (env && env !== 'preview') { console.error('--env 只支持 preview'); process.exit(2); }
-  const dry = argv.includes('--dry-run');
-  const out = argv.includes('--out') ? resolve(argv[argv.indexOf('--out') + 1]) : join(REPO, '.cards', date);
+  const { date, env, dry, out, allowPlaceholder } = parseCli(argv);
   const dataDir = process.env.DATA_DIR || join(REPO, 'data');
   const file = join(dataDir, `${date}.json`);
   if (!existsSync(file)) { console.error(`找不到 ${file}`); process.exit(1); }
@@ -102,7 +130,7 @@ async function main(argv) {
   }
   console.log(`渲染完成：${(bytes / 1024).toFixed(1)} KB，本地副本在 ${out}`);
   if (dry) { console.log('[dry-run] 未连接 Cloudflare'); return; }
-  if (renderer.name === 'placeholder' && !env && !argv.includes('--allow-placeholder')) {
+  if (renderer.name === 'placeholder' && env === 'production' && !allowPlaceholder) {
     console.error('packages/share-card 还没上线，拒绝把占位图写进生产 KV（预览可用 --env preview，确需写入加 --allow-placeholder）');
     process.exit(1);
   }
@@ -110,13 +138,13 @@ async function main(argv) {
 
   const bulk = join(out, 'kv-bulk.json');
   writeFileSync(bulk, JSON.stringify(entries));
-  const args = ['wrangler', 'kv', 'bulk', 'put', bulk, '--binding', 'CARDS', '--remote', '-c', CFG, ...(env ? ['--env', env] : [])];
+  const args = ['wrangler', 'kv', 'bulk', 'put', bulk, '--binding', 'CARDS', '--remote', '-c', CFG, ...(env === 'preview' ? ['--env', 'preview'] : [])];
   try {
     await withRetry('写入 KV', async () => execFileSync('npx', args, { cwd: REPO, stdio: ['ignore', 'pipe', 'pipe'] }));
   } finally { rmSync(bulk, { force: true }); }
-  console.log(`OK 已写入 ${env ? '预览' : '生产'} KV：${entries.length} 个 key（${CARD_TTL_DAYS} 天后过期）`);
+  console.log(`OK 已写入 ${env === 'preview' ? '预览' : '生产'} KV：${entries.length} 个 key（${CARD_TTL_DAYS} 天后过期）`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2)).catch((e) => { console.error(e.message); process.exit(1); });
+  main(process.argv.slice(2)).catch((e) => { console.error(e.message); process.exit(e.message.includes('用法') ? 2 : 1); });
 }

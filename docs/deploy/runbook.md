@@ -33,12 +33,13 @@ node tests/ui-v2.js https://ai-daily-preview.qiao-ai-daily.workers.dev /tmp/prev
 ## 分享卡预生成（每天数据更新之后）
 ```bash
 source scripts/env.sh
-node scripts/prerender-cards.mjs YYYY-MM-DD               # 渲染当天日报卡 + 每条话题卡（og 1200×630 / save 1080×1440）→ 写入生产 KV（binding CARDS）
-node scripts/prerender-cards.mjs YYYY-MM-DD --env preview # 写入预览 KV
-node scripts/prerender-cards.mjs YYYY-MM-DD --dry-run     # 只渲染到 .cards/YYYY-MM-DD/，不连 Cloudflare
+node scripts/prerender-cards.mjs YYYY-MM-DD --env production # 渲染当天日报卡 + 每条话题卡（og 1200×630 / save 1080×1440）→ 写入生产 KV（binding CARDS）
+node scripts/prerender-cards.mjs YYYY-MM-DD --env preview    # 写入预览 KV
+node scripts/prerender-cards.mjs YYYY-MM-DD --env preview --dry-run # 只渲染到 .cards/YYYY-MM-DD/，不连 Cloudflare
 ```
-- **失败不影响日报**：脚本和 `daily.sh` 完全独立，只读 JSON、只写 KV。每日流程里放在 `daily.sh` 之后，失败只记日志：`node scripts/prerender-cards.mjs "$DATE" || echo "prerender failed" >&2`。失败后随时可以单独重跑。
+- **失败不影响日报**：脚本和 `daily.sh` 完全独立，只读 JSON、只写 KV。每日流程里放在 `daily.sh` 之后，失败只记日志：`node scripts/prerender-cards.mjs "$DATE" --env production || echo "prerender failed" >&2`。失败后随时可以单独重跑。
 - `packages/share-card` 上线前，脚本拒绝把占位图写进生产 KV（预览不受限）。
+- `--env production|preview` 必填，不认识的参数、缺值、日期格式错误一律报错退出（退出码 2），不会默认写生产。
 - 读取 `$DATA_DIR/YYYY-MM-DD.json`（和 `daily.sh` 导入的是同一个文件），`daily.sh` 本身不动；由协调 bot 接在每日更新之后执行。
 - KV 命名空间：生产 `ai-daily-cards`，预览 `ai-daily-cards-preview`。key 形如 `card/day/<date>/og.png`、`card/story/<story id>/save.png`。
 - 卡片 180 天后自动过期（只删卡片，不删任何日报数据）；需要时重跑脚本即可重新生成。重复执行是幂等的（同名 key 覆盖）。

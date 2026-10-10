@@ -23,3 +23,27 @@ test('placeholderPng is a PNG with the requested size', () => {
   assert.equal(png.readUInt32BE(16), 1200);
   assert.equal(png.readUInt32BE(20), 630);
 });
+
+import { parseCli } from '../../scripts/prerender-cards.mjs';
+
+test('parseCli: --env is required and must be production|preview', () => {
+  assert.throws(() => parseCli(['2026-10-10']), /--env/);
+  assert.throws(() => parseCli(['2026-10-10', '--env']), /argument missing|--env/);
+  assert.throws(() => parseCli(['2026-10-10', '--env', 'prod']), /--env/);
+  assert.throws(() => parseCli(['2026-10-10', '--env', '--dry-run']), /./);
+});
+
+test('parseCli: unknown flags and bad dates are rejected', () => {
+  assert.throws(() => parseCli(['2026-10-10', '--env', 'preview', '--envv', 'x']), /Unknown option|用法/);
+  assert.throws(() => parseCli(['2026-10-10', '--env', 'preview', '--dryrun']), /Unknown option|用法/);
+  assert.throws(() => parseCli(['10-10', '--env', 'preview']), /日期/);
+  assert.throws(() => parseCli(['2026-10-10', '2026-10-11', '--env', 'preview']), /日期/);
+});
+
+test('parseCli: valid forms, including --env=preview', () => {
+  assert.equal(parseCli(['2026-10-10', '--env=preview']).env, 'preview');
+  assert.equal(parseCli(['--env', 'production', '2026-10-10']).env, 'production');
+  const c = parseCli(['2026-10-10', '--env', 'preview', '--dry-run']);
+  assert.equal(c.dry, true);
+  assert.equal(c.date, '2026-10-10');
+});
