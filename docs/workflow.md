@@ -38,11 +38,13 @@
 - 分支：`feat/<issue号>-<slug>`、`fix/<issue号>-<slug>`、`chore/<issue号>-<slug>`（例：`feat/12-display-names`）。
 - 从最新 `main` 拉分支；一个 PR 只解决一个 Issue；保持小而可回滚。
 - 提交信息：`<type>: <描述> (#<issue>)`，例如 `feat: 发帖人显示名入库 (#12)`。
-- `main` 受保护：不直接 push，只能经 PR 合并（squash merge）。
+- `main` 只经 PR 合并（squash merge），不直接 push。
+  > ⚠️ 现状（2026-10-10）：私有仓库在 GitHub Free 计划下**无法启用分支保护/规则集**（API 返回“Upgrade to GitHub Pro or make this repository public”），因此这条规则目前靠流程约束：bot 不得直接 push 到 main、不得自行合并。升级 Pro 后执行 `docs/deploy/runbook.md` 中的“启用分支保护”。
 
 ## 5. PR 规则
 1. 正文 `Closes #<issue>`，按 PR 模板勾选清单。
 2. CI（`.github/workflows/ci.yml`：语法、数据校验、wrangler 干跑打包、密钥扫描）必须通过。
+   > ⚠️ 现状：该账号的私有仓库 GitHub Actions 运行均为 `startup_failure`（连最小的 echo 工作流也一样，判断为账号/计费层面原因，需负责人在 GitHub Settings → Billing / Actions 处理）。在恢复前，测试 bot 必须在本地运行 `npm run check`（与 CI 相同的检查）并把结果贴到 PR。
 3. 前端/API 改动必须附本地 `tests/ui-v2.js` 结果；UI 改动附 4 张截图（桌面/手机 × 浅/深）。
 4. 测试 bot Approve；开发 bot 不能自己批准自己的 PR。
 5. 合并前由 qiao 批准（关卡 3）。合并 ≠ 部署：部署需要明确的部署批准。

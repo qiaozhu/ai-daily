@@ -57,3 +57,13 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST $U/api/ingest     # 期望 405
 | 线上 TLS 握手失败 | 新子域证书签发中，等 1–10 分钟 |
 | 页面“加载失败” | 看 `/api/health`；`npx wrangler tail` 查看 Worker 日志 |
 | 收藏 429 | 每 IP 每分钟 30 次写入限制 |
+
+## 启用分支保护（需要 GitHub Pro，或仓库公开）
+```bash
+gh api -X PUT repos/qiaozhu/ai-daily/branches/main/protection --input - <<'JSON'
+{"required_status_checks":{"strict":true,"contexts":["check"]},"enforce_admins":false,
+ "required_pull_request_reviews":{"required_approving_review_count":1,"dismiss_stale_reviews":true},
+ "restrictions":null,"allow_force_pushes":false,"allow_deletions":false}
+JSON
+```
+（`check` 是 CI 工作流中的 job 名。注意：如果所有 bot 都用同一个 GitHub 账号，"需要 1 个批准" 无法由作者本人满足，需要负责人或另一个账号批准。）

@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-08",
+  "generated_at": "2026-10-08T10:00:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "测试夹具 fixture",
+  "highlights": ["更早的一天"],
+  "stories": [
+    {
+      "id": "2026-10-08-old-openai",
+      "headline_zh": "更早一天的 OpenAI 新闻",
+      "summary_zh": "用于验证跨日趋势与日期范围过滤。",
+      "why_it_matters": "跨日话题",
+      "org_tag": "OpenAI",
+      "categories": ["大模型"],
+      "topics": ["OpenAI"],
+      "heat": 40,
+      "source_posts": [
+        { "handle": "OpenAI", "post_id": "3333333333", "url": "https://x.com/OpenAI/status/3333333333",
+          "text": "old news", "lang": "en", "translation_zh": "旧闻", "likes": 5, "reposts": 1, "replies": 0, "views": 50 }
+      ],
+      "news_refs": [],
+      "data_quality": null
+    }
+  ],
+  "data_quality_notes": []
+}

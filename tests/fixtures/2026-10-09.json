@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-09",
+  "generated_at": "2026-10-09T10:00:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "测试夹具 fixture — O'Reilly \"quoted\" source",
+  "highlights": ["要点 1 含单引号 ' 和双引号 \"", "要点 2 🚀 emoji"],
+  "stories": [
+    {
+      "id": "2026-10-09-quotes-unicode",
+      "headline_zh": "O'Reilly 发布「测试」报告 🚀 50% 增长",
+      "summary_zh": "摘要含 'single' \"double\" 反斜杠 \\ 换行\n第二行；还有 under_score 与 100% 字样。",
+      "why_it_matters": "'); DROP TABLE favorites; --",
+      "org_tag": "Zeta'Org",
+      "categories": ["安全", "政策", "政策"],
+      "topics": ["OpenAI", "Fixture话题"],
+      "heat": 12.6,
+      "source_posts": [
+        { "handle": "fixture_user", "post_id": "1111111111", "url": "https://x.com/fixture_user/status/1111111111",
+          "text": "Original text with UNIQUEWORDALPHA and it's quoted", "lang": "en",
+          "translation_zh": "译文含 独特词贝塔", "likes": 10, "reposts": 2, "replies": 1, "views": 1000 },
+        { "handle": "second_user", "post_id": "2222222222", "url": "https://x.com/second_user/status/2222222222",
+          "text": "second post", "lang": "en", "translation_zh": null, "likes": 0, "reposts": 0, "replies": 0, "views": 0 }
+      ],
+      "news_refs": ["https://x.com/i/trending/123"],
+      "data_quality": "夹具数据"
+    },
+    {
+      "id": "2026-10-09-minimal",
+      "headline_zh": "最小故事 MinimalStory",
+      "summary_zh": "只有必填字段",
+      "categories": [],
+      "data_quality": null
+    }
+  ],
+  "data_quality_notes": ["夹具：用于 API 测试"]
+}
