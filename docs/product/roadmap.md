@@ -2,6 +2,8 @@
 
 > 想法池，未排期。要做的条目请开 Issue（type:feature，status:needs-prd），由产品 bot 写 PRD，负责人签字后进入设计/开发。
 
+> v6 已排期的功能（首页改版、话题详情页、分享图、关注、周报）见 [`PRD-v6.md`](PRD-v6.md)，下面是剩余的想法池。
+
 ## 候选
 - **显示名入库**：发帖人显示名目前写死在 `public/app.js` 的 `NAMES` 表，新账号只显示 @handle。方案：posts 表加 `name` 列（迁移 0002）+ json2sql 写入 + API 返回，前端优先用 API 字段。
 - **定时任务自动化**：每日采集 → 写 JSON → `daily.sh` → 通知 qiao，目前由 bot 手动执行；做成可靠的定时流程（失败告警、缺日提醒）。
