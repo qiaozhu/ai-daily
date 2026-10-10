@@ -99,3 +99,7 @@
 ## 8. 分享图
 - 只做浅色一版（PRD 已定），竖版 1080×1440，用纯色和 flex 布局，不用阴影和滤镜，方便 satori 渲染。
 - 左上角放组合标志，底部放网址，配色和字体严格按本规范来。具体版式在高保真稿里给出。
+
+## 9. 主题切换的实现约定
+- 主题由 `<html data-theme="light|dark">` 决定。首次打开时按系统偏好（`prefers-color-scheme`）写入，用户在"我的"里手动切换后记在本机，以后以手动选择为准。
+- `tokens.css` 已经把 Tailwind 的 `dark:` 变体绑定到 `data-theme="dark"`，颜色类和 `shadow-card` 都引用 CSS 变量，切换时不需要重新编译。已用 Tailwind 4 CLI 实际编译验证过。
