@@ -58,12 +58,29 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST $U/api/ingest     # 期望 405
 | 页面“加载失败” | 看 `/api/health`；`npx wrangler tail` 查看 Worker 日志 |
 | 收藏 429 | 每 IP 每分钟 30 次写入限制 |
 
-## 启用分支保护（需要 GitHub Pro，或仓库公开）
+## 仓库状态与分支保护
+- 仓库：https://github.com/qiaozhu/ai-daily —— **公开**（2026-10-10 起）。任何人可见代码、文档与 CI 日志，**绝不提交密钥**（清单见 `docs/workflow.md` §7）。
+- 部署所需的 `CLOUDFLARE_API_TOKEN` 不放进仓库，也暂不放进 GitHub Actions secrets（CI 不做部署）。如以后开启自动部署，只能用 Actions secrets，并限定在 `main` 的受保护环境中。
+- `main` 分支保护（当前设置）：
+
+| 设置 | 值 |
+|---|---|
+| 合并前必须走 PR | 是（要求批准数 0：bot 共用账号，GitHub 不允许自批） |
+| 必须通过的状态检查 | `check`（CI 工作流的 job），strict（分支须与 main 同步） |
+| 禁止 force-push / 删除 | 是 / 是 |
+| 对管理员强制 | **否**：仓库所有者可紧急直接修复 main；bot 不得借此绕过 PR |
+
+查看 / 重新应用：
 ```bash
+gh api repos/qiaozhu/ai-daily/branches/main/protection
 gh api -X PUT repos/qiaozhu/ai-daily/branches/main/protection --input - <<'JSON'
 {"required_status_checks":{"strict":true,"contexts":["check"]},"enforce_admins":false,
- "required_pull_request_reviews":{"required_approving_review_count":1,"dismiss_stale_reviews":true},
+ "required_pull_request_reviews":{"required_approving_review_count":0,"dismiss_stale_reviews":false},
  "restrictions":null,"allow_force_pushes":false,"allow_deletions":false}
 JSON
 ```
-（`check` 是 CI 工作流中的 job 名。注意：如果所有 bot 都用同一个 GitHub 账号，"需要 1 个批准" 无法由作者本人满足，需要负责人或另一个账号批准。）
+
+## 密钥泄露应急
+1. 立即在 Cloudflare / GitHub 等平台吊销并重新生成该密钥（公开仓库的历史可能已被抓取，删提交不够）。
+2. 更新运行环境中的环境变量，验证 `scripts/daily.sh --dry-run` 与线上 `/api/health`。
+3. 通知 qiao；是否改写 Git 历史由 qiao 决定（需要临时解除保护并 force-push，bot 不得自行操作）。

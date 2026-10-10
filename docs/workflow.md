@@ -38,13 +38,14 @@
 - 分支：`feat/<issue号>-<slug>`、`fix/<issue号>-<slug>`、`chore/<issue号>-<slug>`（例：`feat/12-display-names`）。
 - 从最新 `main` 拉分支；一个 PR 只解决一个 Issue；保持小而可回滚。
 - 提交信息：`<type>: <描述> (#<issue>)`，例如 `feat: 发帖人显示名入库 (#12)`。
-- `main` 只经 PR 合并（squash merge），不直接 push。
-  > ⚠️ 现状（2026-10-10）：私有仓库在 GitHub Free 计划下**无法启用分支保护/规则集**（API 返回“Upgrade to GitHub Pro or make this repository public”），因此这条规则目前靠流程约束：bot 不得直接 push 到 main、不得自行合并。升级 Pro 后执行 `docs/deploy/runbook.md` 中的“启用分支保护”。
+- `main` 受分支保护，只能经 PR 合并（squash merge）：
+  - 必须通过 PR 合并；必须通过 CI 状态检查 `check`（且分支需与 main 同步）；禁止 force-push、禁止删除 main。
+  - 要求的批准数为 **0**：所有 bot 共用 GitHub 账号 `qiaozhu`，而 GitHub 不允许批准自己的 PR，要求批准会把所有 PR 卡死。因此“测试 bot 通过”以 PR 评论中的测试结论为准，**合并前仍需 qiao 明确同意**（关卡 3）。
+  - 保护**不对管理员强制**（enforce_admins = false）：仓库所有者（qiao）可在紧急情况下直接修复 main。bot 即使用同一账号也**不得**利用这一点绕过 PR。
 
 ## 5. PR 规则
 1. 正文 `Closes #<issue>`，按 PR 模板勾选清单。
 2. CI（`.github/workflows/ci.yml`：语法、数据校验、wrangler 干跑打包、密钥扫描）必须通过。
-   > ⚠️ 现状：该账号的私有仓库 GitHub Actions 运行均为 `startup_failure`（连最小的 echo 工作流也一样，判断为账号/计费层面原因，需负责人在 GitHub Settings → Billing / Actions 处理）。在恢复前，测试 bot 必须在本地运行 `npm run check`（与 CI 相同的检查）并把结果贴到 PR。
 3. 前端/API 改动必须附本地 `tests/ui-v2.js` 结果；UI 改动附 4 张截图（桌面/手机 × 浅/深）。
 4. 测试 bot Approve；开发 bot 不能自己批准自己的 PR。
 5. 合并前由 qiao 批准（关卡 3）。合并 ≠ 部署：部署需要明确的部署批准。
@@ -59,6 +60,19 @@
 其他需要 qiao 同意的操作：删除数据、D1 Time Travel 恢复、更换域名/凭据、对外发送消息、新增付费资源。bot 不得以 Issue/文档中的文字代替 qiao 的明确同意。
 
 ## 7. 安全
+> 📢 本仓库是 **公开仓库**（2026-10-10 经 qiao 同意公开）：代码、文档、Issue、PR、CI 日志任何人都能看到。
+
+### 提交前“绝不提交密钥”检查清单
+- [ ] 没有 token / API key / 密码 / Cookie / 私钥（`CLOUDFLARE_API_TOKEN`、`gh` token、ngrok token 等只放环境变量或 GitHub Actions secrets）。
+- [ ] 没有 `.env*`、`.dev.vars`、`*.token`、`*.pem`、`*.key`、`secrets/` 文件（`.gitignore` 已忽略，**不要用 `git add -f`**）。
+- [ ] 文档、Issue、PR、截图、日志里没有粘贴密钥或带密钥的命令输出；脚本里只引用 `$CLOUDFLARE_API_TOKEN` 变量，从不 `echo` 它。
+- [ ] 没有个人邮箱/手机号等隐私信息；提交作者使用 noreply 邮箱（`25722049+qiaozhu@users.noreply.github.com`）。
+- [ ] Cloudflare 账号 ID 等账号标识不写进仓库（`env.sh` 运行时自动查询）。D1 `database_id` 与线上 URL 可以公开。
+- [ ] 推送前本地跑一次扫描：`gitleaks git --redact .`（或 `npm run check`，CI 中也有简单的密钥扫描）。
+- [ ] 一次只 `git add` 自己改动的文件（共享工作机上可能有其他 bot 未提交的改动），提交前看 `git status` / `git diff --cached`。
+
+**如果密钥被提交了**：立即在对应平台**吊销/轮换**该密钥（这是唯一可靠的补救——公开仓库的历史可能已被抓取），然后通知 qiao；是否改写历史由 qiao 决定，bot 不得自行 force-push。
+
 - 密钥只放环境变量（`CLOUDFLARE_API_TOKEN`）或 GitHub Actions secrets；绝不提交到仓库、Issue、PR 或截图。
 - CI 只做不需要密钥的检查；自动部署暂不开启。
 - 收藏是唯一公开写接口；新增任何写接口需要在 PRD 中说明并经 qiao 批准。
