@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;box-sizing:border-box}body{font-family:Inter,"Noto Sans CJK SC",sans-serif;background:#F5F5F7;color:#1D1D1F;-webkit-font-smoothing:antialiased}
+.w{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+</style></head><body><div id="r"></div><script>
+const p=new URLSearchParams(location.search).get('s');const v=p==='portrait';
+const W=v?1080:1200,H=v?1440:630,L=v?200:150;
+r.innerHTML=`<div class="w" style="width:${W}px;height:${H}px"><img src="assets/brand/logo-icon.svg" style="width:${L}px;height:${L}px"><div style="font-size:${v?96:76}px;font-weight:700;letter-spacing:-2px;margin-top:${v?56:36}px">AI 热点日报</div><div style="font-size:${v?40:32}px;color:#6E6E73;margin-top:${v?20:14}px;font-weight:500">每天五分钟，看懂 AI 圈</div><div style="font-size:${v?30:24}px;color:#6E6E73;margin-top:${v?120:44}px">ai-daily.qiao-ai-daily.workers.dev</div></div>`;
+</script></body></html>
