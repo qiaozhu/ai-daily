@@ -7,9 +7,13 @@ set -euo pipefail
 if [ "${1:-}" = "--dry-run" ]; then export DRY_RUN=1; shift; fi
 # shellcheck source=scripts/env.sh
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+# monorepo: the Worker config lives in apps/api; the frontend (apps/web) must be built before deploy (static assets)
+CFG=apps/api/wrangler.jsonc
+build_web() { pnpm install --frozen-lockfile >/dev/null && pnpm --filter @ai-daily/web build; }
 if [ "${DRY_RUN:-0}" = 1 ]; then
   node scripts/json2sql.js --all "$DATA_DIR"
-  npx wrangler deploy --dry-run --outdir .wrangler/dry-run
+  build_web
+  npx wrangler deploy -c "$CFG" --dry-run --outdir .wrangler/dry-run
   echo "[dry-run] OK：未连接 Cloudflare"; exit 0
 fi
 : "${CLOUDFLARE_API_TOKEN:?需要 CLOUDFLARE_API_TOKEN}"; : "${CLOUDFLARE_ACCOUNT_ID:?无法获取 CLOUDFLARE_ACCOUNT_ID}"
@@ -30,10 +34,10 @@ if [ -z "$DBID" ]; then
 fi
 [ -n "$DBID" ] || { echo "无法获取 D1 database_id"; exit 1; }
 echo "database_id=$DBID"
-node -e "const fs=require('fs');const p='wrangler.jsonc';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace(/\"database_id\": \"[^\"]*\"/,'\"database_id\": \"$DBID\"'))"
-echo "== 3. 迁移"; $W d1 migrations apply ai-daily --remote
-echo "== 4. 导入全部历史数据"; node scripts/json2sql.js --all "$DATA_DIR"; $W d1 execute ai-daily --remote --file=sql/all.sql --yes
-echo "== 5. 部署 Worker"; $W deploy | tee /tmp/cf-deploy.log
+node -e "const fs=require('fs');const p='$CFG';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace(/\"database_id\": \"[^\"]*\"/,'\"database_id\": \"$DBID\"'))"
+echo "== 3. 迁移"; $W d1 migrations apply ai-daily --remote -c "$CFG"
+echo "== 4. 导入全部历史数据"; node scripts/json2sql.js --all "$DATA_DIR"; $W d1 execute ai-daily --remote -c "$CFG" --file=sql/all.sql --yes
+echo "== 5. 构建前端 + 部署 Worker"; build_web; $W deploy -c "$CFG" | tee /tmp/cf-deploy.log
 URL=$(grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' /tmp/cf-deploy.log | head -1)
 [ -n "$URL" ] || { echo "未从输出中解析到 workers.dev 地址（可能账号还没有 workers.dev 子域，见 README）"; exit 1; }
 echo "== 6. 验证 $URL"

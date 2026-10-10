@@ -1,0 +1,20 @@
+# generated / vendored
+pnpm-lock.yaml
+**/dist/
+**/node_modules/
+.wrangler/
+.ci-local/
+sql/
+# frozen or owned by other roles: keep byte-identical
+data/
+migrations/
+scripts/
+tests/
+tools/
+docs/
+.github/
+*.md
+# legacy v5 stylesheet, replaced wholesale by the redesign
+apps/web/src/styles/legacy.css
+# legacy no-flash theme bootstrap, kept byte-identical (classic script, runs before CSS)
+apps/web/public/theme.js

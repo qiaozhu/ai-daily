@@ -2,8 +2,12 @@
 # Local CI — the single entry point that every bot MUST run (and pass) before every commit/push.
 # .github/workflows/ci.yml calls this same script, so local == CI by construction.
 #
+# Same as `pnpm ci` / `pnpm run ci`. Steps: pnpm install → lint (ESLint + Prettier) → typecheck (tsc) → unit tests (Vitest)
+# → check.sh (vite build, syntax, data, assets, wrangler dry-run) → daily.sh --dry-run → secret scan
+# → black-box unit/API tests (node:test, real Worker + local D1) → [--ui] headless UI test.
+#
 # Usage: bash scripts/ci-local.sh [--fast] [--ui [URL]] [--no-tests]
-#   --fast       never run `npm ci` (pre-commit hook mode); fails if node_modules is missing
+#   --fast       never run `pnpm install` (pre-commit hook mode); fails if node_modules is missing
 #   --ui [URL]   also run the headless UI test (tests/ui-v2.js). Without URL a local `wrangler dev` is started
 #                on port ${CI_UI_PORT:-8788} with a seeded local D1. Needs Chrome (CHROME_PATH) + puppeteer-core.
 #   --no-tests   skip unit/API tests (not allowed for PRs; for quick experiments only)
@@ -37,32 +41,41 @@ step() {  # step <name> <command...>   — runs command, records PASS/FAIL + dur
   ( "$@" ) >"$log" 2>&1; rc=$?
   e=$(( $(date +%s) - s ))
   if [ $rc -eq 0 ]; then
-    if grep -qE '^# (tests|pass) ' "$log"; then grep -E '^# (tests|pass|fail|skipped|todo) ' "$log" | tr '\n' ' ' | sed 's/^/  /'; echo
+    if grep -qE '^ +Tests +[0-9]+ passed' "$log"; then
+      local vt; vt=$(grep -E '^ +Tests +[0-9]+ passed' "$log" | tail -1 | sed -E 's/^ +Tests +//; s/ +/ /g'); echo "  $vt"
+      RESULTS+=("| $name | ✅ PASS ($vt) | ${e}s |")
+    elif grep -qE '^# (tests|pass) ' "$log"; then grep -E '^# (tests|pass|fail|skipped|todo) ' "$log" | tr '\n' ' ' | sed 's/^/  /'; echo
       RESULTS+=("| $name | ✅ PASS ($(grep -E '^# (pass|fail|todo) ' "$log" | sed 's/^# //' | tr '\n' ',' | sed 's/,$//; s/,/, /g')) | ${e}s |")
     else tail -n 3 "$log" | sed 's/^/  /'; RESULTS+=("| $name | ✅ PASS | ${e}s |"); fi
   else tail -n 40 "$log" | sed 's/^/  /'; RESULTS+=("| $name | ❌ FAIL (exit $rc) | ${e}s |"); FAILED=1; fi
 }
 skip() { echo; echo "▷ $1 — SKIPPED: $2"; RESULTS+=("| $1 | ⏭ skipped: $2 | – |"); }
 
-# 1. dependencies (CI: npm ci)
-deps_fresh() { [ -f node_modules/.package-lock.json ] && [ ! package-lock.json -nt node_modules/.package-lock.json ]; }
-if deps_fresh; then skip "npm ci" "node_modules is up to date"
+# 1. dependencies (CI: pnpm install --frozen-lockfile)
+deps_fresh() { [ -f node_modules/.pnpm/lock.yaml ] && [ ! pnpm-lock.yaml -nt node_modules/.pnpm/lock.yaml ]; }
+if deps_fresh; then skip "pnpm install" "node_modules is up to date"
 elif [ $FAST = 1 ]; then
-  if [ -d node_modules ]; then skip "npm ci" "--fast (node_modules may be stale; run without --fast)"; else step "npm ci" false; echo "  node_modules missing: run bash scripts/ci-local.sh (without --fast)"; fi
-else step "npm ci" npm ci --no-audit --no-fund; fi
+  if [ -d node_modules ]; then skip "pnpm install" "--fast (node_modules may be stale; run without --fast)"; else step "pnpm install" false; echo "  node_modules missing: run bash scripts/ci-local.sh (without --fast)"; fi
+else step "pnpm install --frozen-lockfile" pnpm install --frozen-lockfile; fi
 
-# 2. syntax + data validation + static assets + wrangler deploy --dry-run
-step "check.sh (syntax, data, assets, wrangler dry-run)" bash scripts/check.sh
+# 2. lint + format check, 3. typecheck, 4. Vitest unit tests (TypeScript workspaces)
+step "lint (eslint + prettier --check)" pnpm run lint
+step "typecheck (tsc --noEmit: shared, api, web)" pnpm run typecheck
+if [ $TESTS = 0 ]; then skip "unit tests (vitest)" "--no-tests"
+else step "unit tests (vitest)" pnpm exec vitest run; fi
 
-# 3. daily.sh dry-run on the repo data snapshot
+# 5. vite build + syntax + data validation + static assets + wrangler deploy --dry-run
+step "check.sh (vite build, syntax, data, assets, wrangler dry-run)" bash scripts/check.sh
+
+# 6. daily.sh dry-run on the repo data snapshot
 LATEST=$(ls data/*.json 2>/dev/null | sort | tail -1 | xargs -r basename -s .json)
 if [ -n "$LATEST" ]; then step "daily.sh --dry-run $LATEST (DATA_DIR=data/)" env DATA_DIR="$ROOT/data" bash scripts/daily.sh --dry-run "$LATEST"
 else skip "daily.sh --dry-run" "no data/*.json"; fi
 
-# 4. secret scan
+# 7. secret scan
 SECRET_RE='(CLOUDFLARE_API_TOKEN|api[_-]?token|api[_-]?key|secret|password)\s*[:=]\s*["'"'"']?[A-Za-z0-9_\-]{20,}|gh[opusr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY'
 grep_scan() {  # tracked + untracked (non-ignored) files, like CI's git grep but including new files
-  local files; files=$(git ls-files -co --exclude-standard | grep -v '^package-lock.json$' | while read -r f; do [ -f "$f" ] && echo "$f"; done)
+  local files; files=$(git ls-files -co --exclude-standard | grep -vE '^(package-lock.json|pnpm-lock.yaml)$' | while read -r f; do [ -f "$f" ] && echo "$f"; done)
   [ -z "$files" ] && return 0
   if echo "$files" | tr '\n' '\0' | xargs -0 grep -nIE "$SECRET_RE"; then echo "possible secret found (see above)"; return 1; fi
   echo "grep scan clean ($(echo "$files" | wc -l) files)"
@@ -78,7 +91,8 @@ else
   step "secret scan (grep; install gitleaks for a deeper scan)" grep_scan
 fi
 
-# 5. unit + API tests (node:test; real Worker via wrangler test harness + local D1, no Cloudflare)
+# 8. black-box unit + API tests (node:test; real Worker via wrangler test harness + local D1, no Cloudflare).
+#    Needs the apps/web build from step 5 (static assets).
 if [ $TESTS = 0 ]; then skip "unit/API tests" "--no-tests"
 elif [ -x tests/run.sh ] || [ -f tests/run.sh ]; then step "unit/API tests (tests/run.sh all)" env TEST_REPORTER=tap bash tests/run.sh all
 else
@@ -87,18 +101,20 @@ else
   else skip "unit/API tests" "no tests/unit or tests/api test files"; fi
 fi
 
-# 6. optional headless UI test
+# 9. optional headless UI test (React app built in step 5, served by `wrangler dev` with a seeded local D1)
 if [ $UI = 1 ]; then
   if [ -n "$UI_URL" ]; then step "UI test (tests/ui-v2.js @ $UI_URL)" node tests/ui-v2.js "$UI_URL" "$LOGDIR/ui-"
   else
     ui_local() {
       local port=${CI_UI_PORT:-8788} pid rc
-      npx wrangler d1 migrations apply ai-daily --local >/dev/null && node scripts/json2sql.js --all data >/dev/null \
-        && npx wrangler d1 execute ai-daily --local --file=sql/all.sql --yes >/dev/null || return 1
-      npx wrangler dev --local --port "$port" >"$LOGDIR/wrangler-dev.log" 2>&1 & pid=$!
+      local cfg=apps/api/wrangler.jsonc
+      [ -f apps/web/dist/index.html ] || pnpm --filter @ai-daily/web build >/dev/null || return 1
+      pnpm exec wrangler d1 migrations apply ai-daily --local -c "$cfg" >/dev/null && node scripts/json2sql.js --all data >/dev/null \
+        && pnpm exec wrangler d1 execute ai-daily --local -c "$cfg" --file=sql/all.sql --yes >/dev/null || return 1
+      pnpm exec wrangler dev --local -c "$cfg" --port "$port" >"$LOGDIR/wrangler-dev.log" 2>&1 & pid=$!
       for _ in $(seq 1 60); do curl -fsS "http://127.0.0.1:$port/api/health" >/dev/null 2>&1 && break; sleep 1; done
       node tests/ui-v2.js "http://127.0.0.1:$port" "$LOGDIR/ui-"; rc=$?
-      kill "$pid" 2>/dev/null; pkill -f "wrangler dev --local --port $port" 2>/dev/null; wait "$pid" 2>/dev/null
+      kill "$pid" 2>/dev/null; pkill -f "wrangler dev --local -c $cfg --port $port" 2>/dev/null; wait "$pid" 2>/dev/null
       return $rc
     }
     step "UI test (tests/ui-v2.js @ local wrangler dev)" ui_local
@@ -112,7 +128,7 @@ STATUS=$([ $FAILED = 0 ] && echo "✅ PASSED" || echo "❌ FAILED")
 {
   echo "### Local CI result: $STATUS"
   echo "- command: \`bash scripts/ci-local.sh${ARGS:+ $ARGS}\`"
-  echo "- branch \`$BR\` @ \`$SHA\` (+$DIRTY uncommitted/staged changes) · node $(node -v) · $(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M') (UTC+8) · $(( $(date +%s) - T0 ))s"
+  echo "- branch \`$BR\` @ \`$SHA\` (+$DIRTY uncommitted/staged changes) · node $(node -v) · pnpm $(pnpm -v) · $(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M') (UTC+8) · $(( $(date +%s) - T0 ))s"
   echo
   echo "| step | result | time |"
   echo "|---|---|---|"

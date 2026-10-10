@@ -17,13 +17,15 @@ jobs:
       PUPPETEER_SKIP_DOWNLOAD: "true"
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version from package.json "packageManager"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
       # Same entry point bots run locally before every commit/push (see docs/workflow.md).
-      # It runs: npm ci (if needed) → scripts/check.sh (syntax, data, assets, wrangler deploy --dry-run)
-      # → daily.sh --dry-run on data/ → secret scan → unit/API tests. No Cloudflare secrets needed.
+      # It runs: pnpm install --frozen-lockfile → lint → typecheck → vitest → scripts/check.sh (vite build, syntax,
+      # data, assets, wrangler deploy --dry-run) → daily.sh --dry-run on data/ → secret scan → black-box unit/API
+      # tests. No Cloudflare secrets needed.
       - run: bash scripts/ci-local.sh
       - name: Local-CI summary
         if: always()

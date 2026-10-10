@@ -1,13 +1,14 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // One Worker serves both the API (Hono, /api/*) and the React app (Static Assets built from apps/web).
   "name": "ai-daily",
-  "main": "src/worker.js",
+  "main": "src/index.ts",
   "compatibility_date": "2025-09-01",
   "observability": { "enabled": true },
   "assets": {
-    "directory": "./public",
+    "directory": "../web/dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*"],
   },
   "d1_databases": [
     {
@@ -15,8 +16,8 @@
       "database_name": "ai-daily",
       // filled in by scripts/deploy.sh after `wrangler d1 create ai-daily`
       "database_id": "2cca5d7c-7b42-444a-9503-1bfab4be128a",
-      "migrations_dir": "migrations"
-    }
+      "migrations_dir": "../../migrations",
+    },
   ],
-  "vars": { "FAVORITES_MAX": "2000" }
+  "vars": { "FAVORITES_MAX": "2000" },
 }

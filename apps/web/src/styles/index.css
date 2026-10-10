@@ -1,0 +1,12 @@
+/*
+ * Styles entry.
+ * - Tailwind CSS v4 theme + utilities are loaded; Preflight is intentionally NOT loaded yet so the legacy v5
+ *   stylesheet renders exactly as before (the headless UI test pins computed colours/borders).
+ * - Design tokens for the upcoming redesign live in ./theme.css (@theme). When the new design lands:
+ *   add `@import "tailwindcss/preflight.css" layer(base);`, move components to utilities, delete legacy.css.
+ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import './theme.css';
+@import './legacy.css';

@@ -105,7 +105,7 @@ describe('favorites CRUD', () => {
     assert.equal(r.status, 200); assert.equal(r.body.story_id, "weird 'id'/中文");
   });
 
-  it('DELETE with invalid percent-encoding -> 400, not 500', { todo: 'BUG-3: DELETE /api/favorites/%ZZ -> decodeURIComponent throws -> 500' }, async () => {
+  it('DELETE with invalid percent-encoding -> 400, not 500', async () => {
     const r = await api.req('/api/favorites/%ZZ', { method: 'DELETE' });
     assert.equal(r.status, 400);
   });
@@ -146,7 +146,7 @@ describe('favorites cap (FAVORITES_MAX)', () => {
     assert.equal((await api.req('/api/favorites')).body.count, 2);
   });
 
-  it('re-favoriting an already-favorited story at the cap stays idempotent (200)', { todo: 'BUG-4: at the cap, POST of an already-favorited id -> 409 instead of 200 (cap check runs before INSERT OR IGNORE)' }, async () => {
+  it('re-favoriting an already-favorited story at the cap stays idempotent (200)', async () => {
     const r = await add(A);
     assert.equal(r.status, 200);
   });
