@@ -40,10 +40,12 @@
       "migrations_dir": "../../migrations",
     },
   ],
+  // Pre-rendered share cards (PNG), written by scripts/prerender-cards.mjs, read by the Worker.
+  "kv_namespaces": [{ "binding": "CARDS", "id": "82bd75f2a1c840efaec59f49ee9764dd" }],
   "vars": { "FAVORITES_MAX": "2000" },
   // Preview environment: `wrangler deploy -c apps/api/wrangler.jsonc --env preview` (or `pnpm deploy:preview`).
   // Deploys a separate Worker named `ai-daily-preview` with its own D1, so PRs can be checked on a real URL
-  // without touching production. d1_databases and vars are not inherited by envs, so they are repeated here.
+  // without touching production. d1_databases, kv_namespaces and vars are not inherited by envs, so they are repeated here.
   "env": {
     "preview": {
       "d1_databases": [
@@ -54,6 +56,7 @@
           "migrations_dir": "../../migrations",
         },
       ],
+      "kv_namespaces": [{ "binding": "CARDS", "id": "aa99993895c94d0b9fde304efc5ed0d3" }],
       "vars": { "FAVORITES_MAX": "2000" },
     },
   },

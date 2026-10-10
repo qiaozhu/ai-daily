@@ -132,6 +132,14 @@ for (const [from,to] of [['/#v=search&q=Gemini','/search?q=Gemini'],['/#v=trend'
   await pg.goto(BASE+from,{waitUntil:'networkidle0'}); await W(300); const u=await url(); R(`old URL ${from} -> ${u}`, u===to);
  }
  pg.off('request',h); R('/trend and /fav were HTTP 301s '+JSON.stringify(seen), seen.filter(x=>x==='301').length===2); }
+// PRD #26: /?d=<bad value> -> first request 200 (static /, the server cannot see the query), the front end replaces
+// the URL with /day/<value> and shows the 404 page; a direct request to /day/<value> is an HTTP 404 (server side)
+for (const v of ['2000-01-01','abc','2026-13-45']) {
+ const resp=await pg.goto(BASE+'/?d='+v,{waitUntil:'networkidle0'}); await W(300);
+ const u=await url(); const nf=await pg.$eval('[data-state=not-found] h1',e=>e.textContent).catch(()=>null);
+ const direct=await fetch(BASE+'/day/'+v); const body=await direct.text();
+ R(`/?d=${v}: first ${resp.status()}, -> ${u} (${nf}); direct /day/${v} HTTP ${direct.status}`, resp.status()===200 && u==='/day/'+v && nf==='这一天没有日报' && direct.status===404 && !body.includes('property="og:'));
+}
 await pg.close();
 // ---- mobile 390 · light & dark ----
 for (const th of ['light','dark']) {

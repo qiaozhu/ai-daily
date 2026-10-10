@@ -63,3 +63,18 @@ describe('/day/<date>', () => {
     assert.match(r.text, /<div id="root">/);
   });
 });
+
+// HTML must never be cached for long: the home page changes every day at 08:50 (and its og:image will point at
+// that day's card, PRD #26), so browsers / crawlers must revalidate. Hashed /assets/* are the only immutable files.
+describe('HTML is not long-cached', () => {
+  const maxAge = (cc) => Number(/max-age=(\d+)/.exec(cc || '')?.[1] ?? 0);
+  for (const p of ['/', '/?d=2026-10-09', '/search', '/archive', '/me', '/day/2026-10-10', '/day/2000-01-01']) {
+    it(`${p}: Cache-Control is short (<= 300 s) or revalidating, never immutable`, async () => {
+      const r = await get(p);
+      assert.match(r.headers.get('content-type'), /text\/html/);
+      const cc = r.headers.get('cache-control') || '';
+      assert.doesNotMatch(cc, /immutable/, cc);
+      assert.ok(maxAge(cc) <= 300, `${p}: ${cc}`);
+    });
+  }
+});
