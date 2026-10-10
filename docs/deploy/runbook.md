@@ -30,6 +30,19 @@ node tests/ui-v2.js https://ai-daily-preview.qiao-ai-daily.workers.dev /tmp/prev
 - 预览只有一个地址，最后一次部署的分支生效；发之前在群里说一声，避免互相覆盖。
 - 预览 D1 的数据来自本机的日报 JSON（`$DATA_DIR`，和生产每天导入的是同一批文件），不是从生产库复制；不含线上收藏。需要和生产完全一致时，用 `wrangler d1 export ai-daily --remote` 导出后手动导入。
 
+## 分享卡预生成（每天数据更新之后）
+```bash
+source scripts/env.sh
+node scripts/prerender-cards.mjs YYYY-MM-DD               # 渲染当天日报卡 + 每条话题卡（og 1200×630 / save 1080×1440）→ 写入生产 KV（binding CARDS）
+node scripts/prerender-cards.mjs YYYY-MM-DD --env preview # 写入预览 KV
+node scripts/prerender-cards.mjs YYYY-MM-DD --dry-run     # 只渲染到 .cards/YYYY-MM-DD/，不连 Cloudflare
+```
+- 读取 `$DATA_DIR/YYYY-MM-DD.json`（和 `daily.sh` 导入的是同一个文件），`daily.sh` 本身不动；由协调 bot 接在每日更新之后执行。
+- KV 命名空间：生产 `ai-daily-cards`，预览 `ai-daily-cards-preview`。key 形如 `card/day/<date>/og.png`、`card/story/<story id>/save.png`。
+- 卡片 180 天后自动过期（只删卡片，不删任何日报数据）；需要时重跑脚本即可重新生成。重复执行是幂等的（同名 key 覆盖）。
+- 渲染函数来自 `packages/share-card`（`renderCard`），该包上线前脚本用纯色占位 PNG 跑通流程。
+- 免费额度：每天约 26 次 KV 写入（上限 1000），约 2–3 MB。
+
 ## 生产发布（需负责人批准，见 docs/workflow.md）
 发布清单，按顺序执行：
 ```bash
