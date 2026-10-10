@@ -60,13 +60,14 @@ body{background:var(--bg);color:var(--text);font-family:"Inter","Noto Sans CJK S
 .lrow .sub{font-size:13px;color:var(--t2)}.lrow .r{margin-left:auto;color:var(--t3);display:flex;align-items:center;gap:6px;font-size:15px}
 .grp{font-size:13px;font-weight:600;color:var(--t2);margin:22px 4px 8px}
 .ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}
-.sf{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:12px;height:40px;padding:0 12px;color:var(--t2);font-size:16px}
+.sf{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:12px;height:40px;padding:0 12px;color:var(--t2s);font-size:16px}
 mark{background:var(--bs);color:var(--bt);border-radius:4px;padding:0 2px}
 .stk{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
 .tg{display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:7px 12px;border-radius:99px;background:var(--surface);box-shadow:var(--sh)}
 .sheet{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 18px 40px}
 .input{height:46px;border-radius:12px;background:var(--s2);display:flex;align-items:center;padding:0 14px;font-size:16px}
 .followhl{box-shadow:inset 0 0 0 1.5px var(--brand),var(--sh)}
+:root{--t2s:#636369}.dark{--t2s:#98989D}
 </style></head><body><div id="app"></div><script>
 const Q=new URLSearchParams(location.search),view=Q.get('v')||'home',dark=Q.get('t')==='dark';if(dark)document.body.classList.add('dark');
 const I={search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',share:'<path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/>',today:'<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/>',past:'<path d="M4 6h16M4 12h16M4 18h10"/>',me:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',back:'<path d="M15 5l-7 7 7 7"/>',chev:'<path d="M9 5l7 7-7 7"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>',star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',bm:'<path d="M6 3.5h12v17l-6-4-6 4z"/>',link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',img:'<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8.5"/>',ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'};
@@ -76,41 +77,41 @@ const fmt=n=>n>=1e4?(n/1e4).toFixed(n>=1e5?0:1)+' 万':n.toLocaleString();
 
 const CC={'大模型':'#7D5AF0','产品':'#34C759','政策':'#FF9500','中文圈':'#FF2D55','科研':'#5AC8FA','融资':'#AF52DE','开源':'#30B0C7','安全':'#FF3B30','芯片':'#A2845E','就业':'#8E8E93'};
 fetch('../../data/2026-10-10.json').then(r=>r.json()).then(d=>{
- const S=d.stories, wd='星期六';
+ const S=d.stories;const [Y,Mo,Da]=d.date.split('-').map(Number);const dt=new Date(Date.UTC(Y,Mo-1,Da));const WDN='日一二三四五六';const MD=`${Mo}月${Da}日`,WD='星期'+WDN[dt.getUTCDay()],WS='周'+WDN[dt.getUTCDay()];
+ const dow=(dt.getUTCDay()+6)%7;const mon=new Date(dt-dow*864e5),sun=new Date(+mon+6*864e5);const th=new Date(+dt+(3-dow)*864e5);const wk=1+Math.round((th-Date.UTC(th.getUTCFullYear(),0,4))/864e5/7-(3-((new Date(Date.UTC(th.getUTCFullYear(),0,4)).getUTCDay()+6)%7))/7);const fm=x=>`${x.getUTCMonth()+1}月${x.getUTCDate()}日`;const EARLY=MD;
  const tab=(on)=>`<div class="tab">${[['today','今日'],['past','往期'],['search','搜索'],['me','我的']].map(([i,n])=>`<div class="${n===on?'on':''}">${ic(i)}${n}</div>`).join('')}</div>`;
  const top=(t,sub)=>`<div class="lt" style="margin:0 0 ${sub?2:16}px">${t}</div>${sub?`<div style="font-size:13px;color:var(--t2);margin-bottom:16px">${sub}</div>`:''}`;
  const seg3=on=>`<div class="seg" style="margin-bottom:18px">${['日报','趋势','周报'].map(x=>`<span class="${x===on?'on':''}">${x}</span>`).join('')}</div>`;
- const mini=(s,extra='')=>`<div class="card ${extra}" style="padding:14px 16px"><div class="meta" style="margin-bottom:6px">${extra?'<span class="pill new">'+ic('star','width:12px;height:12px')+' 关注</span>':'<span class="pill new">新</span>'}${s.org_tag} · 10月10日</div><h3 class="cl2" style="font-size:16px;line-height:22px;margin:0">${s.headline_zh}</h3></div>`;
+ const mini=(s,extra='')=>`<div class="card ${extra}" style="padding:14px 16px"><div class="meta" style="margin-bottom:6px">${extra?'<span class="pill new">'+ic('star','width:12px;height:12px')+' 关注</span>':'<span class="pill new">新</span>'}${s.org_tag} · ${MD}</div><h3 class="cl2" style="font-size:16px;line-height:22px;margin:0">${s.headline_zh}</h3></div>`;
  let h='';
  const v=view;
  if(v==='archive'){h=`<div style="padding:54px 18px 110px">${top('往期')}${seg3('日报')}
-  <div class="grp">2026 年 10 月</div><div class="block" style="padding:0">
-  <div class="lrow"><div style="width:44px;text-align:center"><div style="font-size:22px;font-weight:700;line-height:1">10</div><div style="font-size:11px;color:var(--t2)">周六</div></div><div style="flex:1;min-width:0"><div style="font-weight:600">今日三件事 · ${S.length} 个话题</div><div class="sub cl2" style="margin-top:2px">${d.highlights[0]}</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div></div>
-  <div style="text-align:center;font-size:13px;color:var(--t2);margin-top:18px;line-height:20px">日报从 10 月 10 日开始，每天 08:50 左右更新。<br>满两天以后，可以在"趋势"里看热度变化。</div></div>${tab('往期')}`}
+  <div class="grp">${Y} 年 ${Mo} 月</div><div class="block" style="padding:0">
+  <div class="lrow"><div style="width:44px;text-align:center"><div style="font-size:22px;font-weight:700;line-height:1">${Da}</div><div style="font-size:11px;color:var(--t2)">${WS}</div></div><div style="flex:1;min-width:0"><div style="font-weight:600">今日三件事 · ${S.length} 个话题</div><div class="sub cl2" style="margin-top:2px">${d.highlights[0]}</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div></div>
+  <div style="text-align:center;font-size:13px;color:var(--t2);margin-top:18px;line-height:20px">日报从 ${EARLY.replace("月"," 月 ").replace("日"," 日")}开始，每天 08:50 左右更新。<br>满两天以后，可以在"趋势"里看热度变化。</div></div>${tab('往期')}`}
  if(v==='trend'){const cats={};S.forEach(s=>s.categories.forEach(c=>cats[c]=(cats[c]||0)+1));const cs=Object.entries(cats).sort((a,b)=>b[1]-a[1]);const tot=cs.reduce((a,b)=>a+b[1],0);
   const tops={};S.forEach(s=>s.topics.forEach(t=>tops[t]=(tops[t]||0)+1));const ts=Object.entries(tops).sort((a,b)=>b[1]-a[1]).slice(0,6);
   h=`<div style="padding:54px 18px 110px">${top('往期')}${seg3('趋势')}
   <div class="block" style="margin-bottom:12px"><div class="lab">每日分类分布</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:13px;color:var(--t2);width:40px">10/10</span><div class="stk" style="flex:1">${cs.map(([c,n])=>`<i style="flex:${n};background:${CC[c]||'#8E8E93'}"></i>`).join('')}</div></div>
   <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px">${cs.map(([c,n])=>`<span style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:5px"><i style="width:8px;height:8px;border-radius:50%;background:${CC[c]||'#8E8E93'}"></i>${c} ${n}</span>`).join('')}</div>
-  <div style="font-size:12px;color:var(--t3);margin-top:12px">目前只有 1 天数据，每多一天就多一行。</div></div>
+  <div style="font-size:12px;color:var(--t2);margin-top:12px">目前只有 1 天数据，每多一天就多一行。</div></div>
   <div class="block" style="padding:0;margin-bottom:12px"><div class="lab" style="padding:14px 16px 0">分类累计</div>${cs.slice(0,5).map(([c,n])=>`<div class="lrow"><i style="width:10px;height:10px;border-radius:3px;background:${CC[c]}"></i>${c}<span class="r" style="color:var(--t2)">${n} 个话题 · ${Math.round(n/tot*100)}%</span></div>`).join('')}</div>
   <div class="block" style="padding:0"><div class="lab" style="padding:14px 16px 0">高频话题词</div>${ts.map(([t,n])=>`<div class="lrow">${t}<span class="r" style="color:var(--t2)">${n} 次</span></div>`).join('')}</div></div>${tab('往期')}`}
  if(v==='weekly'){const T=[...S].sort((a,b)=>b.heat-a.heat).slice(0,10);
   h=`<div style="padding:54px 18px 110px">${top('往期')}${seg3('周报')}
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="color:var(--t3)">${ic('back','width:20px;height:20px')}</span><div style="text-align:center"><div style="font-size:17px;font-weight:700">2026 年第 41 周</div><div style="font-size:13px;color:var(--t2)">10月5日 – 10月11日 · <span style="color:var(--bt);font-weight:600">截至今天</span></div></div><span style="color:var(--t3);opacity:.4">${ic('chev','width:20px;height:20px')}</span></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="color:var(--t3)">${ic('back','width:20px;height:20px')}</span><div style="text-align:center"><div style="font-size:17px;font-weight:700">${th.getUTCFullYear()} 年第 ${wk} 周</div><div style="font-size:13px;color:var(--t2)">${fm(mon)} – ${fm(sun)} · <span style="color:var(--bt);font-weight:600">截至今天</span></div></div><span style="color:var(--t3);opacity:.4">${ic('chev','width:20px;height:20px')}</span></div>
   <div class="sec" style="font-size:17px;margin-bottom:10px">本周 Top 10</div>
-  <div class="block" style="padding:0;margin-bottom:22px">${T.map((s,i)=>`<div class="lrow" style="align-items:flex-start"><b style="width:18px;color:${i<3?'var(--bt)':'var(--t3)'};font-weight:700">${i+1}</b><div style="flex:1;min-width:0"><div class="cl2" style="font-size:15px;line-height:21px">${s.headline_zh}</div><div class="sub" style="margin-top:3px">${s.org_tag} · 10月10日 · 热度 ${s.heat}</div></div></div>`).join('')}</div>
+  <div class="block" style="padding:0;margin-bottom:22px">${T.map((s,i)=>`<div class="lrow" style="align-items:flex-start"><b style="width:18px;color:${i<3?'var(--bt)':'var(--t2)'};font-weight:700">${i+1}</b><div style="flex:1;min-width:0"><div class="cl2" style="font-size:15px;line-height:21px">${s.headline_zh}</div><div class="sub" style="margin-top:3px">${s.org_tag} · ${MD} · 热度 ${s.heat}</div></div></div>`).join('')}</div>
   <div class="sec" style="font-size:17px;margin-bottom:10px">反复出现的话题</div>
   <div class="block"><div class="first"><div class="dot">${ic('spark')}</div><div><div style="font-size:15px;font-weight:600">本周还没有反复出现的话题</div><div style="font-size:13px;color:var(--t2);margin-top:2px">同一个话题在 2 天及以上出现过，才会列在这里</div></div></div></div>
   <div class="btn s" style="margin-top:16px">${ic('img')}保存周报图</div></div>${tab('往期')}`}
  if(v==='search'){const q='Claude';const R=S.filter(s=>(s.headline_zh+s.summary_zh+s.topics.join()).includes(q));const hl=t=>t.split(q).join('<mark>'+q+'</mark>');
   h=`<div style="padding:54px 18px 110px">${top('搜索')}<div class="sf" style="margin-bottom:12px;color:var(--text)">${ic('search','width:17px;height:17px;color:var(--t2)')}${q}<span style="margin-left:auto;width:18px;height:18px;border-radius:50%;background:var(--t3);color:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px">✕</span></div>
-  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><span class="pill" style="background:var(--text);color:var(--bg);padding:5px 12px">全部 ${R.length}</span><span class="pill" style="background:var(--s2);color:var(--t2);padding:5px 12px">产品</span><span class="pill" style="background:var(--s2);color:var(--t2);padding:5px 12px">大模型</span><span class="pill" style="background:var(--s2);color:var(--t2);padding:5px 12px">安全</span></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><span class="pill" style="background:var(--text);color:var(--bg);padding:5px 12px">全部 ${R.length}</span><span class="pill" style="background:var(--s2);color:var(--t2s);padding:5px 12px">产品</span><span class="pill" style="background:var(--s2);color:var(--t2s);padding:5px 12px">大模型</span><span class="pill" style="background:var(--s2);color:var(--t2s);padding:5px 12px">安全</span></div>
   <div style="font-size:13px;color:var(--t2);margin:0 4px 10px">找到 ${R.length} 个话题，范围是全部日期</div>
-  <div style="display:grid;gap:12px">${R.map(s=>`<div class="card"><div class="meta">${s.org_tag} · 10月10日</div><h3 class="cl2">${hl(s.headline_zh)}</h3><p class="cl2">${hl(s.summary_zh)}</p></div>`).join('')}</div></div>${tab('搜索')}`}
+  <div style="display:grid;gap:12px">${R.map(s=>`<div class="card"><div class="meta">${s.org_tag} · ${MD}</div><h3 class="cl2">${hl(s.headline_zh)}</h3><p class="cl2">${hl(s.summary_zh)}</p></div>`).join('')}</div></div>${tab('搜索')}`}
  if(v==='searchempty'){h=`<div style="padding:54px 18px 110px">${top('搜索')}<div class="sf" style="margin-bottom:22px">${ic('search','width:17px;height:17px')}搜索话题、机构、账号</div>
-  <div class="grp" style="margin-top:0">热门搜索词</div><div style="display:flex;flex-wrap:wrap;gap:8px">${['Claude','Codex','DeepSeek','Gemini','Qwen','马斯克','英伟达'].map(t=>`<span class="tg">${t}</span>`).join('')}</div>
-  <div style="font-size:12px;color:var(--t3);margin:10px 4px 0">取自近 7 天出现最多的具体话题词</div></div>${tab('搜索')}`}
+  <div style="text-align:center;font-size:15px;color:var(--t2);line-height:22px;margin-top:40px">搜索全部日期的话题标题、摘要、<br>机构和 X 账号</div></div>${tab('搜索')}`}
  if(v==='me'){h=`<div style="padding:54px 18px 110px">${top('我的')}
   <div class="block" style="padding:0"><div class="lrow"><div class="ico" style="background:#FF9500">${ic('bm','width:17px;height:17px')}</div><div>收藏</div><span class="r"><span style="color:var(--t2)">2</span>${ic('chev','width:15px;height:15px')}</span></div>
   <div class="lrow"><div class="ico" style="background:#7D5AF0">${ic('star','width:17px;height:17px')}</div><div>关注</div><span class="r"><span style="color:var(--t2)">3</span>${ic('chev','width:15px;height:15px')}</span></div></div>
@@ -118,9 +119,9 @@ fetch('../../data/2026-10-10.json').then(r=>r.json()).then(d=>{
   <div class="grp">设置</div><div class="block" style="padding:0"><div class="lrow">外观<span class="r" style="color:var(--text)"><span class="seg" style="width:150px">${dark?"<span>浅色</span><span class=\"on\">深色</span>":"<span class=\"on\">浅色</span><span>深色</span>"}</span></span></div>
   <div class="lrow"><div>导出数据<div class="sub">下载全部日报的 JSON</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div>
   <div class="lrow"><div>关于 AI 热点日报<div class="sub">数据来源与更新时间</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div></div>
-  <div style="font-size:12px;color:var(--t3);margin:14px 4px;line-height:18px">收藏和关注只保存在这台设备的浏览器里，换设备不会同步。上面的收藏数和关注项是示例。</div></div>${tab('我的')}`}
+  <div style="font-size:12px;color:var(--t2);margin:14px 4px;line-height:18px">收藏和关注只保存在这台设备的浏览器里，换设备不会同步。</div></div>${tab('我的')}`}
  if(v==='follow'){const F=S.filter(s=>s.org_tag==='Anthropic'||JSON.stringify(s).toLowerCase().includes('codex')||s.source_posts.some(p=>p.handle==='claudeai'));
-  h=`<div style="padding:54px 18px 110px"><div class="eyebrow">10月10日 星期六</div>${top('今日热点')}
+  h=`<div style="padding:54px 18px 110px"><div class="eyebrow">${MD} ${WD}</div>${top('今日热点')}
   <div class="seg" style="margin-bottom:12px"><span>全部</span><span class="on">关注 ${F.length}</span><span>大模型</span><span>产品</span><span>政策</span></div>
   <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t2);margin:0 4px 12px">只看关注：Anthropic、Codex、@claudeai<span style="margin-left:auto;color:var(--bt)">管理</span></div>
   <div style="display:grid;gap:12px">${F.map(s=>{const why=s.org_tag==='Anthropic'?'Anthropic':(s.source_posts.some(p=>p.handle==='claudeai')?'@claudeai':'Codex');return `<div class="card followhl"><div class="meta"><span class="pill new">${ic('star','width:12px;height:12px')} ${why}</span>${s.org_tag} · ${s.source_posts.length} 条原帖</div><h3 class="cl2">${s.headline_zh}</h3><p class="cl2">${s.summary_zh}</p></div>`}).join('')}</div></div>${tab('今日')}`}
@@ -131,10 +132,12 @@ fetch('../../data/2026-10-10.json').then(r=>r.json()).then(d=>{
   <div class="input" style="margin-bottom:8px">Gemini<span style="margin-left:auto;width:2px;height:22px;background:var(--brand)"></span></div>
   <div style="font-size:13px;color:var(--t2);margin:0 4px 18px">会匹配标题、摘要、话题词和原帖内容，不区分大小写。</div>
   <div class="grp" style="margin-top:0">今天出现过的机构</div><div style="display:flex;flex-wrap:wrap;gap:8px">${[...new Set(S.map(s=>s.org_tag))].slice(0,8).map(o=>`<span class="tg" style="background:var(--s2);box-shadow:none">${o}</span>`).join('')}</div>
-  <div style="font-size:12px;color:var(--t3);margin:16px 4px 0">已关注 3 个，最多 50 个</div></div>`}
- if(v==='followempty'){h=`<div style="padding:54px 18px 110px"><div class="eyebrow">10月10日 星期六</div>${top('今日热点')}
+  <div style="font-size:12px;color:var(--t2);margin:16px 4px 0">已关注 3 个，最多 50 个</div></div>`}
+ if(v==='followempty'){h=`<div style="padding:54px 18px 110px"><div class="eyebrow">${MD} ${WD}</div>${top('今日热点')}
   <div class="seg" style="margin-bottom:40px"><span>全部</span><span class="on">关注</span><span>大模型</span><span>产品</span><span>政策</span></div>
   <div style="text-align:center;padding:0 24px"><div style="width:64px;height:64px;border-radius:18px;background:var(--bs);color:var(--bt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">${ic('star','width:30px;height:30px')}</div><div style="font-size:20px;font-weight:700;margin-bottom:6px">还没有关注任何内容</div><div style="font-size:15px;color:var(--t2);line-height:22px;margin-bottom:20px">关注账号、机构或关键词，相关话题会在首页高亮，也可以在这里只看它们。</div><div class="btn p" style="width:200px;margin:0 auto">添加关注</div></div></div>${tab('今日')}`}
+
+ if(v==='nf-day'||v==='nf-story'){const day=v==='nf-day';h=`<div style="padding:54px 18px 110px"><div style="text-align:center;padding:120px 24px 0"><div style="width:64px;height:64px;border-radius:18px;background:var(--bs);color:var(--bt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">${ic(day?'today':'search','width:30px;height:30px')}</div><div style="font-size:20px;font-weight:700;margin-bottom:6px">${day?'这一天没有日报':'找不到这个话题'}</div><div style="font-size:15px;color:var(--t2);line-height:22px;margin-bottom:24px">${day?`日报从 ${EARLY} 开始，每天早上更新`:'链接可能写错了，或者这个话题已经不在了'}</div><div class="btn p" style="width:200px;margin:0 auto">回到今日</div>${day?'<div class="btn s" style="width:200px;margin:10px auto 0">看往期</div>':''}</div></div>${tab('')}`}
  document.getElementById('app').innerHTML=h;
 });
 </script></body></html>
