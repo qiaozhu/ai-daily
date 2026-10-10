@@ -161,6 +161,7 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
     <>
       <Main>
         <header className="mb-4 lg:mb-5">
+          {/* phone: share sits on the date row; desktop (hifi mockup): search + share bottom-aligned with the title */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 text-footnote font-semibold text-text-2">
               {arrow('back', older, '前一天')}
@@ -169,16 +170,19 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
               </a>
               {arrow('chev', newer, '后一天')}
             </div>
-            <div className="flex gap-2.5">
-              <span className="hidden lg:contents">
-                <IconButton icon="search" label="搜索" onClick={() => navigate('/search', { top: true })} />
-              </span>
+            <div className="lg:hidden">
               <IconButton icon="share" label="分享" onClick={share} />
             </div>
           </div>
-          <h1 id="title" className="mt-1 mb-0.5 text-large lg:text-large-d">
-            {isLatest || !date ? '今日热点' : `${dateShort(date)}热点`}
-          </h1>
+          <div className="flex items-end justify-between gap-3">
+            <h1 id="title" className="mt-1 mb-0.5 text-large lg:text-large-d">
+              {isLatest || !date ? '今日热点' : `${dateShort(date)}热点`}
+            </h1>
+            <div id="titleActions" className="mb-1 hidden gap-2.5 lg:flex">
+              <IconButton icon="search" label="搜索" onClick={() => navigate('/search', { top: true })} />
+              <IconButton icon="share" label="分享" onClick={share} />
+            </div>
+          </div>
           <p id="sub" className="text-footnote text-text-2">
             {day ? `${day.stories.length} 个话题 · ${generatedClock(day.generated_at)} 更新` : '\u00a0'}
           </p>
