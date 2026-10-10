@@ -1,4 +1,4 @@
-// Starts the real Worker (src/worker.js via wrangler.jsonc) locally with wrangler's createTestHarness:
+// Starts the real Worker (apps/api Hono app via apps/api/wrangler.jsonc; static assets = apps/web/dist, run `pnpm build` first) locally with wrangler's createTestHarness:
 // in-memory D1 + Static Assets, no Cloudflare credentials, no network to Cloudflare.
 import { createTestHarness, unstable_splitSqlQuery } from 'wrangler';
 import fs from 'node:fs';
@@ -32,7 +32,7 @@ export async function seed(db, files = SEED_FILES) {
 export async function startApi(opts = {}) {
   const server = createTestHarness({
     root: ROOT,
-    workers: [{ configPath: './wrangler.jsonc', vars: opts.vars }],
+    workers: [{ configPath: './apps/api/wrangler.jsonc', vars: opts.vars }],
   });
   const { url } = await server.listen();
   const worker = server.getWorker();

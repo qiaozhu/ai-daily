@@ -1,0 +1,29 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // One Worker serves both the API (Hono, /api/*) and the React app (Static Assets built from apps/web).
+  "name": "ai-daily",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "../web/dist",
+    "binding": "ASSETS",
+    // Client-side routes (/search, /fav, …) get index.html from the SPA fallback.
+    // The Worker (Hono) runs first for:
+    //   /api/*  -> unknown API paths still answer the JSON 404/405, never the SPA shell
+    //   /*.*    -> file-like URLs: existing files are served, missing ones get a real 404 (+ /favicon.ico -> 204)
+    // except the build's own files, which are served straight from the asset layer (no Worker invocation).
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/*.*", "!/app.js", "!/style.css", "!/theme.js", "!/assets/*"],
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ai-daily",
+      // filled in by scripts/deploy.sh after `wrangler d1 create ai-daily`
+      "database_id": "2cca5d7c-7b42-444a-9503-1bfab4be128a",
+      "migrations_dir": "../../migrations",
+    },
+  ],
+  "vars": { "FAVORITES_MAX": "2000" },
+}

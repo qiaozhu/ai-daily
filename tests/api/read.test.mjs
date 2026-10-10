@@ -98,7 +98,7 @@ describe('GET /api/days/:date', () => {
     });
   }
 
-  it('400 (not 500) for an invalid percent-encoding', { todo: 'BUG-1: decodeURIComponent throws -> 500 服务器错误' }, async () => {
+  it('400 (not 500) for an invalid percent-encoding', async () => {
     const r = await api.req('/api/days/%ZZ');
     assert.equal(r.status, 400);
   });
@@ -201,7 +201,7 @@ describe('GET /api/stories (search / filters / limit)', () => {
     assert.deepEqual(first3, ids(await api.req('/api/stories')).slice(0, 3));
   });
 
-  it('non-integer limit does not 500', { todo: 'BUG-2: limit=1.5 -> "LIMIT 1.5" SQL error -> 500 服务器错误' }, async () => {
+  it('non-integer limit does not 500', async () => {
     const r = await api.req('/api/stories?limit=1.5');
     assert.equal(r.status, 200);
   });
@@ -274,7 +274,7 @@ describe('unknown routes / methods', () => {
       assert.equal(r.status, m === 'GET' ? 404 : 405);
     });
   }
-  it('HEAD on a GET API route is allowed', { todo: 'MINOR-1: HEAD /api/days -> 405（HTTP 语义上 HEAD 应与 GET 一致）' }, async () => {
+  it('HEAD on a GET API route is allowed', async () => {
     const r = await api.req('/api/days', { method: 'HEAD' });
     assert.equal(r.status, 200);
   });

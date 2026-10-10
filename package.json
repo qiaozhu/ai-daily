@@ -1,20 +1,42 @@
 {
   "name": "ai-daily",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "AI 热点日报：每日从 X 公开数据汇总 AI 热点（Cloudflare Workers + Static Assets + D1）",
+  "description": "AI 热点日报：每日从 X 公开数据汇总 AI 热点（pnpm monorepo：React + Tailwind 4 前端，Hono API，Cloudflare Workers + Static Assets + D1）",
   "license": "UNLICENSED",
-  "engines": { "node": ">=22" },
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=22.12"
+  },
   "scripts": {
     "ci": "bash scripts/ci-local.sh",
+    "ci:ui": "bash scripts/ci-local.sh --ui",
     "check": "bash scripts/check.sh",
-    "dev": "wrangler dev --local --port 8787",
-    "db:local": "wrangler d1 migrations apply ai-daily --local && node scripts/json2sql.js --all && wrangler d1 execute ai-daily --local --file=sql/all.sql --yes",
-    "deploy:dry": "bash scripts/deploy.sh --dry-run",
-    "test:ui": "node tests/ui-v2.js"
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:api": "node --no-warnings=ExperimentalWarning --test tests/unit/*.test.mjs tests/api/*.test.mjs",
+    "test:ui": "node tests/ui-v2.js",
+    "build": "pnpm --filter @ai-daily/web build",
+    "dev": "pnpm build && pnpm --filter @ai-daily/api dev",
+    "dev:web": "pnpm --filter @ai-daily/web dev",
+    "db:local": "pnpm --filter @ai-daily/api db:migrate:local && node scripts/json2sql.js --all && pnpm --filter @ai-daily/api exec wrangler d1 execute ai-daily --local --file=../../sql/all.sql --yes",
+    "deploy:dry": "bash scripts/deploy.sh --dry-run"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
     "puppeteer-core": "^23.11.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3",
     "wrangler": "^4.149.0"
   }
 }

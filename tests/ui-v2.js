@@ -39,7 +39,7 @@ await pg.click('.lnav [data-v=search]'); await W(300);
 const sb=await pg.evaluate(()=>{const s=document.querySelector('#searchbar').getBoundingClientRect(),m=document.querySelector('#mainCol').getBoundingClientRect(),h=document.querySelector('.mh').getBoundingClientRect();return {vis:s.height>0,inMain:s.left>=m.left&&s.right<=m.right,top:Math.round(s.top-h.bottom),focus:document.activeElement.id};});
 R('search page: input at top of middle column '+JSON.stringify(sb), sb.vis&&sb.inMain&&sb.top<=1&&sb.focus==='q');
 await pg.type('#q','Gemini'); await W(900); R('search Gemini '+await ns()+' marks '+await pg.$$eval('mark',x=>x.length), (await ns())>=1 && (await pg.$$eval('mark',x=>x.length))>0);
-R('hash has q '+await pg.evaluate(()=>location.hash), (await pg.evaluate(()=>location.hash)).includes('q='));
+{const u=await pg.evaluate(()=>location.pathname+location.search); R('url has q '+u, u.startsWith('/search?')&&u.includes('q='));}
 await pg.screenshot({path:`${PFX}search-desktop.png`});
 await pg.$eval('#q',e=>e.value=''); await pg.click('.lnav [data-v=day]'); await W(400);
 const before=(await (await fetch(BASE+'/api/favorites')).json()).count;
@@ -65,6 +65,13 @@ R('dark persisted after reload, bg '+await pg.evaluate(()=>getComputedStyle(docu
 await pg.screenshot({path:`${PFX}dark-desktop.png`});
 await pg.click('.lnav [data-theme-toggle]'); await W(100);
 R('toggle back -> light stored', await pg.evaluate(()=>localStorage.getItem('aidaily.theme'))==='"light"');
+// path routes: deep links are served by the SPA fallback; old hash links are rewritten to paths on startup
+await pg.goto(BASE+'/search?q=Gemini',{waitUntil:'networkidle0'}); await W(400);
+R('deep link /search?q=Gemini '+await ns()+' marks '+await pg.$$eval('mark',x=>x.length), (await ns())>=1 && (await pg.$$eval('mark',x=>x.length))>0 && await pg.$eval('#q',e=>e.value)==='Gemini');
+for (const [from,to] of [['/#v=search&q=Gemini','/search?q=Gemini'],['/#v=trend','/trend'],['/#/search?q=Gemini','/search?q=Gemini'],['/#/fav','/fav']]) {
+ await pg.goto(BASE+from,{waitUntil:'networkidle0'}); await W(300);
+ const u=await pg.evaluate(()=>location.pathname+location.search+location.hash); R(`legacy link ${from} -> ${u}`, u===to);
+}
 await pg.close();
 // mobile
 for (const theme of ['light','dark']) {
