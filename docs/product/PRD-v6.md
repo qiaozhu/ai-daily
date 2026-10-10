@@ -37,10 +37,18 @@
   | `/?d=YYYY-MM-DD` | `/day/YYYY-MM-DD` | 前端 `location.replace`（Worker 的路由按路径匹配，看不到查询参数；首页要保持静态缓存） |
   | v5 的 `#v=…`、`#/…` | 对应新网址 | 前端 `location.replace`（`#` 后面的内容不会发给服务器） |
   - 前端跳转用 UI 测试验证最终地址，服务端跳转用 curl 验证状态码和 `Location`。
+  - `/?d=` 的值是不存在的日期（如 `2000-01-01`）或格式错误（如 `abc`）时：第一个请求 `/?d=…` 返回首页的静态 HTML，**状态码 200**（服务端看不到查询参数，这一点无法避免）；前端把地址替换成 `/day/<原值>`，显示 404 页。**验收**：UI 测试检查最终地址是 `/day/<原值>`，页面是 404 页；另外用 curl 直接请求 `/day/<原值>`，返回 HTTP 404。
 - **404**：日期不存在或格式错误、话题 id 不存在时，返回真正的 404 状态码和 404 页，HTML 里**不输出 og 标签**。404 页的说明文案（如“日报从 X 月 X 日开始”）中的最早日期从 `/api/days` 动态读取，不写死。
 - `/assets/` 下不存在的静态文件返回 404 加 `no-store`，不能回落到首页 HTML。
-- 对 `/`、`/day/*`、`/story/*` 和周报页，**由 Worker 在 HTML 里直接输出**该页的 `og:title`、`og:description`、`og:image`、`og:url` 和 `twitter:card=summary_large_image`，因为爬虫不执行 JS。图片暂未生成时（F3 上线前，或者当天预生成还没完成），`og:image` 指向一张静态的默认品牌图（Logo），不能为空。
-- **验收**：不执行 JS，直接 `curl /story/<id>`，返回的 HTML 里有上述标签；`og:image` 地址请求后返回 200，类型是 `image/png`；`curl /story/不存在的id` 和 `curl /day/2000-01-01` 都返回 404。
+- **由 Worker 在 HTML 里直接输出** `og:title`、`og:description`、`og:image`、`og:url` 和 `twitter:card=summary_large_image`，因为爬虫不执行 JS。`og:image` 的取值规则如下：
+  | 页面 | `og:image` |
+  |---|---|
+  | `/`（最新一天）、`/day/<date>` | 一律指向 `/og/day/<date>.png`。图还没生成时，由这个地址自己返回默认品牌图（见 F3 的返回规则第 2 条） |
+  | `/story/<id>` | 一律指向 `/og/story/<id>.png`，规则同上 |
+  | 没有对应日期或话题的页面：`/search`、`/archive`（含趋势、周报）、`/me` | 指向静态默认品牌图 |
+  | 404 页 | 不输出任何 og 标签 |
+  - 也就是说，存在的日期和话题**不会**直接引用静态默认图；“图还没生成”这种情况只由 `/og/…` 地址来处理。
+- **验收**：不执行 JS，直接 `curl /story/<id>`，返回的 HTML 里有上述标签，且 `og:image` 等于 `/og/story/<id>.png`（`/day/<date>` 同理）；请求这个地址，无论 KV 里有没有图，都返回 200 和 `image/png`；`curl /story/不存在的id` 和 `curl /day/2000-01-01` 都返回 404，HTML 里没有 og 标签。
 
 ### 3.1 跨日匹配规则（F1 的标记、F2 的走势和关联话题共用）
 话题 id 每天都不同，所以按 `topics` 匹配，不按 id。
