@@ -22,9 +22,26 @@ describe('route state', () => {
   });
   it('converts v5 hash links', () => {
     expect(legacyHashToPath('#v=search&q=Gemini')).toBe('/search?q=Gemini');
+    expect(legacyHashToPath('#v=fav')).toBe('/fav');
+    expect(legacyHashToPath('#v=trend&d=2026-10-09')).toBe('/trend?d=2026-10-09');
     expect(legacyHashToPath('#d=2026-10-09&c=%E8%8A%AF%E7%89%87')).toBe('/?d=2026-10-09&c=%E8%8A%AF%E7%89%87');
+    expect(legacyHashToPath('#v=day&q=ignored')).toBe('/'); // q only belongs to search
     expect(legacyHashToPath('#v=bogus')).toBe('/');
-    expect(legacyHashToPath('#/search?q=x')).toBeNull();
+  });
+  it('converts interim hash-router links', () => {
+    expect(legacyHashToPath('#/')).toBe('/');
+    expect(legacyHashToPath('#/search?q=Gemini')).toBe('/search?q=Gemini');
+    expect(legacyHashToPath('#/search?q=a%20b&c=x')).toBe('/search?c=x&q=a+b');
+    expect(legacyHashToPath('#/fav')).toBe('/fav');
+    expect(legacyHashToPath('#/?d=2026-10-09')).toBe('/?d=2026-10-09');
+    expect(legacyHashToPath('#/nope?x=1')).toBe('/');
+  });
+  it('caps q at 100 chars', () => {
+    expect(legacyHashToPath('#v=search&q=' + 'x'.repeat(300))).toBe('/search?q=' + 'x'.repeat(100));
+  });
+  it('leaves non-legacy hashes alone', () => {
     expect(legacyHashToPath('')).toBeNull();
+    expect(legacyHashToPath('#')).toBeNull();
+    expect(legacyHashToPath('#section-2')).toBeNull();
   });
 });

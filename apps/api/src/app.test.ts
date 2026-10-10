@@ -1,7 +1,7 @@
 // Unit tests of the Hono app with an in-memory D1 stub (no Worker runtime). Full behaviour against real D1 is
 // covered by the black-box suite in tests/api.
 import { describe, expect, it, vi } from 'vitest';
-import { createApp } from './app.ts';
+import { createApp, isFileLike, isSpaFallbackForFile } from './app.ts';
 import { SQL } from './db/sql.ts';
 
 type Handler = (sql: string, args: unknown[]) => { first?: unknown; all?: unknown[]; changes?: number };
@@ -141,5 +141,39 @@ describe('contract details', () => {
   });
   it('/favicon.ico -> 204', async () => {
     expect((await call('/favicon.ico').res).status).toBe(204);
+  });
+});
+
+describe('SPA fallback vs. missing files', () => {
+  const html = () => new Response('<!doctype html>', { status: 200, headers: { 'Content-Type': 'text/html' } });
+
+  it('isFileLike', () => {
+    expect(isFileLike('/x.png')).toBe(true);
+    expect(isFileLike('/a/b.txt')).toBe(true);
+    expect(isFileLike('/search')).toBe(false);
+    expect(isFileLike('/')).toBe(false);
+    expect(isFileLike('/.well-known/x')).toBe(false);
+  });
+  it('isSpaFallbackForFile', () => {
+    expect(isSpaFallbackForFile('/missing.png', html())).toBe(true);
+    expect(isSpaFallbackForFile('/page.html', html())).toBe(false);
+    expect(isSpaFallbackForFile('/search', html())).toBe(false);
+    expect(isSpaFallbackForFile('/robots.txt', new Response('ok', { headers: { 'Content-Type': 'text/plain' } }))).toBe(
+      false,
+    );
+  });
+  it('a missing file answered with the SPA shell becomes a 404 with security headers', async () => {
+    const { db } = fakeDb();
+    const app = createApp();
+    const r = await app.request('http://localhost/missing.png', {}, { DB: db, ASSETS: { fetch: async () => html() } });
+    expect(r.status).toBe(404);
+    expect(r.headers.get('x-frame-options')).toBe('DENY');
+  });
+  it('unknown API paths are never answered by the SPA shell', async () => {
+    const { db } = fakeDb();
+    const app = createApp();
+    const r = await app.request('http://localhost/api/nope', {}, { DB: db, ASSETS: { fetch: async () => html() } });
+    expect(r.status).toBe(404);
+    expect(await r.json()).toEqual({ error: 'not found' });
   });
 });

@@ -1,9 +1,9 @@
-// URL <-> UI state. Hash routing keeps the Worker contract unchanged (no SPA fallback needed; missing static
-// files still 404) and keeps shareable links: #/            today (latest)
-//                                               #/?d=2026-10-09&c=芯片
-//                                               #/search?q=Gemini
-//                                               #/fav   #/trend
-// Legacy v5 links (#v=search&q=…&d=…&c=…) are converted once on startup by legacyHashToPath().
+// URL <-> UI state (path routes, served by the Worker's SPA fallback):
+//   /                         today (latest)          /?d=2026-10-09&c=芯片
+//   /search?q=Gemini          /fav                    /trend
+// Old links are rewritten once on startup by legacyHashToPath():
+//   v5      #v=search&q=…&d=…&c=…   ->  /search?q=…&d=…&c=…
+//   v6-dev  #/search?q=…            ->  /search?q=…
 
 export type View = 'day' | 'search' | 'fav' | 'trend';
 
@@ -48,14 +48,26 @@ export function buildRoute(s: RouteState, latest: string | null): { pathname: st
   return { pathname: VIEW_PATH[s.view], search: qs ? '?' + qs : '' };
 }
 
-/** "#v=search&q=x&d=…" (v5) -> "/search?d=…&q=x"; null when the hash is not a legacy link */
+/**
+ * Legacy hash link -> path URL ("/search?q=x"), or null when `hash` is not a legacy link.
+ * Handles v5 query-style hashes (#v=search&q=x) and the interim hash-router form (#/search?q=x).
+ * Unknown views fall back to "/" and only the known params (d, c, q) are kept.
+ */
 export function legacyHashToPath(hash: string): string | null {
   const h = hash.replace(/^#/, '');
-  if (!h || h.startsWith('/')) return null;
-  const sp = new URLSearchParams(h);
-  if (!['v', 'd', 'c', 'q'].some((k) => sp.has(k))) return null;
-  const v = sp.get('v');
-  const view: View = VIEWS.includes(v as View) ? (v as View) : 'day';
+  if (!h) return null;
+  let view: View;
+  let sp: URLSearchParams;
+  if (h.startsWith('/')) {
+    const qi = h.indexOf('?');
+    view = pathToView(qi < 0 ? h : h.slice(0, qi)) ?? 'day';
+    sp = new URLSearchParams(qi < 0 ? '' : h.slice(qi + 1));
+  } else {
+    sp = new URLSearchParams(h);
+    if (!['v', 'd', 'c', 'q'].some((k) => sp.has(k))) return null; // a plain in-page anchor, leave it alone
+    const v = sp.get('v');
+    view = VIEWS.includes(v as View) ? (v as View) : 'day';
+  }
   const r = buildRoute({ view, date: sp.get('d'), cat: sp.get('c'), q: (sp.get('q') || '').slice(0, 100) }, null);
   return r.pathname + r.search;
 }

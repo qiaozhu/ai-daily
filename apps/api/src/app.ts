@@ -7,6 +7,19 @@ import { readRoutes } from './routes/read.ts';
 
 const isApi = (pathname: string) => pathname.startsWith('/api/');
 
+/** "/x.png", "/a/b.txt" — a last path segment with an extension (pages like /search have none) */
+export const isFileLike = (pathname: string) => /\.[^/.]+$/.test(pathname);
+
+/** the assets layer answered a file-like URL with the SPA's index.html (= the file does not exist) */
+export function isSpaFallbackForFile(pathname: string, res: Response): boolean {
+  return (
+    isFileLike(pathname) &&
+    !/\.html?$/i.test(pathname) &&
+    res.status === 200 &&
+    (res.headers.get('Content-Type') || '').startsWith('text/html')
+  );
+}
+
 export function createApp() {
   const app = new Hono<AppEnv>();
 
@@ -23,7 +36,10 @@ export function createApp() {
       const m = c.req.method;
       return m === 'GET' || m === 'HEAD' ? jsonError(404, 'not found') : jsonError(405, 'method not allowed');
     }
-    return withSecurityHeaders(await c.env.ASSETS.fetch(c.req.raw));
+    const res = await c.env.ASSETS.fetch(c.req.raw);
+    // a missing *file* must not be answered with the SPA shell (broken <img>/<script> would get HTML with 200)
+    if (isSpaFallbackForFile(pathname, res)) return withSecurityHeaders(new Response(null, { status: 404 }));
+    return withSecurityHeaders(res);
   });
 
   app.onError((err) => {
