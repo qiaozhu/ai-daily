@@ -7,9 +7,17 @@ Closes #
 ## 类型
 - [ ] feature　- [ ] bug fix　- [ ] chore / docs
 
+## Local CI result
+<!-- 必填。提交/推送前运行 `bash scripts/ci-local.sh`（前端/API 改动加 `--ui`），把末尾结果块（或 .ci-local/last-result.md）原样粘贴到这里；每次推送新提交后更新。 -->
+
+```
+（粘贴 Local CI result）
+```
+
 ## 检查清单
+- [ ] 已运行 `bash scripts/install-hooks.sh`（pre-commit/pre-push 自动跑本地 CI），未使用 `--no-verify`
 - [ ] 分支名符合 `feat|fix|chore/<issue>-<slug>`
-- [ ] `npm run check` 通过（CI 绿）
+- [ ] `bash scripts/ci-local.sh` 通过，结果已贴在上方（GitHub Actions 恢复后 CI 也须为绿）
 - [ ] `node tests/ui-v2.js http://127.0.0.1:8787` 本地全部通过（UI/前端/API 改动必填，贴结果末行）
 - [ ] 新功能已补充/更新测试（tests/）
 - [ ] 文档已更新（docs/product、docs/design、docs/test、docs/deploy 中受影响的部分）

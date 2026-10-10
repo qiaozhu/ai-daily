@@ -21,7 +21,8 @@ docs/                产品 / 设计 / 测试 / 部署文档与团队流程
 ## 快速开始
 ```bash
 npm install                      # Node ≥ 22
-npm run check                    # 语法 + 数据校验 + wrangler 干跑打包（不需要密钥）
+bash scripts/install-hooks.sh    # 启用 pre-commit/pre-push 钩子（自动跑本地 CI）
+bash scripts/ci-local.sh         # 本地 CI（提交前必跑，与 GitHub CI 一致；前端/API 改动加 --ui）
 npm run db:local && npm run dev  # 本地 http://127.0.0.1:8787
 node tests/ui-v2.js http://127.0.0.1:8787 /tmp/shot-
 ```

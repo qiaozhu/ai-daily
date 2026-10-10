@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Mandatory local CI before every commit (qiao's rule). Installed by: bash scripts/install-hooks.sh
+# Emergency bypass (`git commit --no-verify`) is NOT allowed for bots.
+set -uo pipefail
+ROOT=$(git rev-parse --show-toplevel) || exit 1
+echo "[pre-commit] running local CI: bash scripts/ci-local.sh --fast"
+if ! bash "$ROOT/scripts/ci-local.sh" --fast; then
+  echo "[pre-commit] ❌ local CI failed — commit aborted. Fix the failures above (logs: .ci-local/*.log)." >&2
+  exit 1
+fi
+echo "[pre-commit] ✅ local CI passed. Paste .ci-local/last-result.md into your PR."

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Re-run local CI before every push (catches commits made without the hook). Installed by scripts/install-hooks.sh
+set -uo pipefail
+ROOT=$(git rev-parse --show-toplevel) || exit 1
+echo "[pre-push] running local CI: bash scripts/ci-local.sh --fast"
+bash "$ROOT/scripts/ci-local.sh" --fast || { echo "[pre-push] ❌ local CI failed — push aborted." >&2; exit 1; }

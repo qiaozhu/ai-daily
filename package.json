@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "engines": { "node": ">=22" },
   "scripts": {
+    "ci": "bash scripts/ci-local.sh",
     "check": "bash scripts/check.sh",
     "dev": "wrangler dev --local --port 8787",
     "db:local": "wrangler d1 migrations apply ai-daily --local && node scripts/json2sql.js --all && wrangler d1 execute ai-daily --local --file=sql/all.sql --yes",
