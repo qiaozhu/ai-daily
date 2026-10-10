@@ -5,6 +5,9 @@
 // Usage: node scripts/prerender-cards.mjs <YYYY-MM-DD> [--env preview] [--dry-run] [--out <dir>]
 //   --env preview  upload to the preview KV namespace instead of production
 //   --dry-run      render only, write PNGs to --out (default .cards/<date>/), no Cloudflare calls
+// Exit code is non-zero on any failure. It is independent of daily.sh: the pipeline should run it AFTER daily.sh
+// and only log a failure (e.g. `node scripts/prerender-cards.mjs "$DATE" || echo "prerender failed" >&2`),
+// so a card problem never blocks or rolls back the day's data. Placeholder cards are refused for production.
 // Env: DATA_DIR (day JSON dir, from scripts/env.sh), CLOUDFLARE_API_TOKEN (not needed for --dry-run).
 //
 // KV keys: card/day/<date>/<size>.png and card/story/<story id>/<size>.png, size = og (1200x630) | save (1080x1440).
@@ -99,6 +102,10 @@ async function main(argv) {
   }
   console.log(`渲染完成：${(bytes / 1024).toFixed(1)} KB，本地副本在 ${out}`);
   if (dry) { console.log('[dry-run] 未连接 Cloudflare'); return; }
+  if (renderer.name === 'placeholder' && !env && !argv.includes('--allow-placeholder')) {
+    console.error('packages/share-card 还没上线，拒绝把占位图写进生产 KV（预览可用 --env preview，确需写入加 --allow-placeholder）');
+    process.exit(1);
+  }
   if (!process.env.CLOUDFLARE_API_TOKEN) { console.error('需要 CLOUDFLARE_API_TOKEN（先 source scripts/env.sh）'); process.exit(1); }
 
   const bulk = join(out, 'kv-bulk.json');
