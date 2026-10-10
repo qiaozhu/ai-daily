@@ -7,7 +7,10 @@ export const TREND_W = 320;
 export const TREND_H = 88;
 const W = TREND_W;
 const H = TREND_H;
-const PAD = 4;
+const PAD = 6; // room for the 6px point markers (8px for the latest)
+
+/** below this many points every point gets a marker (design: sparse data reads as dots, not a trend) */
+export const DOTS_BELOW = 7;
 
 /** SVG path of the line (x by calendar date, so days without a report leave a gap in x, not a fake point) */
 export function trendGeometry(points: readonly { date: string; heat: number }[]) {
@@ -26,7 +29,7 @@ export function trendGeometry(points: readonly { date: string; heat: number }[])
   const line = xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x} ${y}`).join(' ');
   const last = xy[xy.length - 1] ?? [0, 0];
   const area = `${line} L${last[0]} ${H} L${xy[0]?.[0] ?? 0} ${H} Z`;
-  return { line, area, last };
+  return { line, area, last, xy };
 }
 
 /** the share card (竖版) of a story, served by the Worker (KV card or the default brand image) */

@@ -5,7 +5,7 @@
 // F2 (#9): the story detail page /story/<id> (cards link to it; 首次出现 state; trend chart with an intercepted
 // multi-day /trend response, since the local DB only has data/*.json; 404 page; share actions).
 // Screenshots: <prefix>{light,dark}-{desktop,mobile}.png (+ search-desktop.png, story-{light,dark}-{desktop,mobile}.png,
-// story-trend-{light,dark}-desktop.png, story-404-mobile.png).
+// story-trend-{light,dark}-desktop.png, story-{light,dark}-mobile-bottom.png, story-404-mobile.png).
 // WARNING: toggles one favorite on and off again on the target site (restores the original state).
 const p=require('puppeteer-core');const BASE=process.argv[2]||'http://127.0.0.1:8787', PFX=process.argv[3]||'';
 const W=ms=>new Promise(r=>setTimeout(r,ms));let fails=0;const R=(n,c)=>{console.log((c?'PASS ':'FAIL ')+n);if(!c)fails++;};
@@ -115,6 +115,8 @@ R('no sort control / no "按热度" on the home page (#20)', (await pg.$$('#sort
   const ch=await pg.$eval('[data-trend=chart]',e=>({n:e.dataset.points,d:e.querySelector('[data-delta]').dataset.delta,txt:e.textContent,stroke:getComputedStyle(e.querySelector('svg path[stroke]')).stroke,sw:e.querySelector('svg path[stroke]').getAttribute('stroke-width'),grad:e.querySelector('stop').getAttribute('stop-opacity')}));
   const dl=Math.round((s.heat-48.2)*10)/10;
   R('trend chart: 3 points, 2px brand line, 18% gradient, change vs previous day '+JSON.stringify(ch), ch.n==='3' && Number(ch.d)===dl && ch.txt.includes('热度走势 · 近 30 天') && ch.stroke==='rgb(125, 90, 240)' && ch.sw==='2' && ch.grad==='0.18');
+  const dots=await pg.$$eval('[data-trend=chart] [data-dot]',x=>x.map(e=>{const r=e.getBoundingClientRect();return {w:Math.round(r.width),h:Math.round(r.height),l:e.dataset.dot,bg:getComputedStyle(e).backgroundColor};}));
+  R('trend < 7 points: a 6px brand dot per point, the latest one bigger '+JSON.stringify(dots), dots.length===3 && dots.every(d=>d.bg==='rgb(125, 90, 240)'&&d.w===d.h) && dots.slice(0,2).every(d=>d.w===6&&d.l==='') && dots[2].l==='latest' && dots[2].w>6);
   await pg.screenshot({path:`${PFX}story-trend-light-desktop.png`,fullPage:false});
   pg.off('request',onT); await pg.setRequestInterception(false); }
 // 404 story: HTTP 404, no og tags, 找不到这个话题, nothing selected in the navigation (PR #20)
@@ -244,7 +246,11 @@ for (const th of ['light','dark']) {
   R(`mobile ${th} detail: title 26px, 复制链接 + 保存分享图 at the bottom, no right column ${t} ${JSON.stringify(act)}`, t==='26px' && act.h>0 && act.t==='复制链接,保存分享图' && await pg.$eval('.rcol',e=>e.offsetHeight===0));
   R(`mobile ${th} detail: tab bar with 今日 selected`, await pg.$eval('#tabbar [aria-current=page]',e=>e.dataset.tab)==='day');
   R(`mobile ${th} detail: no h-overflow `+await pg.evaluate(()=>document.documentElement.scrollWidth), await pg.evaluate(()=>document.documentElement.scrollWidth)<=390);
-  await pg.screenshot({path:`${PFX}story-${th}-mobile.png`,fullPage:true}); }
+  await pg.screenshot({path:`${PFX}story-${th}-mobile.png`,fullPage:true});
+  await pg.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight)); await W(300);
+  const ov=await pg.evaluate(()=>{const a=document.querySelector('#storyActions').getBoundingClientRect(),t=document.querySelector('#tabbar').getBoundingClientRect();return {actBottom:Math.round(a.bottom),barTop:Math.round(t.top),vh:innerHeight};});
+  R(`mobile ${th} detail: scrolled to the bottom, 复制链接 / 保存分享图 clear of the tab bar `+JSON.stringify(ov), ov.actBottom<=ov.barTop && ov.actBottom>0);
+  await pg.screenshot({path:`${PFX}story-${th}-mobile-bottom.png`,fullPage:false}); }
  await pg.close();
 }
 // text contrast >= 4.5:1 (WCAG AA) in light and dark, incl. the detail page (tags, notes, posts, chips, actions)

@@ -1,6 +1,6 @@
 import type { TrendPoint } from '@ai-daily/shared';
 import { dateShort } from '../lib/format.ts';
-import { trendGeometry, TREND_H, TREND_W } from '../lib/trend.ts';
+import { DOTS_BELOW, trendGeometry, TREND_H, TREND_W } from '../lib/trend.ts';
 import { Icon } from './Icon.tsx';
 
 /**
@@ -41,30 +41,46 @@ export function TrendCard({ points, heat }: { points: readonly TrendPoint[]; hea
           <span className="font-normal text-text-2"> 较 {dateShort(prev.date)}</span>
         </span>
       </div>
-      <svg
-        viewBox={`0 0 ${TREND_W} ${TREND_H}`}
-        preserveAspectRatio="none"
-        className="block h-[88px] w-full"
-        role="img"
-        aria-label={label}
-      >
-        <defs>
-          <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--ad-brand)" stopOpacity="0.18" />
-            <stop offset="1" stopColor="var(--ad-brand)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={g.area} fill="url(#trendFill)" />
-        <path
-          d={g.line}
-          fill="none"
-          stroke="var(--ad-brand)"
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
+      <div className="relative">
+        <svg
+          viewBox={`0 0 ${TREND_W} ${TREND_H}`}
+          preserveAspectRatio="none"
+          className="block h-[88px] w-full"
+          role="img"
+          aria-label={label}
+        >
+          <defs>
+            <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--ad-brand)" stopOpacity="0.18" />
+              <stop offset="1" stopColor="var(--ad-brand)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={g.area} fill="url(#trendFill)" />
+          <path
+            d={g.line}
+            fill="none"
+            stroke="var(--ad-brand)"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+        {/* point markers as HTML (the SVG stretches with preserveAspectRatio="none", circles would turn into ellipses) */}
+        {real.length < DOTS_BELOW &&
+          g.xy.map(([x, y], i) => {
+            const latest = i === g.xy.length - 1;
+            return (
+              <span
+                key={real[i]?.date ?? i}
+                data-dot={latest ? 'latest' : ''}
+                aria-hidden="true"
+                className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand ${latest ? 'size-2 ring-2 ring-surface' : 'size-1.5'}`}
+                style={{ left: `${(x / TREND_W) * 100}%`, top: `${(y / TREND_H) * 100}%` }}
+              />
+            );
+          })}
+      </div>
       <div className="mt-1 flex justify-between text-caption font-normal text-text-2">
         <span>{dateShort(real[0]?.date)}</span>
         <span>{dateShort(cur.date)}</span>

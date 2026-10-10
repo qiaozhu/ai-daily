@@ -24,6 +24,14 @@ describe('trendGeometry', () => {
     ]);
     expect(g.line).not.toMatch(/NaN|Infinity/);
   });
+  it('returns one point per input for the markers', () => {
+    const g = trendGeometry([
+      { date: '2026-10-01', heat: 10 },
+      { date: '2026-10-03', heat: 30 },
+    ]);
+    expect(g.xy).toHaveLength(2);
+    expect(g.last).toEqual(g.xy[1]);
+  });
   it('saveImageUrl', () => {
     expect(saveImageUrl('2026-10-10-a b')).toBe('/og/story/2026-10-10-a%20b.png?size=portrait');
   });

@@ -18,7 +18,7 @@
     //   Day/story shells get their og tags injected with HTMLRewriter; /og/default-*.png stay static.
     //   /assets, /assets/* -> content-hashed build files: existing ones are returned as-is (with the 1-year cache from
     //                    _headers), missing ones get 404 + no-store instead of the SPA shell (docs/adr/0002)
-    //   /, /search, /archive, /me -> SPA shell + og tags (PRD #26: crawlers do not run JS); HTML cached <= 5 min
+    //   /, /search, /archive, /me -> SPA shell + og tags (PRD #26, docs/adr/0003); HTML cached <= 5 min
     // `/?d=` is still redirected by the front end (PRD #26 allows the first request to be 200).
     // /theme.js and /brand/* are served straight from the asset layer (no Worker invocation; they always exist).
     "not_found_handling": "single-page-application",

@@ -11,7 +11,7 @@
 | `renderCard({ kind, size, data }) => Promise<Uint8Array>` | `kind`: `'day'` \| `'story'`；`size`: `'og'`（横版 1200×630）\| `'save'`（竖版 1080×1440）；`data`: 每日卡片传当天的日报 JSON，话题卡片传 `{ day, story }`。返回 PNG 字节。 |
 | `CARD_SIZES` | `{ og: {width:1200,height:630}, save: {width:1080,height:1440} }` |
 | `cardKey(kind, idOrDate, size)` | KV key：`card/{kind}/{id 或日期}/{og\|save}.png`，Worker 读取时用的是同一套规则 |
-| `IS_PLACEHOLDER` | 占位实现期间为 `true`。`scripts/prerender-cards.mjs` 的 `loadRenderer()` 读到它时仍把渲染器记为 `placeholder`，所以生产 KV 的保护照样生效（不加 `--allow-placeholder` 就拒绝写入）。F3 换成 satori 后改成 `false` |
+| `IS_PLACEHOLDER` | 占位实现期间为 `true`。`scripts/prerender-cards.mjs` 的 `loadRenderer()` 读到它时仍把渲染器记为 `placeholder`，所以生产 KV 的保护照样生效（不加 `--allow-placeholder` 就拒绝写入）。**F3 正式 `renderCard` 上线时必须把它改成 `false`（或删掉这个导出），否则预生成脚本会一直把渲染器当占位、拒绝写生产 KV**（部署工程师提醒） |
 
 ## 在 Node 里导入
 
@@ -28,3 +28,7 @@ const png = await renderCard({ kind: 'story', size: 'og', data: { day, story } }
 - 为了保证能直接去掉类型运行，tsconfig 开了 `erasableSyntaxOnly`（不能用 enum、namespace 等），包内相对导入一律带 `.ts` 后缀，只依赖 Node 内置模块。
 - F3 约定：wasm 和字体用 `node:fs` 按文件路径读取，不要用 Worker 特有的 `import x from './a.wasm'` 写法。
 - 包里的 `exports` 指向 `./src/index.ts`，workspace 里也可以 `import { renderCard } from '@ai-daily/share-card'`（Vite / Vitest / wrangler 都能直接处理）。
+
+## F3 待办
+
+- [ ] 正式 `renderCard`（satori + resvg）上线时，把 `IS_PLACEHOLDER` 改成 `false` 或删掉这个导出；否则 `scripts/prerender-cards.mjs` 会一直拒写生产 KV。同时更新 `src/index.test.ts` 和 `tests/unit/prerender-cards.test.mjs` 里对它的断言。
