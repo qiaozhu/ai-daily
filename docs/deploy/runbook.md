@@ -28,7 +28,7 @@ bash scripts/deploy-preview.sh --sync-data   # 需要时：预览 D1 迁移 + �
 node tests/ui-v2.js https://ai-daily-preview.qiao-ai-daily.workers.dev /tmp/preview-   # 无头 UI 测试（会写收藏，只对预览跑）
 ```
 - 预览只有一个地址，最后一次部署的分支生效；发之前在群里说一声，避免互相覆盖。
-- 预览 D1 不含线上收藏，只有日报数据。
+- 预览 D1 的数据来自本机的日报 JSON（`$DATA_DIR`，和生产每天导入的是同一批文件），不是从生产库复制；不含线上收藏。需要和生产完全一致时，用 `wrangler d1 export ai-daily --remote` 导出后手动导入。
 
 ## 生产发布（需负责人批准，见 docs/workflow.md）
 发布清单，按顺序执行：

@@ -3,6 +3,7 @@
 # Never touches production. Safe for any bot to run on its own PR branch.
 # Usage: scripts/deploy-preview.sh [--sync-data]
 #   --sync-data  apply migrations and re-import every day JSON from $DATA_DIR into the preview D1 (idempotent).
+#                This is the same JSON production imports, not a copy of the production D1 (no favorites).
 # Env: CLOUDFLARE_API_TOKEN (required; never commit it).
 set -euo pipefail
 SYNC=0; [ "${1:-}" = "--sync-data" ] && SYNC=1
