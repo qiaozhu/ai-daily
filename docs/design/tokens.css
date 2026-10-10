@@ -20,6 +20,7 @@
   --ad-text: #1D1D1F;
   --ad-text-2: #6E6E73;
   --ad-text-3: #AEAEB2;
+  --ad-text-on-fill: #636369; /* 灰底（surface-2）上的文字：chips、搜索框占位，4.79:1 */
   --ad-brand: #7D5AF0;
   --ad-brand-text: #6440D6;
   --ad-brand-soft: rgb(125 90 240 / .10);
@@ -40,6 +41,7 @@
   --ad-text: #F5F5F7;
   --ad-text-2: #98989D;
   --ad-text-3: #636366;
+  --ad-text-on-fill: #A1A1A6; /* 卡片上的灰底 4.96:1；#98989D 只有 4.45 */
   --ad-brand: #A88BFF;
   --ad-brand-text: #A88BFF;
   --ad-brand-soft: rgb(168 139 255 / .18);
@@ -59,6 +61,7 @@
   --color-text: var(--ad-text);
   --color-text-2: var(--ad-text-2);
   --color-text-3: var(--ad-text-3);
+  --color-text-on-fill: var(--ad-text-on-fill);
   --color-brand: var(--ad-brand);
   --color-brand-text: var(--ad-brand-text);
   --color-brand-soft: var(--ad-brand-soft);

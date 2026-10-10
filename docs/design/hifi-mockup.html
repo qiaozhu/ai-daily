@@ -16,7 +16,7 @@ body{background:var(--bg);color:var(--text);font-family:"Inter","Noto Sans CJK S
 .hero .k span{display:flex;align-items:center;gap:6px}.hero .k i{width:6px;height:6px;border-radius:50%;background:var(--brand)}
 .hero .k em{font-style:normal;color:var(--t2);font-weight:400}
 .hero .it{display:flex;gap:12px;font-size:15px;line-height:22px;padding:11px 0;border-top:.5px solid var(--sep)}
-.hero .it:first-of-type{border:0}.hero .it b{color:var(--t3);font-weight:600;width:12px;flex:none}
+.hero .it:first-of-type{border:0}.hero .it b{color:var(--t2);font-weight:600;width:12px;flex:none}
 .seg{display:flex;background:var(--s2);border-radius:10px;padding:2px;overflow:hidden}
 .seg span{flex:1 0 auto;text-align:center;font-size:13px;font-weight:500;padding:6px 10px;border-radius:8px;white-space:nowrap}
 .seg .on{background:var(--segon);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
@@ -30,7 +30,7 @@ body{background:var(--bg);color:var(--text);font-family:"Inter","Noto Sans CJK S
 .heat{display:flex;align-items:center;gap:6px}.bar{width:44px;height:4px;border-radius:2px;background:var(--s2);overflow:hidden}.bar i{display:block;height:100%;background:var(--brand)}
 .more{color:var(--bt)}
 .tab{position:fixed;bottom:0;left:0;right:0;height:83px;background:var(--nav);backdrop-filter:blur(20px);border-top:.5px solid var(--sep);display:flex;justify-content:space-around;padding-top:8px;font-size:10px;font-weight:500;color:var(--t2)}
-.tab div{display:flex;flex-direction:column;align-items:center;gap:3px;width:70px}.tab .on{color:var(--brand)}.tab .ic{width:24px;height:24px}
+.tab div{display:flex;flex-direction:column;align-items:center;gap:3px;width:70px}.tab .on{color:var(--bt)}.tab .on .ic{color:var(--brand)}.tab .ic{width:24px;height:24px}
 /* detail */
 .nb{display:flex;justify-content:space-between;align-items:center;height:44px}
 .back{display:flex;align-items:center;color:var(--bt);font-size:17px}
@@ -41,7 +41,7 @@ body{background:var(--bg);color:var(--text);font-family:"Inter","Noto Sans CJK S
 .first{display:flex;gap:12px;align-items:center}
 .first .dot{width:40px;height:40px;border-radius:12px;background:var(--bs);display:flex;align-items:center;justify-content:center;color:var(--bt);flex:none}
 .post{display:flex;gap:12px;padding:14px 16px;border-top:.5px solid var(--sep)}.post:first-child{border:0}
-.av{width:36px;height:36px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--t2);flex:none}
+.av{width:36px;height:36px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--tof);flex:none}
 .post .h{font-size:14px;font-weight:600}.post .h span{font-weight:400;color:var(--t2);margin-left:4px}
 .post .tr{font-size:15px;line-height:22px;margin-top:3px}
 .post .st{display:flex;gap:14px;font-size:12px;color:var(--t2);margin-top:8px}
@@ -54,7 +54,8 @@ body{background:var(--bg);color:var(--text);font-family:"Inter","Noto Sans CJK S
 .nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;font-size:15px;font-weight:500;margin-bottom:2px}
 .nav a.on{background:var(--bs);color:var(--bt);font-weight:600}
 .rank .r{display:flex;gap:12px;padding:11px 0;border-top:.5px solid var(--sep);font-size:14px;line-height:20px}.rank .r:first-of-type{border:0}
-.rank b{width:16px;color:var(--t3);font-weight:600}.rank .r:nth-of-type(-n+3) b{color:var(--bt)}
+.rank b{width:16px;color:var(--t2);font-weight:600}.rank .r:nth-of-type(-n+3) b{color:var(--bt)}
+:root{--tof:#636369}.dark{--tof:#A1A1A6}
 </style></head><body><div id="app"></div>
 <script>
 const Q=new URLSearchParams(location.search),view=Q.get('v')||'home',dark=Q.get('t')==='dark';if(dark)document.body.classList.add('dark');
@@ -63,14 +64,14 @@ const ic=(n,s='')=>`<svg class="ic" style="${s}" viewBox="0 0 24 24">${I[n]}</sv
 const logo=(s)=>`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9576F7"/><stop offset="1" stop-color="#7D5AF0"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#lg)"/><rect x="22" y="27" width="36" height="11" rx="5.5" fill="#fff"/><circle cx="70" cy="32.5" r="6.5" fill="#fff"/><rect x="22" y="45" width="56" height="11" rx="5.5" fill="#fff" fill-opacity=".78"/><rect x="22" y="63" width="56" height="11" rx="5.5" fill="#fff" fill-opacity=".5"/></svg>`;
 const fmt=n=>n>=1e4?(n/1e4).toFixed(n>=1e5?0:1)+' 万':n.toLocaleString();
 fetch('../../data/2026-10-10.json').then(r=>r.json()).then(d=>{
- const S=[...d.stories].sort((a,b)=>b.heat-a.heat),H=d.highlights.slice(0,3);
- const cats=['全部','关注','大模型','产品','政策','开源'];
+ const S=d.stories,SH=[...d.stories].sort((a,b)=>b.heat-a.heat),H=d.highlights.slice(0,3);
+ const cc={};d.stories.forEach(s=>s.categories.forEach(c=>cc[c]=(cc[c]||0)+1));const cats=['全部',...Object.keys(cc).sort((a,b)=>cc[b]-cc[a])];
  const hero=`<div class="hero"><div class="k"><span><i></i>今日三件事</span><em>来自今日要点</em></div>${H.map((h,i)=>`<div class="it"><b>${i+1}</b><span>${h}</span></div>`).join('')}</div>`;
  const card=s=>`<div class="card"><div class="meta"><span class="pill new">新</span>${s.org_tag} · ${s.source_posts.length} 条原帖</div><h3 class="cl2">${s.headline_zh}</h3><p class="cl2">${s.summary_zh}</p><div class="foot"><span class="heat"><span class="bar"><i style="width:${s.heat}%"></i></span>热度 ${s.heat}</span><span class="more">详情 ›</span></div></div>`;
  const seg=`<div class="seg">${cats.map((c,i)=>`<span class="${i?'':'on'}">${c}</span>`).join('')}</div>`;
  const tab=`<div class="tab"><div class="on">${ic('today')}今日</div><div>${ic('past')}往期</div><div>${ic('search')}搜索</div><div>${ic('me')}我的</div></div>`;
  const s0=S.find(s=>s.id.includes('openai-gpt61'))||S[0];
- const detailBody=(s)=>`<div style="display:flex;gap:6px;margin:6px 0 10px"><span class="pill new">新</span>${s.categories.map(c=>`<span class="pill" style="background:var(--s2);color:var(--t2)">${c}</span>`).join('')}</div>
+ const detailBody=(s)=>`<div style="display:flex;gap:6px;margin:6px 0 10px"><span class="pill new">新</span>${s.categories.map(c=>`<span class="pill" style="background:var(--s2);color:var(--tof)">${c}</span>`).join('')}</div>
   <div class="dt">${s.headline_zh}</div><div style="font-size:13px;color:var(--t2);margin:8px 0 16px">${s.org_tag} · ${s.source_posts.length} 条原帖 · 10月10日</div>
   <div class="block" style="margin-bottom:12px"><div class="lab">摘要</div><div class="txt">${s.summary_zh}</div></div>
   <div class="block" style="margin-bottom:12px"><div class="lab">为什么重要</div><div class="txt">${s.why_it_matters}</div></div>
@@ -78,18 +79,18 @@ fetch('../../data/2026-10-10.json').then(r=>r.json()).then(d=>{
   <div class="sec" style="font-size:17px;margin-bottom:10px">原帖 <span style="font-size:13px;font-weight:400;color:var(--t2)">${s.source_posts.length} 条</span></div>
   <div class="block" style="padding:0;margin-bottom:24px">${s.source_posts.map(p=>`<div class="post"><div class="av">${p.handle[0].toUpperCase()}</div><div style="flex:1"><div class="h">@${p.handle}</div><div class="tr">${(p.translation_zh||p.text).replace(/^“|”$/g,'')}</div><div class="st"><span>${fmt(p.likes)} 赞</span><span>${fmt(p.reposts)} 转发</span><span>${fmt(p.views)} 浏览</span><span class="more" style="margin-left:auto;display:flex;align-items:center;gap:3px">原帖 ${ic('ext','width:13px;height:13px')}</span></div></div></div>`).join('')}</div>
   ${s.news_refs.length?`<div class="sec" style="font-size:17px;margin-bottom:10px">相关新闻</div><div class="block" style="padding:0;margin-bottom:24px">${s.news_refs.map((u,i)=>`<div class="post" style="align-items:center"><div class="av" style="border-radius:10px">${ic('link','width:17px;height:17px')}</div><div style="flex:1;font-size:15px">X 新闻 ${i+1}<div style="font-size:12px;color:var(--t2)">${u.replace('https://','').slice(0,34)}…</div></div><span style="color:var(--t3)">${ic('chev','width:16px;height:16px')}</span></div>`).join('')}</div>`:''}
-  ${s.data_quality?`<div style="display:flex;gap:8px;font-size:13px;line-height:19px;color:var(--t2);background:var(--s2);border-radius:14px;padding:12px 14px;margin-bottom:24px"><span style="font-weight:600;white-space:nowrap">数据说明</span><span>${s.data_quality}</span></div>`:''}
+  ${s.data_quality?`<div style="display:flex;gap:8px;font-size:13px;line-height:19px;color:var(--tof);background:var(--s2);border-radius:14px;padding:12px 14px;margin-bottom:24px"><span style="font-weight:600;white-space:nowrap">数据说明</span><span>${s.data_quality}</span></div>`:''}
   <div class="sec" style="font-size:17px;margin-bottom:10px">关联话题</div>
   <div class="chips" style="margin-bottom:24px">${S.filter(x=>x!==s&&x.categories.some(c=>s.categories.includes(c))).slice(0,5).map(x=>`<span class="chip">${x.org_tag} <span style="color:var(--t3)">›</span></span>`).join('')}</div>`;
  let h='';
  if(view==='home'){h=`<div style="padding:54px 18px 110px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow" style="display:flex;align-items:center;gap:6px"><span style="color:var(--t3)">${ic('back','width:15px;height:15px')}</span>10月10日 星期六<span style="color:var(--t3)">${ic('chev','width:15px;height:15px')}</span></span><div style="display:flex;gap:10px"><span class="ibtn">${ic('share','width:17px;height:17px')}</span></div></div>
-  <div class="lt" style="margin:4px 0 2px">今日热点</div><div style="font-size:13px;color:var(--t2);margin-bottom:16px">${S.length} 个话题 · ${d.generated_at.slice(11,16)} 更新</div>${hero}<div style="margin:20px 0 16px">${seg}</div><div class="sec" style="margin-bottom:10px">全部话题<a>按热度</a></div><div style="display:grid;gap:12px">${S.slice(0,4).map(card).join('')}</div></div>${tab}`}
+  <div class="lt" style="margin:4px 0 2px">今日热点</div><div style="font-size:13px;color:var(--t2);margin-bottom:16px">${S.length} 个话题 · ${d.generated_at.slice(11,16)} 更新</div>${hero}<div style="margin:20px 0 16px">${seg}</div><div class="sec" style="margin-bottom:10px">全部话题</div><div style="display:grid;gap:12px">${S.slice(0,4).map(card).join('')}</div></div>${tab}`}
  if(view==='detail'){h=`<div style="padding:48px 18px 120px"><div class="nb"><span class="back">${ic('back','width:22px;height:22px')}今日热点</span><div style="display:flex;gap:10px"><span class="ibtn">${ic('bm','width:17px;height:17px')}</span><span class="ibtn">${ic('share','width:17px;height:17px')}</span></div></div>${detailBody(s0)}
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="btn s">${ic('link')}复制链接</div><div class="btn p">${ic('img')}保存分享图</div></div></div>`}
  if(view==='desk'){h=`<div class="dk"><aside class="side"><div class="logo" style="font-size:19px;margin:0 0 28px 12px">${logo(32)}AI 热点日报</div><nav class="nav"><a class="on">${ic('today')}今日</a><a>${ic('past')}往期</a><a>${ic('search')}搜索</a><a>${ic('me')}我的</a></nav></aside>
-  <main style="padding:40px 0 60px"><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px"><div><div class="eyebrow" style="display:flex;align-items:center;gap:6px"><span style="color:var(--t3)">${ic('back','width:15px;height:15px')}</span>10月10日 星期六<span style="color:var(--t3)">${ic('chev','width:15px;height:15px')}</span><span style="font-weight:400">· ${S.length} 个话题</span></div><div class="lt" style="font-size:40px;line-height:48px;margin-top:4px">今日热点</div></div><div style="display:flex;gap:10px"><span class="ibtn">${ic('search','width:17px;height:17px')}</span><span class="ibtn">${ic('share','width:17px;height:17px')}</span></div></div>
-  ${hero}<div style="margin:24px 0 16px">${seg}</div><div class="sec" style="margin-bottom:12px">全部话题<a>按热度</a></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${S.slice(0,6).map(card).join('')}</div></main>
-  <aside style="padding:118px 0 40px"><div class="block"><div class="sec" style="font-size:17px;margin-bottom:6px">热度榜</div><div class="rank">${S.slice(0,8).map((s,i)=>`<div class="r"><b>${i+1}</b><span class="cl2" style="flex:1">${s.headline_zh}</span></div>`).join('')}</div></div>
+  <main style="padding:40px 0 60px"><div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px"><div><div class="eyebrow" style="display:flex;align-items:center;gap:6px"><span style="color:var(--t3)">${ic('back','width:15px;height:15px')}</span>10月10日 星期六<span style="color:var(--t3)">${ic('chev','width:15px;height:15px')}</span></div><div class="lt" style="font-size:40px;line-height:48px;margin-top:4px">今日热点</div><div style="font-size:13px;color:var(--t2);margin-top:2px">${S.length} 个话题 · ${d.generated_at.slice(11,16)} 更新</div></div><div style="display:flex;gap:10px"><span class="ibtn">${ic('search','width:17px;height:17px')}</span><span class="ibtn">${ic('share','width:17px;height:17px')}</span></div></div>
+  ${hero}<div style="margin:24px 0 16px">${seg}</div><div class="sec" style="margin-bottom:12px">全部话题</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${S.slice(0,6).map(card).join('')}</div></main>
+  <aside style="padding:118px 0 40px"><div class="block"><div class="sec" style="font-size:17px;margin-bottom:6px">热度榜</div><div class="rank">${SH.slice(0,8).map((s,i)=>`<div class="r"><b>${i+1}</b><span class="cl2" style="flex:1">${s.headline_zh}</span></div>`).join('')}</div></div>
   <div style="font-size:12px;color:var(--t2);line-height:18px;margin:14px 4px">数据来自 X 公开内容，每天 08:50 更新。</div></aside></div>`}
  if(view==='deskdetail'){h=`<div class="dk"><aside class="side"><div class="logo" style="font-size:19px;margin:0 0 28px 12px">${logo(32)}AI 热点日报</div><nav class="nav"><a class="on">${ic('today')}今日</a><a>${ic('past')}往期</a><a>${ic('search')}搜索</a><a>${ic('me')}我的</a></nav></aside>
   <main style="padding:28px 0 60px"><div class="nb" style="margin-bottom:6px"><span class="back">${ic('back','width:22px;height:22px')}今日热点</span><div style="display:flex;gap:10px"><span class="ibtn">${ic('bm','width:17px;height:17px')}</span><span class="ibtn">${ic('share','width:17px;height:17px')}</span></div></div>${detailBody(s0).replace('class="dt"','class="dt" style="font-size:30px;line-height:38px"')}</main>

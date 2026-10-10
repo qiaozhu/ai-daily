@@ -1,0 +1,143 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F5F5F7;--surface:#fff;--s2:rgba(118,118,128,.12);--sep:rgba(0,0,0,.06);--text:#1D1D1F;--t2:#6E6E73;--t3:#AEAEB2;--brand:#7D5AF0;--bt:#6440D6;--bs:rgba(125,90,240,.10);--onb:#fff;--hot:#FF9500;--ht:#B45309;--up:#34C759;--ut:#1F7A36;--sh:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);--nav:rgba(245,245,247,.82);--segon:#fff}
+.dark{--bg:#000;--surface:#1C1C1E;--s2:rgba(118,118,128,.24);--sep:rgba(255,255,255,.08);--text:#F5F5F7;--t2:#98989D;--t3:#636366;--brand:#A88BFF;--bt:#A88BFF;--bs:rgba(168,139,255,.18);--onb:#1C1C1E;--hot:#FF9F0A;--ht:#FF9F0A;--up:#30D158;--ut:#30D158;--sh:none;--nav:rgba(0,0,0,.75);--segon:#636366}
+body{background:var(--bg);color:var(--text);font-family:"Inter","Noto Sans CJK SC",sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum"}
+.cl2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.logo{display:inline-flex;align-items:center;gap:9px;font-weight:700;letter-spacing:-.3px}
+.pill{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.new{background:var(--bs);color:var(--bt)}.hotp{background:rgba(255,149,0,.12);color:var(--ht)}
+.ibtn{width:34px;height:34px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;color:var(--bt)}
+.eyebrow{font-size:13px;font-weight:600;color:var(--t2)}
+.lt{font-size:34px;line-height:41px;font-weight:700;letter-spacing:-.8px}
+.hero{background:var(--surface);border-radius:22px;padding:18px;box-shadow:var(--sh)}
+.hero .k{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;color:var(--bt);margin-bottom:6px}
+.hero .k span{display:flex;align-items:center;gap:6px}.hero .k i{width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.hero .k em{font-style:normal;color:var(--t2);font-weight:400}
+.hero .it{display:flex;gap:12px;font-size:15px;line-height:22px;padding:11px 0;border-top:.5px solid var(--sep)}
+.hero .it:first-of-type{border:0}.hero .it b{color:var(--t2);font-weight:600;width:12px;flex:none}
+.seg{display:flex;background:var(--s2);border-radius:10px;padding:2px;overflow:hidden}
+.seg span{flex:1 0 auto;text-align:center;font-size:13px;font-weight:500;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.seg .on{background:var(--segon);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.sec{display:flex;justify-content:space-between;align-items:baseline;font-size:20px;font-weight:700;letter-spacing:-.3px}
+.sec a{font-size:15px;font-weight:400;color:var(--bt)}
+.card{background:var(--surface);border-radius:18px;padding:16px;box-shadow:var(--sh)}
+.meta{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);margin-bottom:8px}
+.card h3{font-size:17px;line-height:23px;font-weight:600;letter-spacing:-.2px;margin-bottom:6px}
+.card p{font-size:14px;line-height:20px;color:var(--t2)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;color:var(--t2)}
+.heat{display:flex;align-items:center;gap:6px}.bar{width:44px;height:4px;border-radius:2px;background:var(--s2);overflow:hidden}.bar i{display:block;height:100%;background:var(--brand)}
+.more{color:var(--bt)}
+.tab{position:fixed;bottom:0;left:0;right:0;height:83px;background:var(--nav);backdrop-filter:blur(20px);border-top:.5px solid var(--sep);display:flex;justify-content:space-around;padding-top:8px;font-size:10px;font-weight:500;color:var(--t2)}
+.tab div{display:flex;flex-direction:column;align-items:center;gap:3px;width:70px}.tab .on{color:var(--bt)}.tab .on .ic{color:var(--brand)}.tab .ic{width:24px;height:24px}
+/* detail */
+.nb{display:flex;justify-content:space-between;align-items:center;height:44px}
+.back{display:flex;align-items:center;color:var(--bt);font-size:17px}
+.dt{font-size:26px;line-height:32px;font-weight:700;letter-spacing:-.5px}
+.block{background:var(--surface);border-radius:18px;padding:16px;box-shadow:var(--sh)}
+.block .lab{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.block .txt{font-size:15px;line-height:23px}
+.first{display:flex;gap:12px;align-items:center}
+.first .dot{width:40px;height:40px;border-radius:12px;background:var(--bs);display:flex;align-items:center;justify-content:center;color:var(--bt);flex:none}
+.post{display:flex;gap:12px;padding:14px 16px;border-top:.5px solid var(--sep)}.post:first-child{border:0}
+.av{width:36px;height:36px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--tof);flex:none}
+.post .h{font-size:14px;font-weight:600}.post .h span{font-weight:400;color:var(--t2);margin-left:4px}
+.post .tr{font-size:15px;line-height:22px;margin-top:3px}
+.post .st{display:flex;gap:14px;font-size:12px;color:var(--t2);margin-top:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;height:50px;border-radius:14px;font-size:17px;font-weight:600}
+.btn.p{background:var(--brand);color:var(--onb)}.btn.s{background:var(--bs);color:var(--bt)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:14px;padding:8px 12px;border-radius:12px;background:var(--surface);box-shadow:var(--sh);display:flex;align-items:center;gap:6px}
+/* desktop */
+.dk{display:grid;grid-template-columns:240px 680px 320px;gap:32px;justify-content:center;padding:0 24px}
+.side{position:sticky;top:0;height:100vh;padding:28px 0}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;font-size:15px;font-weight:500;margin-bottom:2px}
+.nav a.on{background:var(--bs);color:var(--bt);font-weight:600}
+.rank .r{display:flex;gap:12px;padding:11px 0;border-top:.5px solid var(--sep);font-size:14px;line-height:20px}.rank .r:first-of-type{border:0}
+.rank b{width:16px;color:var(--t2);font-weight:600}.rank .r:nth-of-type(-n+3) b{color:var(--bt)}
+
+.lrow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:.5px solid var(--sep);font-size:15px}.lrow:first-child{border:0}
+.lrow .sub{font-size:13px;color:var(--t2)}.lrow .r{margin-left:auto;color:var(--t3);display:flex;align-items:center;gap:6px;font-size:15px}
+.grp{font-size:13px;font-weight:600;color:var(--t2);margin:22px 4px 8px}
+.ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}
+.sf{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:12px;height:40px;padding:0 12px;color:var(--tof);font-size:16px}
+mark{background:var(--bs);color:var(--bt);border-radius:4px;padding:0 2px}
+.stk{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
+.tg{display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:7px 12px;border-radius:99px;background:var(--surface);box-shadow:var(--sh)}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 18px 40px}
+.input{height:46px;border-radius:12px;background:var(--s2);display:flex;align-items:center;padding:0 14px;font-size:16px}
+.followhl{box-shadow:inset 0 0 0 1.5px var(--brand),var(--sh)}
+:root{--tof:#636369}.dark{--tof:#A1A1A6}
+</style></head><body><div id="app"></div><script>
+const Q=new URLSearchParams(location.search),view=Q.get('v')||'home',dark=Q.get('t')==='dark';if(dark)document.body.classList.add('dark');
+const I={search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',share:'<path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/>',today:'<rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M8 2.5v4M16 2.5v4"/>',past:'<path d="M4 6h16M4 12h16M4 18h10"/>',me:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',back:'<path d="M15 5l-7 7 7 7"/>',chev:'<path d="M9 5l7 7-7 7"/>',spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/>',star:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',bm:'<path d="M6 3.5h12v17l-6-4-6 4z"/>',link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',img:'<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8.5"/>',ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'};
+const ic=(n,s='')=>`<svg class="ic" style="${s}" viewBox="0 0 24 24">${I[n]}</svg>`;
+const logo=(s)=>`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9576F7"/><stop offset="1" stop-color="#7D5AF0"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#lg)"/><rect x="22" y="27" width="36" height="11" rx="5.5" fill="#fff"/><circle cx="70" cy="32.5" r="6.5" fill="#fff"/><rect x="22" y="45" width="56" height="11" rx="5.5" fill="#fff" fill-opacity=".78"/><rect x="22" y="63" width="56" height="11" rx="5.5" fill="#fff" fill-opacity=".5"/></svg>`;
+const fmt=n=>n>=1e4?(n/1e4).toFixed(n>=1e5?0:1)+' 万':n.toLocaleString();
+
+const CC={'大模型':'#7D5AF0','产品':'#34C759','政策':'#FF9500','中文圈':'#FF2D55','科研':'#5AC8FA','融资':'#AF52DE','开源':'#30B0C7','安全':'#FF3B30','芯片':'#A2845E','就业':'#8E8E93'};
+fetch('../../data/2026-10-10.json').then(r=>r.json()).then(d=>{
+ const S=d.stories;const [Y,Mo,Da]=d.date.split('-').map(Number);const dt=new Date(Date.UTC(Y,Mo-1,Da));const WDN='日一二三四五六';const MD=`${Mo}月${Da}日`,WD='星期'+WDN[dt.getUTCDay()],WS='周'+WDN[dt.getUTCDay()];
+ const dow=(dt.getUTCDay()+6)%7;const mon=new Date(dt-dow*864e5),sun=new Date(+mon+6*864e5);const th=new Date(+dt+(3-dow)*864e5);const wk=1+Math.round((th-Date.UTC(th.getUTCFullYear(),0,4))/864e5/7-(3-((new Date(Date.UTC(th.getUTCFullYear(),0,4)).getUTCDay()+6)%7))/7);const fm=x=>`${x.getUTCMonth()+1}月${x.getUTCDate()}日`;const EARLY=MD;
+ const tab=(on)=>`<div class="tab">${[['today','今日'],['past','往期'],['search','搜索'],['me','我的']].map(([i,n])=>`<div class="${n===on?'on':''}">${ic(i)}${n}</div>`).join('')}</div>`;
+ const top=(t,sub)=>`<div class="lt" style="margin:0 0 ${sub?2:16}px">${t}</div>${sub?`<div style="font-size:13px;color:var(--t2);margin-bottom:16px">${sub}</div>`:''}`;
+ const seg3=on=>`<div class="seg" style="margin-bottom:18px">${['日报','趋势','周报'].map(x=>`<span class="${x===on?'on':''}">${x}</span>`).join('')}</div>`;
+ const mini=(s,extra='')=>`<div class="card ${extra}" style="padding:14px 16px"><div class="meta" style="margin-bottom:6px">${extra?'<span class="pill new">'+ic('star','width:12px;height:12px')+' 关注</span>':'<span class="pill new">新</span>'}${s.org_tag} · ${MD}</div><h3 class="cl2" style="font-size:16px;line-height:22px;margin:0">${s.headline_zh}</h3></div>`;
+ let h='';
+ const v=view;
+ if(v==='archive'){h=`<div style="padding:54px 18px 110px">${top('往期')}${seg3('日报')}
+  <div class="grp">${Y} 年 ${Mo} 月</div><div class="block" style="padding:0">
+  <div class="lrow"><div style="width:44px;text-align:center"><div style="font-size:22px;font-weight:700;line-height:1">${Da}</div><div style="font-size:11px;color:var(--t2)">${WS}</div></div><div style="flex:1;min-width:0"><div style="font-weight:600">今日三件事 · ${S.length} 个话题</div><div class="sub cl2" style="margin-top:2px">${d.highlights[0]}</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div></div>
+  <div style="text-align:center;font-size:13px;color:var(--t2);margin-top:18px;line-height:20px">日报从 ${EARLY.replace("月"," 月 ").replace("日"," 日")}开始，每天 08:50 左右更新。<br>满两天以后，可以在"趋势"里看热度变化。</div></div>${tab('往期')}`}
+ if(v==='trend'){const cats={};S.forEach(s=>s.categories.forEach(c=>cats[c]=(cats[c]||0)+1));const cs=Object.entries(cats).sort((a,b)=>b[1]-a[1]);const tot=cs.reduce((a,b)=>a+b[1],0);
+  const tops={};S.forEach(s=>s.topics.forEach(t=>tops[t]=(tops[t]||0)+1));const ts=Object.entries(tops).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  h=`<div style="padding:54px 18px 110px">${top('往期')}${seg3('趋势')}
+  <div class="block" style="margin-bottom:12px"><div class="lab">每日分类分布</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:13px;color:var(--t2);width:40px">10/10</span><div class="stk" style="flex:1">${cs.map(([c,n])=>`<i style="flex:${n};background:${CC[c]||'#8E8E93'}"></i>`).join('')}</div></div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px">${cs.map(([c,n])=>`<span style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:5px"><i style="width:8px;height:8px;border-radius:50%;background:${CC[c]||'#8E8E93'}"></i>${c} ${n}</span>`).join('')}</div>
+  <div style="font-size:12px;color:var(--t2);margin-top:12px">目前只有 1 天数据，每多一天就多一行。</div></div>
+  <div class="block" style="padding:0;margin-bottom:12px"><div class="lab" style="padding:14px 16px 0">分类累计</div>${cs.slice(0,5).map(([c,n])=>`<div class="lrow"><i style="width:10px;height:10px;border-radius:3px;background:${CC[c]}"></i>${c}<span class="r" style="color:var(--t2)">${n} 个话题 · ${Math.round(n/tot*100)}%</span></div>`).join('')}</div>
+  <div class="block" style="padding:0"><div class="lab" style="padding:14px 16px 0">高频话题词</div>${ts.map(([t,n])=>`<div class="lrow">${t}<span class="r" style="color:var(--t2)">${n} 次</span></div>`).join('')}</div></div>${tab('往期')}`}
+ if(v==='weekly'){const T=[...S].sort((a,b)=>b.heat-a.heat).slice(0,10);
+  h=`<div style="padding:54px 18px 110px">${top('往期')}${seg3('周报')}
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="color:var(--t3)">${ic('back','width:20px;height:20px')}</span><div style="text-align:center"><div style="font-size:17px;font-weight:700">${th.getUTCFullYear()} 年第 ${wk} 周</div><div style="font-size:13px;color:var(--t2)">${fm(mon)} – ${fm(sun)} · <span style="color:var(--bt);font-weight:600">截至今天</span></div></div><span style="color:var(--t3);opacity:.4">${ic('chev','width:20px;height:20px')}</span></div>
+  <div class="sec" style="font-size:17px;margin-bottom:10px">本周 Top 10</div>
+  <div class="block" style="padding:0;margin-bottom:22px">${T.map((s,i)=>`<div class="lrow" style="align-items:flex-start"><b style="width:18px;color:${i<3?'var(--bt)':'var(--t2)'};font-weight:700">${i+1}</b><div style="flex:1;min-width:0"><div class="cl2" style="font-size:15px;line-height:21px">${s.headline_zh}</div><div class="sub" style="margin-top:3px">${s.org_tag} · ${MD} · 热度 ${s.heat}</div></div></div>`).join('')}</div>
+  <div class="sec" style="font-size:17px;margin-bottom:10px">反复出现的话题</div>
+  <div class="block"><div class="first"><div class="dot">${ic('spark')}</div><div><div style="font-size:15px;font-weight:600">本周还没有反复出现的话题</div><div style="font-size:13px;color:var(--t2);margin-top:2px">同一个话题在 2 天及以上出现过，才会列在这里</div></div></div></div>
+  <div class="btn s" style="margin-top:16px">${ic('img')}保存周报图</div></div>${tab('往期')}`}
+ if(v==='search'){const q='Claude';const R=S.filter(s=>(s.headline_zh+s.summary_zh+s.topics.join()).includes(q));const hl=t=>t.split(q).join('<mark>'+q+'</mark>');
+  h=`<div style="padding:54px 18px 110px">${top('搜索')}<div class="sf" style="margin-bottom:12px;color:var(--text)">${ic('search','width:17px;height:17px;color:var(--t2)')}${q}<span style="margin-left:auto;width:18px;height:18px;border-radius:50%;background:var(--t2);color:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px">✕</span></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap"><span class="pill" style="background:var(--text);color:var(--bg);padding:5px 12px">全部 ${R.length}</span><span class="pill" style="background:var(--s2);color:var(--tof);padding:5px 12px">产品</span><span class="pill" style="background:var(--s2);color:var(--tof);padding:5px 12px">大模型</span><span class="pill" style="background:var(--s2);color:var(--tof);padding:5px 12px">安全</span></div>
+  <div style="font-size:13px;color:var(--t2);margin:0 4px 10px">找到 ${R.length} 个话题，范围是全部日期</div>
+  <div style="display:grid;gap:12px">${R.map(s=>`<div class="card"><div class="meta">${s.org_tag} · ${MD}</div><h3 class="cl2">${hl(s.headline_zh)}</h3><p class="cl2">${hl(s.summary_zh)}</p></div>`).join('')}</div></div>${tab('搜索')}`}
+ if(v==='searchempty'){h=`<div style="padding:54px 18px 110px">${top('搜索')}<div class="sf" style="margin-bottom:22px">${ic('search','width:17px;height:17px')}搜索话题、机构、账号</div>
+  <div style="text-align:center;font-size:15px;color:var(--t2);line-height:22px;margin-top:40px">搜索全部日期的话题标题、摘要、<br>机构和 X 账号</div></div>${tab('搜索')}`}
+ if(v==='me'){h=`<div style="padding:54px 18px 110px">${top('我的')}
+  <div class="block" style="padding:0"><div class="lrow"><div class="ico" style="background:#FF9500">${ic('bm','width:17px;height:17px')}</div><div>收藏</div><span class="r"><span style="color:var(--t2)">2</span>${ic('chev','width:15px;height:15px')}</span></div>
+  <div class="lrow"><div class="ico" style="background:#7D5AF0">${ic('star','width:17px;height:17px')}</div><div>关注</div><span class="r"><span style="color:var(--t2)">3</span>${ic('chev','width:15px;height:15px')}</span></div></div>
+  <div class="grp">我的关注</div><div style="display:flex;flex-wrap:wrap;gap:8px"><span class="tg"><span style="color:var(--t2);font-size:12px">机构</span>Anthropic</span><span class="tg"><span style="color:var(--t2);font-size:12px">关键词</span>Codex</span><span class="tg"><span style="color:var(--t2);font-size:12px">账号</span>@claudeai</span><span class="tg" style="color:var(--bt);box-shadow:none;background:var(--bs)">＋ 添加</span></div>
+  <div class="grp">设置</div><div class="block" style="padding:0"><div class="lrow">外观<span class="r" style="color:var(--text)"><span class="seg" style="width:150px">${dark?"<span>浅色</span><span class=\"on\">深色</span>":"<span class=\"on\">浅色</span><span>深色</span>"}</span></span></div>
+  <div class="lrow"><div>导出数据<div class="sub">下载全部日报的 JSON</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div>
+  <div class="lrow"><div>关于 AI 热点日报<div class="sub">数据来源与更新时间</div></div><span class="r">${ic('chev','width:15px;height:15px')}</span></div></div>
+  <div style="font-size:12px;color:var(--t2);margin:14px 4px;line-height:18px">收藏和关注只保存在这台设备的浏览器里，换设备不会同步。</div></div>${tab('我的')}`}
+ if(v==='follow'){const F=S.filter(s=>s.org_tag==='Anthropic'||JSON.stringify(s).toLowerCase().includes('codex')||s.source_posts.some(p=>p.handle==='claudeai'));
+  h=`<div style="padding:54px 18px 110px"><div class="eyebrow">${MD} ${WD}</div>${top('今日热点')}
+  <div class="seg" style="margin-bottom:12px"><span>全部</span><span class="on">关注 ${F.length}</span><span>大模型</span><span>产品</span><span>政策</span></div>
+  <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t2);margin:0 4px 12px">只看关注：Anthropic、Codex、@claudeai<span style="margin-left:auto;color:var(--bt)">管理</span></div>
+  <div style="display:grid;gap:12px">${F.map(s=>{const why=s.org_tag==='Anthropic'?'Anthropic':(s.source_posts.some(p=>p.handle==='claudeai')?'@claudeai':'Codex');return `<div class="card followhl"><div class="meta"><span class="pill new">${ic('star','width:12px;height:12px')} ${why}</span>${s.org_tag} · ${s.source_posts.length} 条原帖</div><h3 class="cl2">${s.headline_zh}</h3><p class="cl2">${s.summary_zh}</p></div>`}).join('')}</div></div>${tab('今日')}`}
+ if(v==='addfollow'){h=`<div style="padding:54px 18px 110px;filter:none">${top('我的')}<div class="block" style="height:200px"></div></div><div style="position:fixed;inset:0;background:rgba(0,0,0,.32)"></div>
+  <div class="sheet"><div style="width:36px;height:5px;border-radius:3px;background:var(--t3);margin:0 auto 16px;opacity:.6"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="color:var(--bt);font-size:17px">取消</span><b style="font-size:17px">添加关注</b><span style="color:var(--bt);font-size:17px;font-weight:600">完成</span></div>
+  <div class="seg" style="margin-bottom:14px"><span>账号</span><span>机构</span><span class="on">关键词</span></div>
+  <div class="input" style="margin-bottom:8px">Gemini<span style="margin-left:auto;width:2px;height:22px;background:var(--brand)"></span></div>
+  <div style="font-size:13px;color:var(--t2);margin:0 4px 18px">会匹配标题、摘要、话题词和原帖内容，不区分大小写。</div>
+  <div class="grp" style="margin-top:0">今天出现过的机构</div><div style="display:flex;flex-wrap:wrap;gap:8px">${[...new Set(S.map(s=>s.org_tag))].slice(0,8).map(o=>`<span class="tg" style="background:var(--s2);box-shadow:none">${o}</span>`).join('')}</div>
+  <div style="font-size:12px;color:var(--t2);margin:16px 4px 0">已关注 3 个，最多 50 个</div></div>`}
+ if(v==='followempty'){h=`<div style="padding:54px 18px 110px"><div class="eyebrow">${MD} ${WD}</div>${top('今日热点')}
+  <div class="seg" style="margin-bottom:40px"><span>全部</span><span class="on">关注</span><span>大模型</span><span>产品</span><span>政策</span></div>
+  <div style="text-align:center;padding:0 24px"><div style="width:64px;height:64px;border-radius:18px;background:var(--bs);color:var(--bt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">${ic('star','width:30px;height:30px')}</div><div style="font-size:20px;font-weight:700;margin-bottom:6px">还没有关注任何内容</div><div style="font-size:15px;color:var(--t2);line-height:22px;margin-bottom:20px">关注账号、机构或关键词，相关话题会在首页高亮，也可以在这里只看它们。</div><div class="btn p" style="width:200px;margin:0 auto">添加关注</div></div></div>${tab('今日')}`}
+
+ if(v==='nf-day'||v==='nf-story'){const day=v==='nf-day';h=`<div style="padding:54px 18px 110px"><div style="text-align:center;padding:120px 24px 0"><div style="width:64px;height:64px;border-radius:18px;background:var(--bs);color:var(--bt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">${ic(day?'today':'search','width:30px;height:30px')}</div><div style="font-size:20px;font-weight:700;margin-bottom:6px">${day?'这一天没有日报':'找不到这个话题'}</div><div style="font-size:15px;color:var(--t2);line-height:22px;margin-bottom:24px">${day?`日报从 ${EARLY} 开始，每天早上更新`:'链接可能写错了，或者这个话题已经不在了'}</div><div class="btn p" style="width:200px;margin:0 auto">回到今日</div>${day?'<div class="btn s" style="width:200px;margin:10px auto 0">看往期</div>':''}</div></div>${tab('')}`}
+ document.getElementById('app').innerHTML=h;
+});
+</script></body></html>
