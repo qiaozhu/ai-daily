@@ -11,7 +11,7 @@ const brand=(s,fs)=>`<div class="f" style="align-items:center;gap:${s*.3}px">${l
 Promise.all([fetch('../../data/2026-10-10.json').then(r=>r.json()),fetch('assets/share/qr-day.svg').then(r=>r.text()),fetch('assets/share/qr-story.svg').then(r=>r.text())]).then(([d,qh,qs])=>{
  const H=d.highlights.slice(0,3),S=[...d.stories].sort((a,b)=>b.heat-a.heat),st=d.stories.find(s=>s.id.includes('openai-gpt61'));
  const num=(i,s)=>`<div class="f" style="width:${s}px;height:${s}px;border-radius:50%;background:rgba(125,90,240,.10);color:#6440D6;font-weight:700;font-size:${s*.48}px;align-items:center;justify-content:center;flex:none">${i}</div>`;
- const qr=(svg,s)=>`<div style="width:${s}px;height:${s}px;background:#fff;border-radius:${s*.12}px;padding:${s*.09}px;display:flex">${svg.replace('<svg','<svg width="100%" height="100%"')}</div>`;
+ const qr=(svg,s)=>{const n=+svg.match(/viewBox="0 0 (\d+)/)[1];const pad=4*s/(n+8);return `<div style="width:${s}px;height:${s}px;background:#fff;border-radius:${s*.12}px;padding:${pad}px;display:flex">${svg.replace('<svg','<svg width="100%" height="100%"')}</div>`;}
  let h='';
  if(c==='day-v')h=`<div class="col" style="width:1080px;height:1440px;padding:84px 80px 72px">
   <div class="f" style="justify-content:space-between;align-items:center">${brand(72,40)}<span style="font-size:30px;color:#6E6E73;font-weight:500">每天五分钟，看懂 AI 圈</span></div>
