@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      # syntax + data validation + `wrangler deploy --dry-run` (local bundle only; no Cloudflare secrets needed)
+      - run: bash scripts/check.sh
+      - name: daily.sh dry-run against the repo data snapshot
+        run: |
+          DATA_DIR="$PWD/data" bash scripts/daily.sh --dry-run "$(ls data/*.json | tail -1 | xargs basename -s .json)"
+      - name: Secret scan (cheap grep; fails on token-looking strings)
+        run: |
+          if git grep -nIE '(CLOUDFLARE_API_TOKEN|api[_-]?token|secret)\s*[:=]\s*["'"'"']?[A-Za-z0-9_\-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY' -- . ':!package-lock.json'; then
+            echo "::error::possible secret committed"; exit 1; fi

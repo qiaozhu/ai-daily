@@ -1,0 +1,19 @@
+# deps / build
+node_modules/
+.wrangler/
+dist/
+sql/
+# secrets — never commit
+.env
+.env.*
+*.token
+*.pem
+*.key
+.dev.vars
+.dev.vars.*
+secrets/
+*secret*
+# local test output
+screenshots/
+*.log
+.DS_Store

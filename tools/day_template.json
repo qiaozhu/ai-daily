@@ -1,0 +1,33 @@
+{
+  "date": "YYYY-MM-DD",
+  "generated_at": "YYYY-MM-DDTHH:MM:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "X 公共数据工具（search_posts_all / search_news），约 N 次调用",
+  "highlights": ["3-5 条今日要点（中文）"],
+  "stories": [
+    {
+      "id": "YYYY-MM-DD-short-slug",
+      "headline_zh": "中文标题",
+      "summary_zh": "2-3 句中文摘要",
+      "why_it_matters": "一句话：为什么重要",
+      "org_tag": "Anthropic / OpenAI / 政策 …（卡片上的主标签）",
+      "categories": ["大模型", "开源", "产品", "芯片", "政策", "融资", "中文圈", "安全", "科研", "就业"],
+      "topics": ["实体/话题名，用于跨日趋势，如 OpenAI、DeepSeek、出口管制"],
+      "heat": 0,
+      "source_posts": [
+        {
+          "handle": "username",
+          "post_id": "1234567890",
+          "url": "https://x.com/username/status/1234567890",
+          "text": "API 返回的原文（可截断）",
+          "lang": "en",
+          "translation_zh": "中文意译/摘录",
+          "likes": 0, "reposts": 0, "replies": 0, "views": 0
+        }
+      ],
+      "news_refs": ["https://x.com/i/trending/<news id>"],
+      "data_quality": "该条的数据说明，没有则 null"
+    }
+  ],
+  "data_quality_notes": ["当天整体数据说明"]
+}

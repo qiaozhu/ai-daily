@@ -1,0 +1,19 @@
+{
+  "name": "ai-daily",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI 热点日报：每日从 X 公开数据汇总 AI 热点（Cloudflare Workers + Static Assets + D1）",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "check": "bash scripts/check.sh",
+    "dev": "wrangler dev --local --port 8787",
+    "db:local": "wrangler d1 migrations apply ai-daily --local && node scripts/json2sql.js --all && wrangler d1 execute ai-daily --local --file=sql/all.sql --yes",
+    "deploy:dry": "bash scripts/deploy.sh --dry-run",
+    "test:ui": "node tests/ui-v2.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^23.11.1",
+    "wrangler": "^4.149.0"
+  }
+}

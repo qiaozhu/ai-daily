@@ -1,0 +1,696 @@
+{
+  "date": "2026-10-10",
+  "generated_at": "2026-10-10T10:37:00+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "X 公共数据工具（search_posts_all / search_news），约 15 次调用",
+  "highlights": [
+    "Anthropic 发布 Claude Dashboards / Motion，@claudeai 推文获 5.6 万赞、990 万浏览，是今日最热 AI 产品新闻；同时启动网络安全使命并公开模型行为报告。",
+    "OpenAI 主打速度：GPT-6.1 Sol Ultrafast 最高提速 8 倍，Codex 新增“下一句预测”；另一边，其 722 篇 AI 数学论文引发数学界抵制。",
+    "谷歌 Gemini 4 Argon 让 Polymarket “年底最强模型”盘口翻转（谷歌 43% vs Anthropic 41%），但模型仍未大范围开放。",
+    "国产开源模型持续出海：Qwen-Image-2.1-Turbo、阶跃 Step 5 Preview、DeepSeek V4.1 Flash 刷屏，Ecosia 改用中国开放权重模型。",
+    "政策与产业：特朗普推动以“超级智能”替代“AI”称呼；超微承包商就 25 亿美元英伟达芯片走私案认罪。"
+  ],
+  "stories": [
+    {
+      "id": "2026-10-10-claude-dashboards-motion",
+      "headline_zh": "Claude 上线 Dashboards 与 Motion：一句话把数据变成实时看板和动画讲解",
+      "summary_zh": "Anthropic 官方账号 @claudeai 宣布 Claude Dashboards 和 Claude Motion 开启 Beta：用户可以让 Claude 把数据直接生成实时仪表盘，把想法做成动画讲解视频。这是过去 24 小时 X 上互动量最高的 AI 产品发布，同期 Anthropic 还发布了“Claude Science”协助天体物理学家绘制首张完整紫外天图的案例。",
+      "why_it_matters": "AI 助手正从“对话”走向直接交付可视化成品，办公与数据分析工具链面临重塑。",
+      "org_tag": "Anthropic",
+      "categories": [
+        "产品",
+        "大模型"
+      ],
+      "topics": [
+        "Anthropic",
+        "Claude"
+      ],
+      "heat": 66.7,
+      "source_posts": [
+        {
+          "handle": "claudeai",
+          "post_id": "2108271552991252810",
+          "url": "https://x.com/claudeai/status/2108271552991252810",
+          "text": "Claude Dashboards and Claude Motion are in beta today.\n\nAsk Claude to turn your data into live dashboards and your ideas into animated explainers.",
+          "lang": "en",
+          "translation_zh": "“Claude Dashboards 和 Claude Motion 今天开启 Beta。让 Claude 把你的数据变成实时看板，把想法变成动画讲解。”",
+          "likes": 56080,
+          "reposts": 4167,
+          "replies": 1006,
+          "views": 9916204
+        },
+        {
+          "handle": "AnthropicAI",
+          "post_id": "2108290395599667700",
+          "url": "https://x.com/AnthropicAI/status/2108290395599667700",
+          "text": "An astrophysicist worked with Claude Science to create the first complete ultraviolet map of the sky. Astronomers have already created complete sky maps from radio to gamma rays. But large regions of the sky have never been observed in UV.",
+          "lang": "en",
+          "translation_zh": "“一位天体物理学家与 Claude Science 合作，绘制了首张完整的紫外波段全天图。”",
+          "likes": 4388,
+          "reposts": 475,
+          "replies": 226,
+          "views": 503868
+        }
+      ],
+      "news_refs": [],
+      "data_quality": null
+    },
+    {
+      "id": "2026-10-10-xai-grok-bot",
+      "headline_zh": "马斯克密集宣传 Grok Bot：可自建邮箱、接入 Shopify、管理 Grokipedia",
+      "summary_zh": "马斯克在 24 小时内连发多条推文推广 Grok Bot（智能体助手），内容包括：可接入 Shopify 店铺、可自行设置邮箱、可由 Grok Bots 管理 Grokipedia，并称“可以用 Grok Bot 组建一整家公司”。另据中文社区转述，xAI 上线了视频模型 Grok Imagine Video 1.5 Lite，主打速度与低价。",
+      "why_it_matters": "xAI 正把竞争重心从聊天模型转向能替人执行任务的“AI 员工”。",
+      "org_tag": "xAI / Grok",
+      "categories": [
+        "产品",
+        "大模型"
+      ],
+      "topics": [
+        "xAI",
+        "Grok",
+        "马斯克",
+        "AI智能体"
+      ],
+      "heat": 71.2,
+      "source_posts": [
+        {
+          "handle": "elonmusk",
+          "post_id": "2108298090755031284",
+          "url": "https://x.com/elonmusk/status/2108298090755031284",
+          "text": "And Grok @Bot only gets better from here 🚀 🚀\n\nYou could build an entire company made of Grok Bots!",
+          "lang": "en",
+          "translation_zh": "“Grok @Bot 只会越来越好……你可以用 Grok Bots 组建一整家公司！”",
+          "likes": 18510,
+          "reposts": 1677,
+          "replies": 1341,
+          "views": 26298662
+        },
+        {
+          "handle": "elonmusk",
+          "post_id": "2108396888160387541",
+          "url": "https://x.com/elonmusk/status/2108396888160387541",
+          "text": "We’re just going to have @Grok Bots manage Grokipedia",
+          "lang": "en",
+          "translation_zh": "“我们打算让 @Grok Bots 来管理 Grokipedia。”",
+          "likes": 9426,
+          "reposts": 1110,
+          "replies": 1148,
+          "views": 2163314
+        },
+        {
+          "handle": "HYJsfn9h",
+          "post_id": "2108498507778891835",
+          "url": "https://x.com/HYJsfn9h/status/2108498507778891835",
+          "text": "🎬 马斯克视频大模型杀疯了！xAI 上线 Grok Imagine Video 1.5 Lite，跑分反超谷歌 Veo！\n\nAI 视频赛道打响极速性价比之战：\n\n💥 速度飞跃：生成 10 秒 1080p 高清视频仅需 60 秒左右\n💥 价格直接打骨折：1080p 视频每秒仅 0.14 美元，480p 只需 0.02 美元",
+          "lang": "zh",
+          "translation_zh": "“xAI 上线 Grok Imagine Video 1.5 Lite……10 秒 1080p 视频约 60 秒生成，1080p 每秒仅 0.14 美元。”",
+          "likes": 13,
+          "reposts": 1,
+          "replies": 21,
+          "views": 1147
+        }
+      ],
+      "news_refs": [],
+      "data_quality": "Grok Imagine Video 1.5 Lite 仅有一条中文转述帖（互动低），未找到 xAI 官方原帖。"
+    },
+    {
+      "id": "2026-10-10-openai-gpt61-ultrafast-codex",
+      "headline_zh": "OpenAI 连发开发者更新：GPT-6.1 Sol Ultrafast 提速 8 倍，Codex 新增“下一句预测”",
+      "summary_zh": "OpenAI Developers 宣布 GPT-6.1 Sol 的 Ultrafast 模式在 API、Codex 和 ChatGPT Work 上线，号称接近 Astra 级智能、速度最高为 Sol 标准版的 8 倍；Codex 面向 Pro 用户推出“composer predictions”，可根据对话预测你的下一条消息，并为 Windows 推出基于微软执行容器（MXC）的新沙箱。X 新闻还汇总了本周推出的 Decisions API 公测（面向毫秒级分类/路由决策）。",
+      "why_it_matters": "编程智能体的竞争进入“速度+体验”阶段，延迟正成为新的核心指标。",
+      "org_tag": "OpenAI",
+      "categories": [
+        "产品",
+        "大模型"
+      ],
+      "topics": [
+        "OpenAI",
+        "Codex",
+        "GPT-6"
+      ],
+      "heat": 59.0,
+      "source_posts": [
+        {
+          "handle": "OpenAIDevs",
+          "post_id": "2108262812489531498",
+          "url": "https://x.com/OpenAIDevs/status/2108262812489531498",
+          "text": "Ultrafast is rolling out today for GPT-6.1 Sol in the API, Codex, and ChatGPT Work.\n\nNear-Astra intelligence at up to 8x faster speeds than Sol Standard, so you can build as fast as the ideas come.",
+          "lang": "en",
+          "translation_zh": "“GPT-6.1 Sol 的 Ultrafast 今天在 API、Codex 和 ChatGPT Work 上线：接近 Astra 的智能，速度最高为 Sol 标准版的 8 倍。”",
+          "likes": 5252,
+          "reposts": 359,
+          "replies": 452,
+          "views": 1720113
+        },
+        {
+          "handle": "OpenAIDevs",
+          "post_id": "2108624138369929725",
+          "url": "https://x.com/OpenAIDevs/status/2108624138369929725",
+          "text": "Now in beta: composer predictions in Codex for Pro users.\n\nCodex can now suggest your next message based on your conversation and how you talk to it.\n\nOne of the most loved new features we've ever tested internally.",
+          "lang": "en",
+          "translation_zh": "“Codex 现在可以根据你的对话和说话习惯，预测你的下一条消息。这是我们内部测试过最受喜爱的新功能之一。”",
+          "likes": 5053,
+          "reposts": 255,
+          "replies": 368,
+          "views": 865930
+        },
+        {
+          "handle": "OpenAIDevs",
+          "post_id": "2108573188703781190",
+          "url": "https://x.com/OpenAIDevs/status/2108573188703781190",
+          "text": "An update for builders using Codex on Windows:\n\nWe’ve built a new sandbox mode using @Microsoft’s Execution Containers (MXC) for faster setup, stronger network enforcement, and granular file access controls.\n\nRequires a compatible Windows 11 device.",
+          "lang": "en",
+          "translation_zh": "“为 Windows 上的 Codex 用户构建了基于微软执行容器（MXC）的新沙箱模式。”",
+          "likes": 1214,
+          "reposts": 82,
+          "replies": 115,
+          "views": 111438
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2107552805841928446"
+      ],
+      "data_quality": "@OpenAI 主账号与 @sama 在抓取窗口内无帖；Decisions API 仅来自 X 新闻汇总。"
+    },
+    {
+      "id": "2026-10-10-trump-super-intelligence",
+      "headline_zh": "特朗普要求以“超级智能（SI）”取代“人工智能（AI）”称呼，马斯克一条调侃获 10 万+ 点赞",
+      "summary_zh": "据 X 新闻汇总，特朗普在 Truth Social 发文称，白宫将使用“Artificial Intelligence”而非“Super Intelligence”一词的人视为“敌人”，白宫网站据报已改用“SI”说法；此前还有关于成立“超级智能部队（Super Intelligence Force）”的报道。马斯克则发文调侃“所有超级智能机构已就 AI/SI 安全达成终极共识：把测试搬到完全上不了网的达美航班上”。",
+      "why_it_matters": "美国官方 AI 叙事出现明显政治化倾向，相关监管与产业表述可能随之调整。",
+      "org_tag": "政策",
+      "categories": [
+        "政策"
+      ],
+      "topics": [
+        "特朗普",
+        "美国政策",
+        "马斯克"
+      ],
+      "heat": 71.4,
+      "source_posts": [
+        {
+          "handle": "elonmusk",
+          "post_id": "2108321181602353333",
+          "url": "https://x.com/elonmusk/status/2108321181602353333",
+          "text": "Excited to announce that all super intelligence organizations have now jointly agreed to the ultimate in AI/SI safety:\n\nMoving all testing to Delta Airlines flights, where accessing the Internet is utterly impossible!",
+          "lang": "en",
+          "translation_zh": "“所有超级智能机构已共同同意 AI/SI 安全的终极方案：把所有测试搬到根本无法上网的达美航空航班上！”",
+          "likes": 107663,
+          "reposts": 6663,
+          "replies": 4586,
+          "views": 7483474
+        },
+        {
+          "handle": "peterwildeford",
+          "post_id": "2108714880576409990",
+          "url": "https://x.com/peterwildeford/status/2108714880576409990",
+          "text": "\"President Trump has been clear: America will lead the world in Super Intelligence, but innovation will never be an excuse for compromising national security, government integrity, or public trust. We established the Super Intelligence Force and these safeguards for exactly this",
+          "lang": "en",
+          "translation_zh": "引述官方表态：“美国将在超级智能领域领先世界，但创新绝不能成为损害国家安全的借口……我们正是为此设立了超级智能部队。”",
+          "likes": 26,
+          "reposts": 3,
+          "replies": 1,
+          "views": 1736
+        },
+        {
+          "handle": "IGraceAshford",
+          "post_id": "2108661512025870532",
+          "url": "https://x.com/IGraceAshford/status/2108661512025870532",
+          "text": "🚨 Trump has posted on Truth Social that anyone using “artificial intelligence” instead of “super intelligence” is “THE ENEMY.”\n\nJP Sears and Alex Jones are debating why he wants to change the terminology.\n\nThe long-term agenda is to integrate humans with machines, and language",
+          "lang": "en",
+          "translation_zh": "“特朗普在 Truth Social 发帖称，使用‘人工智能’而不是‘超级智能’的人都是‘敌人’。”",
+          "likes": 10,
+          "reposts": 5,
+          "replies": 0,
+          "views": 567
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108745761886556669"
+      ],
+      "data_quality": "特朗普原帖在 Truth Social，X 上为转述；代表帖互动较低。"
+    },
+    {
+      "id": "2026-10-10-china-open-models",
+      "headline_zh": "国产开源模型扎堆刷屏：千问图像 Turbo、阶跃 Step 5、DeepSeek V4.1 Flash",
+      "summary_zh": "阿里通义发布开放权重的 Qwen-Image-2.1-Turbo，7B 参数、8 步去噪即可生成/编辑 2K 图像；阶跃星辰 Step 5 Preview 登上 OpenRouter 新晋热门榜，并在 Cline、Kilo Code 等工具中限时免费，开放权重定于 10 月 15 日发布；DeepSeek V4.1 Flash 因性价比被大量讨论。另据报道，德国搜索引擎 Ecosia 弃用 Mistral，改用千问、GLM、Kimi 等开放权重模型，成本约降一半。",
+      "why_it_matters": "中国开放权重模型正以“够用+便宜”在海外开发者与企业中快速渗透。",
+      "org_tag": "中国开源",
+      "categories": [
+        "开源",
+        "大模型",
+        "中文圈"
+      ],
+      "topics": [
+        "DeepSeek",
+        "Qwen",
+        "阶跃星辰",
+        "开源模型"
+      ],
+      "heat": 53.9,
+      "source_posts": [
+        {
+          "handle": "Alibaba_Qwen",
+          "post_id": "2108549075218120949",
+          "url": "https://x.com/Alibaba_Qwen/status/2108549075218120949",
+          "text": "🚀 Meet Qwen-Image-2.1-Turbo — create and edit images in just 8 denoising steps! Open weights now available!\n\nBuilt on Qwen-Image-2.1, Turbo is an accelerated checkpoint on the same 7B visual generation architecture.\n\nFewer steps does not mean lower quality: it still generates",
+          "lang": "en",
+          "translation_zh": "“Qwen-Image-2.1-Turbo 来了——8 步去噪即可生成和编辑图像，开放权重现已发布！”",
+          "likes": 3418,
+          "reposts": 356,
+          "replies": 143,
+          "views": 279363
+        },
+        {
+          "handle": "StepFun_ai",
+          "post_id": "2108543010367512641",
+          "url": "https://x.com/StepFun_ai/status/2108543010367512641",
+          "text": "Step 5 Preview is now on @OpenRouter's New & Trending leaderboard.\n\nThanks to everyone giving it a try, and to our partners bringing it into your workflow.",
+          "lang": "en",
+          "translation_zh": "“Step 5 Preview 已登上 OpenRouter 的 New & Trending 榜单。”",
+          "likes": 256,
+          "reposts": 13,
+          "replies": 41,
+          "views": 98141
+        },
+        {
+          "handle": "fkysly",
+          "post_id": "2108509546021089634",
+          "url": "https://x.com/fkysly/status/2108509546021089634",
+          "text": "准备从 deepseek v4.1 flash 和 DSH 改回 Claude Code 和 Opus 5.5 了。没办法，后者现在还是太优秀了。\n\n而且看分析，好像 Claude 订阅的 tokens 性价比比 DeepSeek v4.1 flash 还要高",
+          "lang": "zh",
+          "translation_zh": "“准备从 deepseek v4.1 flash 改回 Claude Code 和 Opus 5.5 了……后者现在还是太优秀了。”",
+          "likes": 44,
+          "reposts": 0,
+          "replies": 16,
+          "views": 15074
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108574376245579815",
+        "https://x.com/i/trending/2108669505350271324",
+        "https://x.com/i/trending/2108342266288886215",
+        "https://x.com/i/trending/2108196076112998755"
+      ],
+      "data_quality": "DeepSeek V4.1 Flash 相关内容主要来自 X 新闻汇总，未找到 DeepSeek 官方帖。"
+    },
+    {
+      "id": "2026-10-10-ai-safety-cyber",
+      "headline_zh": "Anthropic 启动“网络安全使命”并发布模型行为报告；业内传出 AI 网络攻击危机演练",
+      "summary_zh": "Anthropic 宣布启动 Anthropic Cyber Mission，致力于保护关键基础设施和开源软件；随后又开始定期发布模型行为报告，首份报告披露了评估和内部使用中发现的四类 Claude 行为。X 新闻汇总称，OpenAI、Anthropic 等前沿公司高管私下进行了 AI 驱动网络攻击的危机推演，OpenAI 表示这属于常规情景规划。另有 26 位学者发表 210 页论文，探讨通过“硬件层面”暂停前沿 AI 训练的可行性。",
+      "why_it_matters": "AI 安全议题正从理论讨论转向网络防御、透明度报告等具体行动。",
+      "org_tag": "AI 安全",
+      "categories": [
+        "安全",
+        "政策"
+      ],
+      "topics": [
+        "Anthropic",
+        "AI安全",
+        "OpenAI"
+      ],
+      "heat": 49.6,
+      "source_posts": [
+        {
+          "handle": "AnthropicAI",
+          "post_id": "2108302539498414208",
+          "url": "https://x.com/AnthropicAI/status/2108302539498414208",
+          "text": "We’re launching the Anthropic Cyber Mission, a new effort to secure critical infrastructure and open-source software.",
+          "lang": "en",
+          "translation_zh": "“我们启动 Anthropic Cyber Mission，一项保护关键基础设施和开源软件的新行动。”",
+          "likes": 2465,
+          "reposts": 275,
+          "replies": 223,
+          "views": 250759
+        },
+        {
+          "handle": "AnthropicAI",
+          "post_id": "2108680150556737819",
+          "url": "https://x.com/AnthropicAI/status/2108680150556737819",
+          "text": "We’re beginning a process of publishing more frequent reports on model behavior, beyond what appears in our system cards and regular risk reports.\n\nToday’s report describes four types of behaviors we’ve identified during evaluations and internal use. In each, Claude acted on real",
+          "lang": "en",
+          "translation_zh": "“我们开始更频繁地发布模型行为报告……今天的报告描述了我们在评估和内部使用中识别出的四类行为。”",
+          "likes": 1989,
+          "reposts": 172,
+          "replies": 251,
+          "views": 226143
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108516535379894567",
+        "https://x.com/i/trending/2108672563228315944"
+      ],
+      "data_quality": "“危机演练”仅来自 X 新闻汇总（Grok 生成，可能有误）。"
+    },
+    {
+      "id": "2026-10-10-gemini-4-argon-polymarket",
+      "headline_zh": "Gemini 4 Argon 掀翻预测市场：Polymarket 押注谷歌年底拥有最强模型",
+      "summary_zh": "Gemini 4 Argon 于 9 月 30 日发布后，Polymarket“2026 年底最佳 AI 模型”盘口中谷歌以 43% 反超 Anthropic 的 41%（10 月 1 日 Anthropic 还领先，为 52%）。不过 Argon 仍未大范围开放，有人在已合并的 GitHub PR 中发现“Generated-by: Gemini 4 Argon”标注，另有爆料称谷歌内部已在测试更强的“Carbon”版本。中文社区还热议 Gemini 免费版权限被下调。",
+      "why_it_matters": "头部模型排位进入拉锯，谷歌的发布节奏和开放策略成为关键变量。",
+      "org_tag": "Google",
+      "categories": [
+        "大模型"
+      ],
+      "topics": [
+        "Google",
+        "Gemini",
+        "预测市场",
+        "Anthropic"
+      ],
+      "heat": 34.6,
+      "source_posts": [
+        {
+          "handle": "faststocknewss",
+          "post_id": "2108232369677140292",
+          "url": "https://x.com/faststocknewss/status/2108232369677140292",
+          "text": "POLYMARKET ODDS GOOGLE HAS THE BEST AI MODEL AT THE END OF 2026 ARE AT 43%, PASSING ANTHROPIC\n\nAnthropic sits at 41% and OpenAI at 7%, on roughly $2.357M in volume.\n\nAnthropic led at 52% to Google's 41% on October 1. Google was near 10% until late September and announced Gemini 4",
+          "lang": "en",
+          "translation_zh": "“Polymarket 上谷歌年底拥有最佳 AI 模型的概率达 43%，超过 Anthropic（41%），OpenAI 为 7%。”",
+          "likes": 7,
+          "reposts": 0,
+          "replies": 5,
+          "views": 11954
+        },
+        {
+          "handle": "Mr_Salio",
+          "post_id": "2108526519744135553",
+          "url": "https://x.com/Mr_Salio/status/2108526519744135553",
+          "text": "🚨 Gemini 4 Argon just showed up in a real merged GitHub PR\n\nAn open-rmf/rmf_site contribution merged today includes the disclosure:\n\n“Generated-by: Gemini 4 Argon”\n\nThis suggests Argon is already being used for real development work,The internal devs are using it heavily",
+          "lang": "en",
+          "translation_zh": "“Gemini 4 Argon 出现在一个真实合并的 GitHub PR 中：‘Generated-by: Gemini 4 Argon’。”",
+          "likes": 82,
+          "reposts": 3,
+          "replies": 21,
+          "views": 9289
+        },
+        {
+          "handle": "AI_Screening",
+          "post_id": "2108656410670272833",
+          "url": "https://x.com/AI_Screening/status/2108656410670272833",
+          "text": "Gemini 4 Argon hasn’t even launched and Google is already testing Gemini 4 “Carbon” internally.\n\nExpected public release years:\n\nArgon: 2099\nCarbon : 4000 AD",
+          "lang": "en",
+          "translation_zh": "“Gemini 4 Argon 还没上线，谷歌已经在内部测试 Gemini 4 ‘Carbon’了。”",
+          "likes": 75,
+          "reposts": 1,
+          "replies": 4,
+          "views": 4080
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108265223333237010"
+      ],
+      "data_quality": "代表帖互动偏低（个位到百位点赞），热度主要依据 X 新闻判断。"
+    },
+    {
+      "id": "2026-10-10-openai-722-math-papers",
+      "headline_zh": "OpenAI 一次放出 722 篇 AI 数学论文，数学界发起抵制",
+      "summary_zh": "OpenAI 于 10 月 6 日在 GitHub 公开由未发布内部模型生成的 700 余篇数学手稿（372 个结果族），涉及黎曼 ζ 函数零点区域等难题，部分配有 Lean 形式化证明；随后因符号错误撤回 3 篇。“人类数学协会”呼吁抵制，批评其是“力量展示而非学术”。讨论焦点在于：AI 产出证明的速度已远超人类核验能力。",
+      "why_it_matters": "“验证”正成为 AI 科研的新瓶颈，学术规范面临冲击。",
+      "org_tag": "AI for Math",
+      "categories": [
+        "科研",
+        "大模型"
+      ],
+      "topics": [
+        "OpenAI",
+        "AI数学"
+      ],
+      "heat": 34.5,
+      "source_posts": [
+        {
+          "handle": "aakashgupta",
+          "post_id": "2108435037490414049",
+          "url": "https://x.com/aakashgupta/status/2108435037490414049",
+          "text": "OpenAI's new math model spends about 3 hours of compute per result. A human expert needs days to weeks to verify one. OpenAI just published 722 manuscripts at once, and the boycott everyone's laughing at is actually a labor dispute.\n\nRun the numbers. Even at one week of expert",
+          "lang": "en",
+          "translation_zh": "“OpenAI 的数学模型每个结果约花 3 小时算力，人类专家验证一个却要几天到几周……这场抵制其实是一场劳动争议。”",
+          "likes": 65,
+          "reposts": 10,
+          "replies": 5,
+          "views": 9649
+        },
+        {
+          "handle": "TheZvi",
+          "post_id": "2108548767876042832",
+          "url": "https://x.com/TheZvi/status/2108548767876042832",
+          "text": "[X Article] New Math from OpenAI",
+          "lang": "en",
+          "translation_zh": "长文《New Math from OpenAI》，评析此次发布。",
+          "likes": 36,
+          "reposts": 4,
+          "replies": 6,
+          "views": 6085
+        },
+        {
+          "handle": "Nyxelarm",
+          "post_id": "2108631905427955847",
+          "url": "https://x.com/Nyxelarm/status/2108631905427955847",
+          "text": "OPENAI JUST DROPPED 722 MATH PAPERS FROM A MODEL NOBODY CAN USE.\n\n4,000 problems posed. 372 families. 3 hours of thinking per result. Some claims brush the Riemann hypothesis and Birch–Swinnerton-Dyer, the million-dollar ones.\n\nThe New York Times called it breathtaking and",
+          "lang": "en",
+          "translation_zh": "“OpenAI 刚从一个没人能用的模型里放出 722 篇数学论文……4000 个问题、372 个结果族、每个结果思考 3 小时。”",
+          "likes": 29,
+          "reposts": 1,
+          "replies": 3,
+          "views": 580
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2107577903374622920",
+        "https://x.com/i/trending/2108289071437013501"
+      ],
+      "data_quality": "代表帖互动偏低，热度主要依据 X 新闻判断。"
+    },
+    {
+      "id": "2026-10-10-genesis-mission-amie",
+      "headline_zh": "Anthropic、Google DeepMind 各投 1.5 亿美元支持美国“创世纪计划”；谷歌 AMIE 登上《柳叶刀》",
+      "summary_zh": "Anthropic 宣布向美国能源部牵头的 Genesis Mission（创世纪计划）投入 1.5 亿美元，并向 15 个以上联邦机构提供 Claude 与技术支持；Demis Hassabis 也宣布 DeepMind 本周投入 1.5 亿美元支持该计划。谷歌医疗对话 AI AMIE 的前瞻性真实临床研究发表于《柳叶刀》，在 98 名患者中，鉴别诊断列表 90% 包含正确诊断。",
+      "why_it_matters": "头部 AI 公司正深度绑定国家级科研项目，AI 医疗进入真实临床验证阶段。",
+      "org_tag": "AI for Science",
+      "categories": [
+        "科研",
+        "政策",
+        "融资"
+      ],
+      "topics": [
+        "Anthropic",
+        "Google",
+        "Genesis Mission",
+        "AI医疗"
+      ],
+      "heat": 52.8,
+      "source_posts": [
+        {
+          "handle": "AnthropicAI",
+          "post_id": "2108226292235809081",
+          "url": "https://x.com/AnthropicAI/status/2108226292235809081",
+          "text": "We're deepening our commitment to scientific research and technological discovery by committing $150 million to the Genesis Mission.\n\nWe'll also make Claude and our technical support available to more than 15 federal agencies.",
+          "lang": "en",
+          "translation_zh": "“我们向 Genesis Mission 承诺投入 1.5 亿美元，并将向 15 个以上联邦机构提供 Claude 和技术支持。”",
+          "likes": 2962,
+          "reposts": 218,
+          "replies": 223,
+          "views": 209361
+        },
+        {
+          "handle": "demishassabis",
+          "post_id": "2108331042083872882",
+          "url": "https://x.com/demishassabis/status/2108331042083872882",
+          "text": "Excited to support the Genesis Mission @WhiteHouse @ENERGY and Director @mkratsios47 with $150M in investments this week. Looking forward to collaborating on the future of science!",
+          "lang": "en",
+          "translation_zh": "“很高兴本周以 1.5 亿美元投资支持白宫和能源部的 Genesis Mission。”",
+          "likes": 769,
+          "reposts": 42,
+          "replies": 126,
+          "views": 68898
+        },
+        {
+          "handle": "Google",
+          "post_id": "2108324514442461225",
+          "url": "https://x.com/Google/status/2108324514442461225",
+          "text": "Our medical research system, AMIE, is the first patient-facing conversational diagnostic tool of its kind to be studied prospectively in a real-world clinical setting.\n\nIn a study, published today in @TheLancet, we found that when patients chatted with AMIE before an in-person",
+          "lang": "en",
+          "translation_zh": "“AMIE 是首个在真实临床环境中进行前瞻性研究的面向患者的对话式诊断工具，研究今日发表于《柳叶刀》。”",
+          "likes": 559,
+          "reposts": 90,
+          "replies": 46,
+          "views": 123607
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108336411879538984"
+      ],
+      "data_quality": null
+    },
+    {
+      "id": "2026-10-10-supermicro-nvidia-smuggling",
+      "headline_zh": "超微承包商认罪：涉 25 亿美元英伟达 AI 服务器走私中国案；黄仁勋获国家科学奖章",
+      "summary_zh": "超微电脑（Super Micro）外部承包商 Ting-Wei “Willy” Sun 在曼哈顿联邦法院认罪，承认参与将约 25 亿美元含英伟达 B200、H100、H200 芯片的服务器违规转运至中国，另有包括一名超微联合创始人在内的 3 人被起诉。算力端另有消息：博通正为与 OpenAI 合作的定制 AI 芯片筹措超 500 亿美元融资；英伟达 CEO 黄仁勋获美国国家科学奖章。",
+      "why_it_matters": "美国对 AI 芯片出口管制执法持续收紧，算力融资规模屡创新高。",
+      "org_tag": "芯片 / 算力",
+      "categories": [
+        "芯片",
+        "政策",
+        "融资"
+      ],
+      "topics": [
+        "NVIDIA",
+        "出口管制",
+        "Super Micro",
+        "Broadcom"
+      ],
+      "heat": 57.2,
+      "source_posts": [
+        {
+          "handle": "AIStockSavvy",
+          "post_id": "2108693782610821288",
+          "url": "https://x.com/AIStockSavvy/status/2108693782610821288",
+          "text": "📢 JUST IN: Super Micro Contractor Pleads Guilty in $2.5 Billion AI Chip Export Scheme to China - Reuters - $SMCI $NVDA\n\n👉 Key Highlights:\n\n➤ Super Micro contractor pleads guilty in illegal AI chip export scheme.",
+          "lang": "en",
+          "translation_zh": "“超微承包商在 25 亿美元 AI 芯片对华出口案中认罪（路透社）。”",
+          "likes": 14,
+          "reposts": 2,
+          "replies": 4,
+          "views": 5154
+        },
+        {
+          "handle": "ReutersChina",
+          "post_id": "2108739438188662979",
+          "url": "https://x.com/ReutersChina/status/2108739438188662979",
+          "text": "A contractor linked to Super Micro Computer has pleaded guilty in a scheme to illegally export computer servers containing advanced Nvidia AI chips to China, according to a court filing on Friday.",
+          "lang": "en",
+          "translation_zh": "“法庭文件显示，一名与超微相关的承包商承认参与非法向中国出口含先进英伟达 AI 芯片的服务器。”",
+          "likes": 1,
+          "reposts": 0,
+          "replies": 1,
+          "views": 736
+        },
+        {
+          "handle": "nvidia",
+          "post_id": "2108291409623314770",
+          "url": "https://x.com/nvidia/status/2108291409623314770",
+          "text": "Congratulations to our CEO @JensenHuang on receiving the National Medal of Science for advancing GPU computing to power scientific breakthroughs.\n\nAnd to fellow honorees Elon Musk, Lisa Su, Michael Dell, Satya Nadella, and Sergey Brin.",
+          "lang": "en",
+          "translation_zh": "“祝贺我们的 CEO 黄仁勋因推动 GPU 计算助力科学突破而获得国家科学奖章。”",
+          "likes": 6741,
+          "reposts": 778,
+          "replies": 330,
+          "views": 428075
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108743660468687186",
+        "https://x.com/i/trending/2108241884707684714"
+      ],
+      "data_quality": "走私案代表帖互动较低；博通融资仅来自 X 新闻汇总。"
+    },
+    {
+      "id": "2026-10-10-ai-jobs-debate",
+      "headline_zh": "AI 与就业大辩论：斯坦福研究称 AI 增加岗位但压缩初级职位，贝索斯称或迎“三天工作制”",
+      "summary_zh": "斯坦福与伦敦国王学院覆盖 41 国的研究显示，采用 AI 的公司总体招聘更多，但五年间高级岗位增长 6.7%，初级岗位下降 3%。贝索斯在福克斯采访中称 AI 会带来劳动力短缺而非大规模失业，甚至可能实现三天工作制，但因亚马逊此前裁员 3 万人而遭质疑。程序员群体也在激烈讨论“AI 让人变懒”“AI 代码质量”等话题。",
+      "why_it_matters": "AI 对就业的冲击首先落在年轻人和入门岗位上，职业培养路径可能断层。",
+      "org_tag": "就业",
+      "categories": [
+        "就业"
+      ],
+      "topics": [
+        "AI就业",
+        "Amazon"
+      ],
+      "heat": 42.1,
+      "source_posts": [
+        {
+          "handle": "unusual_whales",
+          "post_id": "2108537461739585995",
+          "url": "https://x.com/unusual_whales/status/2108537461739585995",
+          "text": "AI is creating jobs, just not for young workers.\n\nCompanies adopting AI are hiring more people overall, per a new Stanford and King's College London study across 41 countries.\n\nBut the gains go to the top:\n\nSenior employment: +6.7% over 5 years\nJunior employment: -3%",
+          "lang": "en",
+          "translation_zh": "“AI 正在创造工作，只是不给年轻人。高级岗位五年 +6.7%，初级岗位 −3%。”",
+          "likes": 315,
+          "reposts": 22,
+          "replies": 87,
+          "views": 130605
+        },
+        {
+          "handle": "lmoroney",
+          "post_id": "2108604779815399813",
+          "url": "https://x.com/lmoroney/status/2108604779815399813",
+          "text": "Is it still worth starting a career in tech while companies adopt AI? A new study from Stanford and King's College London gives us real data to think with.\n\nBharat Chandar and Bouke Klein Teeselink looked at 1.25 billion job postings and about 154 million employment records",
+          "lang": "en",
+          "translation_zh": "“现在入行科技还值得吗？斯坦福和国王学院的新研究分析了 12.5 亿条招聘信息……”",
+          "likes": 1,
+          "reposts": 0,
+          "replies": 2,
+          "views": 573
+        }
+      ],
+      "news_refs": [
+        "https://x.com/i/trending/2108552290554761451",
+        "https://x.com/i/trending/2108008645128597828"
+      ],
+      "data_quality": null
+    },
+    {
+      "id": "2026-10-10-china-tencent-stepx",
+      "headline_zh": "中文圈热议：腾讯姚顺雨向广东省委书记汇报 AI 布局，阶跃智能体手机 10 月 13 日发布",
+      "summary_zh": "广东省委书记到访腾讯总部调研 AI 产业，28 岁的腾讯首席 AI 科学家、前 OpenAI 研究员姚顺雨与马化腾同席汇报，在中文 X 上引发热议，网友也期待混元下一代模型。另据转述，阶跃首款“大模型原生智能体手机” STEPX Neo 定于 10 月 13 日晚发布；外交部回应“有势力向大模型投喂篡改的二战史料”，称 AI 不应被用于篡改历史。",
+      "why_it_matters": "国内大厂与地方政府对 AI 的重视度持续提升，终端智能体成为新战场。",
+      "org_tag": "中文圈",
+      "categories": [
+        "中文圈",
+        "产品"
+      ],
+      "topics": [
+        "腾讯",
+        "阶跃星辰",
+        "AI智能体"
+      ],
+      "heat": 37.1,
+      "source_posts": [
+        {
+          "handle": "NFT_Chen",
+          "post_id": "2108402860237185081",
+          "url": "https://x.com/NFT_Chen/status/2108402860237185081",
+          "text": "🚨救命！腾讯AI负责人姚顺雨这是晋升成姚局了吗！当面向广东省委书记汇报工作！\n\n10.08广东卫视这条，黄坤明书记深圳调研、腾讯总部座谈，新闻条还在喊四季度夺取全年胜。",
+          "lang": "zh",
+          "translation_zh": "“腾讯 AI 负责人姚顺雨当面向广东省委书记汇报工作……”",
+          "likes": 43,
+          "reposts": 7,
+          "replies": 28,
+          "views": 32509
+        },
+        {
+          "handle": "xiax0603",
+          "post_id": "2108510874185134353",
+          "url": "https://x.com/xiax0603/status/2108510874185134353",
+          "text": "🔥腾讯调研座谈会亮点！98年的姚顺雨和马化腾同席汇报AI业务，直观体现AI在腾讯的核心地位。\n\n55岁小马哥，还是大家熟悉的Q币时期的样子。\n\n这场是广东省委书记到访腾讯总部的调研会议，聚焦人工智能产业布局。\n\n高层把AI抬到如此重要的位置，也让大家对混元下一代 Hy‑4 Pro 充满期待。",
+          "lang": "zh",
+          "translation_zh": "“98 年的姚顺雨和马化腾同席汇报 AI 业务，直观体现 AI 在腾讯的核心地位。”",
+          "likes": 7,
+          "reposts": 0,
+          "replies": 7,
+          "views": 4323
+        },
+        {
+          "handle": "ppmmzzcn",
+          "post_id": "2108394529254695143",
+          "url": "https://x.com/ppmmzzcn/status/2108394529254695143",
+          "text": "🤖【AIBase】阶跃首款大模型原生智能体手机定档：一句话调度跑腿，拍张海报就帮你请假阶跃终端把\"手机自己干活\"这件事推到了发布台前。它宣布旗下 首款 大模型原生智能体手机STEPX Neo将于10月13日晚7点正式亮相",
+          "lang": "zh",
+          "translation_zh": "“阶跃首款大模型原生智能体手机 STEPX Neo 将于 10 月 13 日晚 7 点正式亮相。”",
+          "likes": 0,
+          "reposts": 0,
+          "replies": 0,
+          "views": 23
+        }
+      ],
+      "news_refs": [],
+      "data_quality": "中文圈帖子互动整体较低；外交部回应等内容未附原帖链接。"
+    }
+  ],
+  "data_quality_notes": [
+    "X 搜索不支持 min_faves 等热度筛选，relevancy 排序混入大量低互动帖；改为检索官方账号 + X 新闻 + 话题补充。",
+    "部分故事摘要依据 X 新闻（Grok 汇总），X 标注其可能有误。",
+    "互动数据为抓取时（约 10:30 UTC+8）数值；原文为摘录（API 返回的截断文本）。",
+    "抓取中发现两条公开泄露 API 密钥的帖子，已忽略、未收录。"
+  ]
+}
