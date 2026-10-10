@@ -6,7 +6,7 @@
  * 2. @theme inline 把 Tailwind 的 token 指向这些变量，生成的工具类直接引用 var(--ad-*)，
  *    所以切换 data-theme 时 bg-surface、text-brand-text 这类类名会实时跟着变。
  * 3. 卡片阴影用 @utility 自定义，避免 Tailwind 把阴影值拆开展开，导致深色模式关不掉阴影。
- * 4. dark: 变体绑定到 data-theme="dark"，不跟系统走；默认值由前端在启动时按系统偏好写入，用户可以在"我的"里手动切换。
+ * 4. dark: 变体绑定到 data-theme="dark"，不跟系统走；第一次打开默认浅色，用户在"我的"里手动切换后记在本机。
  */
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
