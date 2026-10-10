@@ -21,3 +21,4 @@ screenshots/
 # local CI output
 .ci-local/
 *.tsbuildinfo
+.cards/
