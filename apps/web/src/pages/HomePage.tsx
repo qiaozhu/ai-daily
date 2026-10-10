@@ -40,7 +40,7 @@ function Highlights({ items, isLatest }: { items: string[]; isLatest: boolean })
       <ol>
         {top.map((h, i) => (
           <li key={i} className="it flex gap-3 border-t-[0.5px] border-separator py-[11px] text-body first:border-t-0">
-            <b className="w-3 flex-none font-semibold text-text-3">{i + 1}</b>
+            <b className="w-3 flex-none font-semibold text-text-2">{i + 1}</b>
             <span>{h}</span>
           </li>
         ))}
@@ -61,7 +61,7 @@ function HeatRank({ day, onPick }: { day: DayDetail; onPick: (id: string) => voi
               className="flex w-full gap-3 py-[11px] text-left text-subhead"
               onClick={() => onPick(s.id)}
             >
-              <b className={`w-4 flex-none font-semibold ${i < 3 ? 'text-brand-text' : 'text-text-3'}`}>{i + 1}</b>
+              <b className={`w-4 flex-none font-semibold ${i < 3 ? 'text-brand-text' : 'text-text-2'}`}>{i + 1}</b>
               <span className="line-clamp-2 flex-1">{s.headline_zh}</span>
             </button>
           </li>
@@ -144,7 +144,7 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
           expanded={expanded}
         />
         {day.data_quality_notes.length > 0 && (
-          <div className="notes mt-6 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-2">
+          <div className="notes mt-6 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-fill">
             <div className="mb-1 font-semibold">数据说明</div>
             <ul className="list-disc pl-4">
               {day.data_quality_notes.map((n, i) => (

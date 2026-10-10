@@ -5,19 +5,24 @@
 @import 'tailwindcss';
 @import './tokens.css';
 
-/* app-level additions to the spec tokens: translucent bars (§5) and the selected segment (§7) */
+/* app-level additions to the spec tokens: translucent bars (§5), the selected segment (§7) and text-fill —
+ * text on grey fills (tags, search field, notes): text-2 only reaches ~4.0–4.4:1 there, this reaches ≥ 4.5:1
+ * (#636369 per the #20 contrast review; dark value chosen to pass on surface-2 too). text-3 is never used for text. */
 :root {
   --ad-bar: rgb(245 245 247 / 0.8);
   --ad-seg-on: #ffffff;
+  --ad-text-fill: #636369;
 }
 [data-theme='dark'] {
   --ad-bar: rgb(0 0 0 / 0.8);
   --ad-seg-on: #636366;
+  --ad-text-fill: #a1a1a6;
 }
 
 @theme inline {
   --color-bar: var(--ad-bar);
   --color-seg-on: var(--ad-seg-on);
+  --color-text-fill: var(--ad-text-fill);
 }
 
 /* type scale (visual spec §4) */

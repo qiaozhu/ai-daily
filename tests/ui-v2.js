@@ -1,7 +1,7 @@
 // usage: node tests/ui-v2.js <baseURL> [shotPrefix]   (needs puppeteer-core + Chrome; CHROME_PATH overrides the browser path)
 // v6 UI (F1 home redesign, visual spec v1). The v5 functional regression checks are kept with the same meaning
 // (stories/rank order, X posts, search + highlight, category filter, favorites, trend, export, history, theme,
-// legacy links); the v5 *visual* checks (blue borders, X-style cards) were replaced by the v1 token checks.
+// legacy links) plus text contrast >= 4.5:1 (tests/ui-contrast.js); the v5 *visual* checks (blue borders, X-style cards) were replaced by the v1 token checks.
 // Screenshots: <prefix>{light,dark}-{desktop,mobile}.png (+ search-desktop.png).
 // WARNING: toggles one favorite on and off again on the target site (restores the original state).
 const p=require('puppeteer-core');const BASE=process.argv[2]||'http://127.0.0.1:8787', PFX=process.argv[3]||'';
@@ -151,6 +151,14 @@ for (const th of ['light','dark']) {
  }
  await pg.close();
 }
+// text contrast >= 4.5:1 (WCAG AA) in light and dark, with a story expanded (tags, notes, posts)
+{ const CHECK=require('fs').readFileSync(require('path').join(__dirname,'ui-contrast.js'),'utf8');
+ for (const th of ['light','dark']) for (const [vp,urls] of [[D,['/','/search','/archive','/archive?tab=trend','/archive?tab=weekly','/me','/day/2000-01-01']],[M,['/','/search']]]) {
+  const pg=await page(vp); await pg.goto(BASE+'/me',{waitUntil:'networkidle0'}); await pg.evaluate(t=>localStorage.setItem('aidaily.theme',JSON.stringify(t)),th);
+  for (const u of urls) { await pg.goto(BASE+u,{waitUntil:'networkidle0'}); await W(200);
+   if (u==='/') { await pg.click('#tl article.story [role=button]'); await W(300); }
+   const bad=await pg.evaluate(CHECK); R(`contrast >= 4.5 ${th} ${vp.width} ${u} ${bad.length?JSON.stringify(bad.slice(0,5)):''}`, bad.length===0); }
+  await pg.evaluate(()=>localStorage.removeItem('aidaily.theme')); await pg.close(); } }
 R('no JS errors '+JSON.stringify(errs), errs.length===0);
 await b.close(); console.log(fails? fails+' FAILED':'ALL PASS'); process.exit(fails?1:0);
 })().catch(e=>{console.error(e);process.exit(1)});

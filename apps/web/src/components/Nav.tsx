@@ -64,7 +64,7 @@ export function TabBar({ active }: { active: Page }) {
             aria-current={on ? 'page' : undefined}
             onClick={onLinkClick}
             className={`flex w-[70px] flex-col items-center gap-[3px] text-[10px] leading-3 font-medium ${
-              on ? 'text-brand' : 'text-text-2'
+              on ? 'text-brand-text' : 'text-text-2'
             }`}
           >
             <Icon name={ICON[t.page]} size={24} />

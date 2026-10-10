@@ -29,7 +29,7 @@ export function Tweet({ post }: { post: SourcePost }) {
       title="在 X 上打开原帖"
     >
       <div
-        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-subhead font-bold text-text-2"
+        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-subhead font-bold text-text-fill"
         aria-hidden="true"
       >
         {name.trim().charAt(0).toUpperCase()}
@@ -40,7 +40,7 @@ export function Tweet({ post }: { post: SourcePost }) {
           <span className="text-text-2">@{post.handle}</span>
           {t.short && (
             <>
-              <span className="text-text-3">·</span>
+              <span className="text-text-2">·</span>
               <time className="text-footnote text-text-2" dateTime={new Date(t.ms).toISOString()} title={t.full}>
                 {t.short}
               </time>
