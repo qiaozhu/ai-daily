@@ -1,73 +1,138 @@
-// URL <-> UI state (path routes, served by the Worker's SPA fallback):
-//   /                         today (latest)          /?d=2026-10-09&c=芯片
-//   /search?q=Gemini          /fav                    /trend
-// Old links are rewritten once on startup by legacyHashToPath():
-//   v5      #v=search&q=…&d=…&c=…   ->  /search?q=…&d=…&c=…
-//   v6-dev  #/search?q=…            ->  /search?q=…
+// URL <-> page state. Path routes (PRD v6 §3.0), served by the Worker's SPA fallback:
+//   /                    今日 (latest day)          /day/2026-10-09      a given day      (?c=分类 on both)
+//   /search?q=Gemini     搜索 (?c= too)             /archive[?tab=daily|trend|weekly]     往期
+//   /me                  我的 (收藏、关注、设置)
+// Old URLs (product decision, F1):
+//   /?d=D[&c=…] -> /day/D[?c=…]   /trend -> /archive?tab=trend   /fav -> /me   (other query params kept)
+//   The Worker answers /trend and /fav with a 301 (apps/api/src/routes/pages.ts). `/?d=` cannot be: `/` is a
+//   static, cached asset (run_worker_first cannot match a query string), so parseRoute() redirects it here.
+//   Old hash links (#v=… from v5, #/… from #15) never reach the server: legacyHashToPath() rewrites them
+//   on startup with history.replaceState (not an HTTP 301).
 
-export type View = 'day' | 'search' | 'fav' | 'trend';
+export type ArchiveTab = 'daily' | 'trend' | 'weekly';
 
-export const VIEWS: readonly View[] = ['day', 'search', 'fav', 'trend'];
+export type Route =
+  | { page: 'day'; date: string | null; cat: string | null }
+  | { page: 'search'; q: string; cat: string | null }
+  | { page: 'archive'; tab: ArchiveTab }
+  | { page: 'me' };
 
-const VIEW_PATH: Record<View, string> = { day: '/', search: '/search', fav: '/fav', trend: '/trend' };
+export type Page = Route['page'];
 
-export const VIEW_TITLE: Record<View, string> = { day: 'AI 热点日报', search: '搜索', fav: '收藏', trend: '趋势' };
+/** the 4 tabs of the bottom bar / side nav */
+export const TABS: readonly { page: Page; label: string; path: string }[] = [
+  { page: 'day', label: '今日', path: '/' },
+  { page: 'archive', label: '往期', path: '/archive' },
+  { page: 'search', label: '搜索', path: '/search' },
+  { page: 'me', label: '我的', path: '/me' },
+];
 
-export interface RouteState {
-  view: View;
-  /** explicit date from the URL (validated against the day list by the caller) */
-  date: string | null;
-  cat: string | null;
-  q: string;
-}
+export const Q_MAX = 100;
+const DAY_PATH = /^\/day\/([^/]+)$/;
+const ARCHIVE_TABS: readonly ArchiveTab[] = ['daily', 'trend', 'weekly'];
 
-/** null when the path is not one of ours */
-export function pathToView(pathname: string): View | null {
-  const p = pathname.replace(/\/+$/, '') || '/';
-  return (Object.keys(VIEW_PATH) as View[]).find((v) => VIEW_PATH[v] === p) ?? null;
-}
-
-export function parseRoute(pathname: string, search: string): RouteState {
-  const sp = new URLSearchParams(search);
-  const view = pathToView(pathname) ?? 'day';
-  return {
-    view,
-    date: sp.get('d') || null,
-    cat: sp.get('c') || null,
-    q: view === 'search' ? (sp.get('q') || '').slice(0, 100) : '',
-  };
-}
-
-/** `latest` is omitted from the URL so "#/" always means "newest day" */
-export function buildRoute(s: RouteState, latest: string | null): { pathname: string; search: string } {
+const qs = (pairs: [string, string | null | undefined][]): string => {
   const sp = new URLSearchParams();
-  if (s.date && s.date !== latest) sp.set('d', s.date);
-  if (s.cat) sp.set('c', s.cat);
-  if (s.view === 'search' && s.q) sp.set('q', s.q);
-  const qs = sp.toString();
-  return { pathname: VIEW_PATH[s.view], search: qs ? '?' + qs : '' };
+  for (const [k, v] of pairs) if (v) sp.set(k, v);
+  const s = sp.toString();
+  return s ? '?' + s : '';
+};
+
+/** canonical URL of a route; the latest day is plain "/" */
+export function buildPath(r: Route, latest: string | null = null): string {
+  switch (r.page) {
+    case 'day':
+      return (r.date && r.date !== latest ? '/day/' + r.date : '/') + qs([['c', r.cat]]);
+    case 'search':
+      return (
+        '/search' +
+        qs([
+          ['q', r.q.slice(0, Q_MAX)],
+          ['c', r.cat],
+        ])
+      );
+    case 'archive':
+      return '/archive' + qs([['tab', r.tab === 'daily' ? null : r.tab]]);
+    case 'me':
+      return '/me';
+  }
+}
+
+/** `path` (may have a query) + the params of `sp` except `drop` and those `path` already sets */
+function withQuery(path: string, sp: URLSearchParams, drop: string[]): string {
+  const [base, q = ''] = path.split('?') as [string, string?];
+  const out = new URLSearchParams(q);
+  for (const [k, v] of sp) if (!drop.includes(k) && !out.has(k)) out.append(k, v);
+  const s = out.toString();
+  return base + (s ? '?' + s : '');
+}
+
+export type Parsed = { route: Route } | { redirect: string };
+
+/** route of a URL, or the URL to redirect to (legacy and unknown paths) */
+export function parseRoute(pathname: string, search: string): Parsed {
+  const p = pathname.replace(/\/+$/, '') || '/';
+  const sp = new URLSearchParams(search);
+  const cat = sp.get('c') || null;
+  if (p === '/') {
+    const d = sp.get('d');
+    if (d) return { redirect: withQuery('/day/' + encodeURIComponent(d), sp, ['d']) };
+    return { route: { page: 'day', date: null, cat } };
+  }
+  const m = DAY_PATH.exec(p);
+  if (m) return { route: { page: 'day', date: decodeURIComponentSafe(m[1] as string), cat } };
+  if (p === '/search') return { route: { page: 'search', q: (sp.get('q') || '').slice(0, Q_MAX), cat } };
+  if (p === '/archive') {
+    const t = sp.get('tab') as ArchiveTab | null;
+    return { route: { page: 'archive', tab: t && ARCHIVE_TABS.includes(t) ? t : 'daily' } };
+  }
+  if (p === '/me') return { route: { page: 'me' } };
+  // old #15 URLs (the Worker already 301s these; kept for the dev server / cached shells)
+  if (p === '/trend') return { redirect: withQuery('/archive?tab=trend', sp, ['tab']) };
+  if (p === '/fav') return { redirect: withQuery('/me', sp, []) };
+  return { redirect: '/' };
+}
+
+function decodeURIComponentSafe(s: string): string {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
+const V5_VIEWS = ['day', 'search', 'fav', 'trend'];
+
+/** follow parseRoute() redirects to the final new-style URL */
+function resolve(path: string, search: string): string {
+  for (let i = 0; i < 3; i++) {
+    const r = parseRoute(path, search);
+    if (!('redirect' in r)) return buildPath(r.route);
+    const qi = r.redirect.indexOf('?');
+    path = qi < 0 ? r.redirect : r.redirect.slice(0, qi);
+    search = qi < 0 ? '' : r.redirect.slice(qi);
+  }
+  return '/';
 }
 
 /**
- * Legacy hash link -> path URL ("/search?q=x"), or null when `hash` is not a legacy link.
- * Handles v5 query-style hashes (#v=search&q=x) and the interim hash-router form (#/search?q=x).
- * Unknown views fall back to "/" and only the known params (d, c, q) are kept.
+ * Legacy hash link -> new path URL, or null when `hash` is not a legacy link (e.g. a plain #anchor).
+ * v5: #v=search&q=x&d=…&c=…   #15 hash router: #/search?q=x, #/fav, #/trend, #/?d=…
  */
 export function legacyHashToPath(hash: string): string | null {
   const h = hash.replace(/^#/, '');
   if (!h) return null;
-  let view: View;
-  let sp: URLSearchParams;
   if (h.startsWith('/')) {
     const qi = h.indexOf('?');
-    view = pathToView(qi < 0 ? h : h.slice(0, qi)) ?? 'day';
-    sp = new URLSearchParams(qi < 0 ? '' : h.slice(qi + 1));
-  } else {
-    sp = new URLSearchParams(h);
-    if (!['v', 'd', 'c', 'q'].some((k) => sp.has(k))) return null; // a plain in-page anchor, leave it alone
-    const v = sp.get('v');
-    view = VIEWS.includes(v as View) ? (v as View) : 'day';
+    return resolve(qi < 0 ? h : h.slice(0, qi), qi < 0 ? '' : h.slice(qi));
   }
-  const r = buildRoute({ view, date: sp.get('d'), cat: sp.get('c'), q: (sp.get('q') || '').slice(0, 100) }, null);
-  return r.pathname + r.search;
+  const sp = new URLSearchParams(h);
+  if (!['v', 'd', 'c', 'q'].some((k) => sp.has(k))) return null;
+  const v = sp.get('v') || 'day';
+  const view = V5_VIEWS.includes(v) ? v : 'day';
+  const cat = sp.get('c') || null;
+  if (view === 'search') return buildPath({ page: 'search', q: sp.get('q') || '', cat });
+  if (view === 'fav') return buildPath({ page: 'me' });
+  if (view === 'trend') return buildPath({ page: 'archive', tab: 'trend' });
+  return buildPath({ page: 'day', date: sp.get('d') || null, cat });
 }

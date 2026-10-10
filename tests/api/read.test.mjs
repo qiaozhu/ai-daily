@@ -268,6 +268,18 @@ describe('unknown routes / methods', () => {
     const r = await api.req('/api/ingest', { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } });
     assert.equal(r.status, 405); assert.equal(r.body.error, 'method not allowed');
   });
+  it('/api (no trailing slash) -> JSON 404, not the SPA shell (#16)', async () => {
+    const r = await api.req('/api');
+    assert.equal(r.status, 404); assertJsonHeaders(r);
+    assert.deepEqual(r.body, { error: 'not found' });
+  });
+  it('client-side routes get the SPA shell (index.html)', async () => {
+    for (const p of ['/search?q=x', '/archive', '/me', '/day/2026-10-10']) {
+      const r = await api.req(p);
+      assert.equal(r.status, 200, p); assert.match(r.headers.get('content-type'), /text\/html/, p);
+      assert.match(r.text, /<div id="root">/, p);
+    }
+  });
   for (const [m, p] of [['POST', '/api/days'], ['PUT', '/api/favorites'], ['DELETE', '/api/stories'], ['PATCH', '/api/export'], ['POST', '/api/favorites/x'], ['GET', '/api/favorites/x']]) {
     it(`${m} ${p} -> ${m === 'GET' ? 404 : 405}`, async () => {
       const r = await api.req(p, { method: m });
@@ -290,13 +302,26 @@ describe('static assets (Workers Static Assets via ASSETS binding)', () => {
     assert.equal(r.headers.get('x-content-type-options'), 'nosniff');
     assert.match(r.headers.get('content-security-policy'), /script-src 'self'/);
   });
-  for (const f of ['app.js', 'style.css', 'theme.js']) {
-    it(`/${f} is served`, async () => {
-      const r = await api.req('/' + f);
-      assert.equal(r.status, 200);
-      assert.match(r.headers.get('content-type'), f.endsWith('.css') ? /text\/css/ : /javascript/);
-    });
-  }
+  // Build files are content-hashed (#16), so check exactly what index.html references instead of fixed names
+  // (same meaning as the old /app.js, /style.css, /theme.js checks: every script/stylesheet of the page is served).
+  it('every script/stylesheet referenced by index.html is served with the right type', async () => {
+    const html = (await api.req('/')).text;
+    const refs = [...html.matchAll(/<(?:script|link)\b[^>]*\b(?:src|href)="(\/[^"]+\.(?:js|css))"/g)].map(m => m[1]);
+    assert.ok(refs.includes('/theme.js'), 'theme.js referenced');
+    assert.ok(refs.some(u => /^\/assets\/.+\.js$/.test(u)), 'entry script referenced: ' + refs);
+    assert.ok(refs.some(u => /^\/assets\/.+\.css$/.test(u)), 'stylesheet referenced: ' + refs);
+    for (const u of refs) {
+      const r = await api.req(u);
+      assert.equal(r.status, 200, u);
+      assert.match(r.headers.get('content-type'), u.endsWith('.css') ? /text\/css/ : /javascript/, u);
+    }
+  });
+  it('hashed /assets/* are cached for a year, index.html is not', async () => {
+    const html = (await api.req('/')).text;
+    const js = html.match(/src="(\/assets\/[^"]+\.js)"/)[1];
+    assert.match((await api.req(js)).headers.get('cache-control') || '', /max-age=31536000.*immutable/);
+    assert.doesNotMatch((await api.req('/')).headers.get('cache-control') || '', /immutable/);
+  });
   it('/favicon.ico -> 204', async () => {
     assert.equal((await api.req('/favicon.ico')).status, 204);
   });

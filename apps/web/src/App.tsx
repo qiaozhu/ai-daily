@@ -1,120 +1,54 @@
-import type { DaySummary, Story } from '@ai-daily/shared';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { api } from './api/client.ts';
-import { CategoryChips } from './components/CategoryChips.tsx';
-import { Icon } from './components/icons.tsx';
-import { LeftNav } from './components/LeftNav.tsx';
-import { MainHeader } from './components/MainHeader.tsx';
-import { StoryCard } from './components/StoryCard.tsx';
-import { SummaryPanel } from './components/SummaryPanel.tsx';
-import { countCategories, filterByCategory } from './lib/categories.ts';
-import { dateCN, generatedClock } from './lib/format.ts';
+import { Main } from './components/Layout.tsx';
+import { SideNav, TabBar } from './components/Nav.tsx';
+import { ListSkeleton } from './components/States.tsx';
 import { queryTerms } from './lib/highlight.ts';
+import { navigate, useUrl } from './lib/router.ts';
 import { applyTheme, initialTheme, type Theme } from './lib/theme.ts';
-import { buildRoute, parseRoute, pathToView, VIEW_TITLE, type RouteState, type View } from './state/route.ts';
+import { HomePage, type Boot } from './pages/HomePage.tsx';
+import { parseRoute } from './state/route.ts';
 import { UiContext, type UiContextValue } from './state/ui-context.ts';
-import { useViewData, type ViewData } from './state/useViewData.ts';
-import { TrendView } from './views/TrendView.tsx';
 
-const FOOTNOTE = '数据来自 X 平台公开内容 · 互动数为抓取时数值 · 时间为北京时间（UTC+8）';
-const SEARCH_DEBOUNCE_MS = 250;
+// the home page ships in the entry chunk; the other tabs are loaded on demand (#16 first-load budget)
+const SearchPage = lazy(() => import('./pages/SearchPage.tsx'));
+const ArchivePage = lazy(() => import('./pages/ArchivePage.tsx'));
+const MePage = lazy(() => import('./pages/MePage.tsx'));
 
-type Boot =
-  | { status: 'loading' }
-  | { status: 'error'; message: string }
-  | { status: 'ready'; days: DaySummary[]; latest: string | null };
-
-/** stories shown by a view before the category filter */
-function poolOf(d: ViewData | undefined): Story[] {
-  if (!d) return [];
-  if (d.kind === 'day') return d.day.stories;
-  if (d.kind === 'search' || d.kind === 'fav') return d.result.stories;
-  return [];
-}
+const TITLE: Record<string, string> = { day: 'AI 热点日报', search: '搜索', archive: '往期', me: '我的' };
 
 export function App() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const knownPath = pathToView(location.pathname) !== null;
-  const route = parseRoute(location.pathname, location.search);
+  const url = useUrl();
+  const qi = url.indexOf('?');
+  const parsed = parseRoute(qi < 0 ? url : url.slice(0, qi), qi < 0 ? '' : url.slice(qi));
+  const redirect = 'redirect' in parsed ? parsed.redirect : null;
+  useLayoutEffect(() => {
+    if (redirect) navigate(redirect, { replace: true });
+  }, [redirect]);
 
-  // ---- boot: day list + favorites ----
+  // ---- boot: day list + favorite ids ----
   const [boot, setBoot] = useState<Boot>({ status: 'loading' });
+  const [bootTry, setBootTry] = useState(0);
   const [favs, setFavs] = useState<ReadonlySet<string>>(new Set());
   const [pending, setPending] = useState<ReadonlySet<string>>(new Set());
   useEffect(() => {
+    let alive = true;
     Promise.all([api.days(), api.favorites()]).then(
       ([d, f]) => {
+        if (!alive) return;
         setFavs(new Set(f.ids));
-        setBoot({ status: 'ready', days: d.days, latest: d.latest });
+        setBoot({ status: 'ready', days: d.days });
       },
-      (e: unknown) => setBoot({ status: 'error', message: e instanceof Error ? e.message : String(e) }),
+      () => alive && setBoot({ status: 'error' }),
     );
-  }, []);
+    return () => {
+      alive = false;
+    };
+  }, [bootTry]);
   const days = boot.status === 'ready' ? boot.days : [];
-  const latest = boot.status === 'ready' ? boot.latest : null;
-  // an unknown ?d= falls back to the newest day
-  const date = route.date && days.some((d) => d.date === route.date) ? route.date : latest;
-  const { view, cat, q } = route;
+  const latest = days[0]?.date ?? null;
 
-  // ---- navigation (URL is the source of truth; replace like v5 did, no history spam) ----
-  const go = useCallback(
-    (next: Partial<RouteState>, opts: { top?: boolean } = {}) => {
-      const s: RouteState = { view, date, cat, q, ...next };
-      navigate(buildRoute(s, latest), { replace: true });
-      if (opts.top) window.scrollTo(0, 0);
-    },
-    [navigate, view, date, cat, q, latest],
-  );
-
-  // ---- search box (debounced) ----
-  const [qInput, setQInput] = useState(q);
-  const [prevRouteQ, setPrevRouteQ] = useState(q);
-  if (prevRouteQ !== q) {
-    // route changed from elsewhere (e.g. a shared link / back to search): mirror it into the box
-    setPrevRouteQ(q);
-    if (q && q !== qInput.trim()) setQInput(q);
-  }
-  const debounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const onSearchInput = (value: string) => {
-    setQInput(value);
-    clearTimeout(debounce.current);
-    debounce.current = setTimeout(
-      () => go({ view: 'search', q: value.trim().slice(0, 100), cat: null }),
-      SEARCH_DEBOUNCE_MS,
-    );
-  };
-  useEffect(() => () => clearTimeout(debounce.current), []);
-
-  const searchRef = useRef<HTMLInputElement>(null);
-  const wantFocus = useRef(false);
-  const onView = (v: View) => {
-    if (v === view && v !== 'day') {
-      if (v === 'search') searchRef.current?.focus();
-      return;
-    }
-    if (v === 'search') wantFocus.current = true;
-    go({ view: v, cat: null, q: v === 'search' ? qInput.trim().slice(0, 100) : q }, { top: true });
-  };
-  const onDate = (d: string) => go({ view: 'day', date: d, cat: null }, { top: true });
-  const onTopic = (topic: string) => {
-    setQInput(topic);
-    go({ view: 'search', q: topic, cat: null }, { top: true });
-  };
-
-  // body class drives view-specific CSS (e.g. the search bar); must be applied before focusing the input
-  useLayoutEffect(() => {
-    document.body.className = 'v-' + view;
-  }, [view]);
-  useEffect(() => {
-    if (view === 'search' && wantFocus.current) {
-      wantFocus.current = false;
-      searchRef.current?.focus();
-    }
-  }, [view]);
-
-  // ---- theme ----
+  // ---- theme (default light, never follows the system; a manual choice is remembered) ----
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const toggleTheme = () => {
     const n: Theme = theme === 'dark' ? 'light' : 'dark';
@@ -122,21 +56,8 @@ export function App() {
     setTheme(n);
   };
 
-  // ---- view data ----
-  const [reloadKey, setReloadKey] = useState(0);
-  // the favorites view is authoritative for the fav set (another device may have changed it)
-  const onLoaded = useCallback((d: ViewData) => {
-    if (d.kind === 'fav') setFavs(new Set(d.result.ids));
-  }, []);
-  const vs = useViewData(boot.status === 'ready', view, date, q, reloadKey, onLoaded);
-  const data = vs.status === 'ready' ? vs.data : undefined;
-
-  const pool = poolOf(data);
-  const list = useMemo(() => filterByCategory(pool, cat), [pool, cat]);
-  const [selRaw, setSel] = useState<string | null>(null);
-  const sel = list.some((s) => s.id === selRaw) ? selRaw : (list[0]?.id ?? null);
-
   // ---- favorites ----
+  const [favVersion, setFavVersion] = useState(0);
   const toggleFav = useCallback(
     async (id: string) => {
       const on = favs.has(id);
@@ -150,6 +71,7 @@ export function App() {
           else n.add(id);
           return n;
         });
+        setFavVersion((v) => v + 1);
       } catch (e) {
         alert('收藏失败：' + (e instanceof Error ? e.message : String(e)));
       } finally {
@@ -159,174 +81,69 @@ export function App() {
           return n;
         });
       }
-      if (view === 'fav') setReloadKey((k) => k + 1);
     },
-    [favs, view],
+    [favs],
   );
+  const onFavsLoaded = useCallback((ids: string[]) => setFavs(new Set(ids)), []);
 
+  const route = 'route' in parsed ? parsed.route : null;
+  const q = route?.page === 'search' ? route.q : '';
   const ui: UiContextValue = useMemo(
-    () => ({ favs, pending, toggleFav: (id) => void toggleFav(id), terms: view === 'search' ? queryTerms(q) : [] }),
-    [favs, pending, toggleFav, view, q],
+    () => ({ favs, pending, toggleFav: (id) => void toggleFav(id), terms: queryTerms(q) }),
+    [favs, pending, toggleFav, q],
   );
 
-  if (!knownPath) return <Navigate to="/" replace />;
+  useEffect(() => {
+    if (route) document.title = route.page === 'day' ? 'AI 热点日报' : `${TITLE[route.page]} · AI 热点日报`;
+  }, [route?.page]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ---- middle column content + subtitle ----
-  let subtitle: ReactNode = '加载中…';
-  let body: ReactNode = <div className="empty">加载中…</div>;
-  const storyList = (showDate: boolean, empty: string) =>
-    list.length ? (
-      list.map((s) => <StoryCard key={s.id} story={s} showDate={showDate} selected={s.id === sel} onSelect={setSel} />)
-    ) : (
-      <div className="empty">{empty}</div>
-    );
+  if (!route) return null;
 
-  if (boot.status === 'error') {
-    subtitle = '加载失败';
-    body = <div className="empty err">加载失败：{boot.message}，请稍后刷新重试</div>;
-  } else if (vs.status === 'error') {
-    body = <div className="empty err">加载失败：{vs.message}，请稍后刷新重试</div>;
-  } else if (data) {
-    switch (data.kind) {
-      case 'no-day':
-        body = <div className="empty">暂无日报数据</div>;
-        break;
-      case 'day': {
-        const d = data.day;
-        subtitle = (
-          <>
-            <span className="sd">{dateCN(d.date)} · </span>
-            {d.stories.length} 个话题 · 生成于 {generatedClock(d.generated_at)} · 来自 X
-          </>
-        );
-        body = (
-          <>
-            {storyList(false, '该分类下暂无内容')}
-            {(d.data_quality_notes || []).length > 0 && (
-              <div className="notes">
-                <h3>数据说明</h3>
-                <ul>
-                  {d.data_quality_notes.map((n, i) => (
-                    <li key={i}>{n}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        );
-        break;
-      }
-      case 'search-empty':
-        subtitle = '在全部历史日报中搜索';
-        body = (
-          <div className="vh">
-            <p>
-              输入关键词，搜索全部 {days.length} 天日报的标题、摘要、标签和 X 原帖（含译文）。多个关键词用空格分隔。
-            </p>
-          </div>
-        );
-        break;
-      case 'search':
-        subtitle = `“${data.q}” · ${data.result.count} 条结果`;
-        body = (
-          <>
-            <div className="vh">
-              <p>
-                “{data.q}” · 在全部 {days.length} 天中找到 {data.result.count} 条
-              </p>
-            </div>
-            {storyList(true, '没有匹配的内容')}
-          </>
-        );
-        break;
-      case 'fav':
-        subtitle = `${data.result.count} 条收藏 · 保存在服务器上`;
-        body = (
-          <>
-            <div className="vh">
-              <h2>⭐ 我的收藏</h2>
-              <p>共 {data.result.count} 条 · 收藏保存在服务器上，任何设备打开都能看到</p>
-            </div>
-            {storyList(true, '还没有收藏，点击话题右上角的 ☆ 即可收藏')}
-          </>
-        );
-        break;
-      case 'trend':
-        subtitle = `${data.result.days.length} 天 · 分类与话题走势`;
-        body = <TrendView data={data.result} onDate={onDate} onSearch={onTopic} />;
-        break;
-    }
+  let page: React.ReactNode;
+  switch (route.page) {
+    case 'day':
+      page = (
+        <HomePage
+          date={route.date}
+          cat={route.cat}
+          boot={boot}
+          latest={latest}
+          onRetryBoot={() => {
+            setBoot({ status: 'loading' });
+            setBootTry((n) => n + 1);
+          }}
+        />
+      );
+      break;
+    case 'search':
+      page = <SearchPage q={route.q} cat={route.cat} dayCount={days.length} />;
+      break;
+    case 'archive':
+      page = <ArchivePage tab={route.tab} days={days} latest={latest} />;
+      break;
+    case 'me':
+      page = <MePage favVersion={favVersion} onFavsLoaded={onFavsLoaded} theme={theme} onToggleTheme={toggleTheme} />;
+      break;
   }
 
-  const categories = countCategories(pool);
-  const chips = pool.length ? (
-    <CategoryChips
-      total={pool.length}
-      categories={categories}
-      active={cat}
-      onPick={(c) => go({ cat: c }, { top: true })}
-    />
-  ) : null;
-  const selected = list.find((s) => s.id === sel);
-
   return (
-    <UiContext value={ui}>
-      <div className="shell">
-        <LeftNav
-          view={view}
-          date={date}
-          days={days}
-          favCount={favs.size}
-          theme={theme}
-          chips={chips}
-          exportUrl={api.exportUrl}
-          onView={onView}
-          onDate={onDate}
-          onToggleTheme={toggleTheme}
-        />
-        <main id="mainCol">
-          <MainHeader
-            view={view}
-            title={VIEW_TITLE[view]}
-            subtitle={subtitle}
-            date={date}
-            days={days}
-            theme={theme}
-            exportUrl={api.exportUrl}
-            onView={onView}
-            onDate={onDate}
-            onToggleTheme={toggleTheme}
-          />
-          <div className="searchbar" id="searchbar">
-            <label className="sbox">
-              <Icon name="search" />
-              <input
-                ref={searchRef}
-                id="q"
-                type="search"
-                placeholder="搜索全部日期的标题、摘要、原帖…"
-                aria-label="搜索"
-                enterKeyHint="search"
-                value={qInput}
-                onChange={(e) => onSearchInput(e.target.value)}
-              />
-            </label>
-          </div>
-          <div className="mobilebar" id="mchips" style={chips ? undefined : { display: 'none' }}>
-            {chips}
-          </div>
-          <div id="tl">
-            {body}
-            <div className="foot">{FOOTNOTE}</div>
-          </div>
-        </main>
-        <aside className="rcol">
-          <div className="rsticky">
-            <SummaryPanel story={selected} view={view} />
-            <div className="rfoot">{FOOTNOTE}</div>
-          </div>
-        </aside>
+    <UiContext.Provider value={ui}>
+      <div
+        className="lg:grid lg:grid-cols-[240px_minmax(0,680px)] lg:justify-center lg:gap-8 lg:px-6 xl:grid-cols-[240px_680px_320px]"
+        data-page={route.page}
+      >
+        <SideNav active={route.page} favCount={favs.size} />
+        <Suspense
+          fallback={
+            <Main>
+              <ListSkeleton n={3} />
+            </Main>
+          }
+        >
+          {page}
+        </Suspense>
       </div>
-    </UiContext>
+      <TabBar active={route.page} />
+    </UiContext.Provider>
   );
 }

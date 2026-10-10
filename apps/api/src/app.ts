@@ -3,9 +3,11 @@ import type { AppEnv } from './env.ts';
 import { jsonError, withSecurityHeaders } from './lib/http.ts';
 import { ValidationError, validationResponse } from './lib/validate.ts';
 import { favoriteRoutes } from './routes/favorites.ts';
+import { pageRoutes } from './routes/pages.ts';
 import { readRoutes } from './routes/read.ts';
 
-const isApi = (pathname: string) => pathname.startsWith('/api/');
+/** "/api" itself is an (unknown) API path too, never the SPA shell */
+export const isApi = (pathname: string) => pathname === '/api' || pathname.startsWith('/api/');
 
 /** "/x.png", "/a/b.txt" — a last path segment with an extension (pages like /search have none) */
 export const isFileLike = (pathname: string) => /\.[^/.]+$/.test(pathname);
@@ -25,6 +27,7 @@ export function createApp() {
 
   app.route('/api', readRoutes);
   app.route('/api', favoriteRoutes);
+  app.route('/', pageRoutes);
 
   // Non-API requests only reach the Worker when no static asset matched (run_worker_first: ["/api/*"]).
   app.all('/favicon.ico', () => new Response(null, { status: 204 }));

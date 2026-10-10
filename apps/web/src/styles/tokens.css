@@ -1,0 +1,90 @@
+/* Copy of docs/design/tokens.css (visual spec v1, PR #5) — the design doc is the source of truth; keep in sync. */
+/* 视觉规范 v1 的 Tailwind 4 主题变量（docs/design/visual-spec-v1.md）。
+ * 用法：在 apps/web 的样式入口里，先 @import "tailwindcss"，再引入本文件；数值以规范文档为准。
+ *
+ * 结构说明：
+ * 1. 真实色值写成普通 CSS 变量（--ad-*），浅色放在 :root，深色放在 [data-theme="dark"] 里覆盖。
+ * 2. @theme inline 把 Tailwind 的 token 指向这些变量，生成的工具类直接引用 var(--ad-*)，
+ *    所以切换 data-theme 时 bg-surface、text-brand-text 这类类名会实时跟着变。
+ * 3. 卡片阴影用 @utility 自定义，避免 Tailwind 把阴影值拆开展开，导致深色模式关不掉阴影。
+ * 4. dark: 变体绑定到 data-theme="dark"，不跟系统走；第一次打开默认浅色，用户在"我的"里手动切换后记在本机。
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+  --ad-bg: #f5f5f7;
+  --ad-surface: #ffffff;
+  --ad-surface-2: rgb(118 118 128 / 0.12);
+  --ad-separator: rgb(0 0 0 / 0.06);
+  --ad-text: #1d1d1f;
+  --ad-text-2: #6e6e73;
+  --ad-text-3: #aeaeb2;
+  --ad-brand: #7d5af0;
+  --ad-brand-text: #6440d6;
+  --ad-brand-soft: rgb(125 90 240 / 0.1);
+  --ad-on-brand: #ffffff;
+  --ad-hot: #ff9500;
+  --ad-hot-text: #b45309;
+  --ad-up: #34c759;
+  --ad-up-text: #1f7a36;
+  --ad-shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --ad-bg: #000000;
+  --ad-surface: #1c1c1e;
+  --ad-surface-2: rgb(118 118 128 / 0.24);
+  --ad-separator: rgb(255 255 255 / 0.08);
+  --ad-text: #f5f5f7;
+  --ad-text-2: #98989d;
+  --ad-text-3: #636366;
+  --ad-brand: #a88bff;
+  --ad-brand-text: #a88bff;
+  --ad-brand-soft: rgb(168 139 255 / 0.18);
+  --ad-on-brand: #1c1c1e;
+  --ad-hot: #ff9f0a;
+  --ad-hot-text: #ff9f0a;
+  --ad-up: #30d158;
+  --ad-up-text: #30d158;
+  --ad-shadow-card: none;
+}
+
+@theme inline {
+  --color-bg: var(--ad-bg);
+  --color-surface: var(--ad-surface);
+  --color-surface-2: var(--ad-surface-2);
+  --color-separator: var(--ad-separator);
+  --color-text: var(--ad-text);
+  --color-text-2: var(--ad-text-2);
+  --color-text-3: var(--ad-text-3);
+  --color-brand: var(--ad-brand);
+  --color-brand-text: var(--ad-brand-text);
+  --color-brand-soft: var(--ad-brand-soft);
+  --color-on-brand: var(--ad-on-brand);
+  --color-hot: var(--ad-hot);
+  --color-hot-text: var(--ad-hot-text);
+  --color-up: var(--ad-up);
+  --color-up-text: var(--ad-up-text);
+}
+
+@theme {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Inter', 'Noto Sans SC', 'Source Han Sans SC',
+    'Microsoft YaHei', sans-serif;
+
+  --radius-tag: 9999px;
+  --radius-control: 10px;
+  --radius-button: 14px;
+  --radius-card: 18px;
+  --radius-hero: 22px;
+
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* 卡片阴影：浅色有阴影，深色为 none */
+@utility shadow-card {
+  box-shadow: var(--ad-shadow-card);
+}

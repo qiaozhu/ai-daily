@@ -1,4 +1,5 @@
-// All SQL in one place. Statements are byte-for-byte the legacy src/worker.js queries (same ordering/semantics).
+// All SQL in one place. Statements are byte-for-byte the legacy src/worker.js queries (same ordering/semantics);
+// the ones marked v6 are new and only feed new response fields.
 
 export const STORY_SELECT =
   'SELECT s.*, (f.story_id IS NOT NULL) AS fav FROM stories s LEFT JOIN favorites f ON f.story_id=s.id';
@@ -27,6 +28,11 @@ export const SQL = {
   favoritesCount: 'SELECT count(*) n FROM favorites',
   favoriteInsert: 'INSERT OR IGNORE INTO favorites(story_id,created_at) VALUES (?,?)',
   favoriteDelete: 'DELETE FROM favorites WHERE story_id=?',
+  // v6: does a report exist (page route /day/<date>)
+  dayExists: 'SELECT 1 FROM days WHERE date=?',
+  // v6 (additive): report days / story topics in [from, before) for the cross-day badges (PRD §3.1)
+  daysBetween: 'SELECT date FROM days WHERE date<?1 AND date>=?2',
+  storyTopicsBetween: 'SELECT id, date, tags_json FROM stories WHERE date<?1 AND date>=?2',
 } as const;
 
 /** one search term = one bound parameter (D1 caps bound params at 100), used twice via ?N */

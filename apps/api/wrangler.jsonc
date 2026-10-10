@@ -8,13 +8,16 @@
   "assets": {
     "directory": "../web/dist",
     "binding": "ASSETS",
-    // Client-side routes (/search, /fav, …) get index.html from the SPA fallback.
+    // Client-side routes (/day/…, /search, /archive, /me) get index.html from the SPA fallback.
     // The Worker (Hono) runs first for:
-    //   /api/*  -> unknown API paths still answer the JSON 404/405, never the SPA shell
-    //   /*.*    -> file-like URLs: existing files are served, missing ones get a real 404 (+ /favicon.ico -> 204)
-    // except the build's own files, which are served straight from the asset layer (no Worker invocation).
+    //   /api, /api/*  -> unknown API paths still answer the JSON 404/405, never the SPA shell
+    //   /*.*          -> file-like URLs: existing files are served, missing ones get a real 404 (+ /favicon.ico -> 204)
+    //   /day/*        -> 200 shell for an existing report, 404 otherwise; /trend, /fav -> 301 (src/routes/pages.ts)
+    // `/` itself stays static (cached, no Worker): its legacy ?d= redirect happens in the front end.
+    // except the build's own files (content-hashed /assets/*, /theme.js, /brand/*), which are served straight
+    // from the asset layer (no Worker invocation; caching in apps/web/public/_headers).
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*", "/*.*", "!/app.js", "!/style.css", "!/theme.js", "!/assets/*"],
+    "run_worker_first": ["/api", "/api/*", "/day/*", "/trend", "/fav", "/*.*", "!/theme.js", "!/assets/*", "!/brand/*"],
   },
   "d1_databases": [
     {

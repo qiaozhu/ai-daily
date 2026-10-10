@@ -3,6 +3,7 @@ import type { DayRow } from '../db/rows.ts';
 import { SQL } from '../db/sql.ts';
 import { parseJson } from '../lib/json.ts';
 import { storiesOfDay } from './stories.ts';
+import { withStreaks } from './streaks.ts';
 
 export async function health(db: D1Database): Promise<HealthResponse> {
   const t = await db
@@ -33,5 +34,9 @@ export const dayHeader = (d: DayRow): Omit<DayDetail, 'stories'> => ({
 export async function getDay(db: D1Database, date: string): Promise<DayDetail | null> {
   const d = await db.prepare(SQL.dayByDate).bind(date).first<DayRow>();
   if (!d) return null;
-  return { ...dayHeader(d), stories: await storiesOfDay(db, date) };
+  return { ...dayHeader(d), stories: await withStreaks(db, date, await storiesOfDay(db, date)) };
+}
+
+export async function dayExists(db: D1Database, date: string): Promise<boolean> {
+  return !!(await db.prepare(SQL.dayExists).bind(date).first());
 }

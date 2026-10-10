@@ -3,7 +3,8 @@
 # .github/workflows/ci.yml calls this same script, so local == CI by construction.
 #
 # Same as `pnpm ci` / `pnpm run ci`. Steps: pnpm install → lint (ESLint + Prettier) → typecheck (tsc) → unit tests (Vitest)
-# → check.sh (vite build, syntax, data, assets, wrangler dry-run) → daily.sh --dry-run → secret scan
+# → check.sh (vite build, syntax, data, assets, wrangler dry-run) → bundle budget (first-load JS gzip) → daily.sh --dry-run
+# → secret scan
 # → black-box unit/API tests (node:test, real Worker + local D1) → [--ui] headless UI test.
 #
 # Usage: bash scripts/ci-local.sh [--fast] [--ui [URL]] [--no-tests]
@@ -46,6 +47,8 @@ step() {  # step <name> <command...>   — runs command, records PASS/FAIL + dur
       RESULTS+=("| $name | ✅ PASS ($vt) | ${e}s |")
     elif grep -qE '^# (tests|pass) ' "$log"; then grep -E '^# (tests|pass|fail|skipped|todo) ' "$log" | tr '\n' ' ' | sed 's/^/  /'; echo
       RESULTS+=("| $name | ✅ PASS ($(grep -E '^# (pass|fail|todo) ' "$log" | sed 's/^# //' | tr '\n' ',' | sed 's/,$//; s/,/, /g')) | ${e}s |")
+    elif grep -qE '^OK ' "$log"; then local ok; ok=$(grep -E '^OK ' "$log" | tail -1 | sed 's/^OK //'); echo "  $ok"
+      RESULTS+=("| $name | ✅ PASS ($ok) | ${e}s |")
     else tail -n 3 "$log" | sed 's/^/  /'; RESULTS+=("| $name | ✅ PASS | ${e}s |"); fi
   else tail -n 40 "$log" | sed 's/^/  /'; RESULTS+=("| $name | ❌ FAIL (exit $rc) | ${e}s |"); FAILED=1; fi
 }
@@ -66,6 +69,8 @@ else step "unit tests (vitest)" pnpm exec vitest run; fi
 
 # 5. vite build + syntax + data validation + static assets + wrangler deploy --dry-run
 step "check.sh (vite build, syntax, data, assets, wrangler dry-run)" bash scripts/check.sh
+# 5b. first-load JS budget (#16): gzip of the scripts index.html loads up front, lazy chunks excluded
+step "bundle budget (first-load JS gzip ≤ 60 KB)" node scripts/check-bundle.mjs apps/web/dist
 
 # 6. daily.sh dry-run on the repo data snapshot
 LATEST=$(ls data/*.json 2>/dev/null | sort | tail -1 | xargs -r basename -s .json)

@@ -49,6 +49,15 @@ export interface DaysResponse {
   latest: string | null;
 }
 
+/**
+ * A story inside `/api/days/:date`: the legacy fields plus the v6 cross-day fields (PRD §3.1/§3.2, additive only).
+ * `badge`: 'new' | 'ongoing' | null; `streak_days`: consecutive report days incl. this one (null = no specific topic).
+ */
+export interface DayStory extends Story {
+  badge: 'new' | 'ongoing' | null;
+  streak_days: number | null;
+}
+
 export interface DayDetail {
   date: string;
   generated_at: string;
@@ -56,7 +65,7 @@ export interface DayDetail {
   source: string;
   highlights: string[];
   data_quality_notes: string[];
-  stories: Story[];
+  stories: DayStory[];
 }
 
 export interface HealthResponse {
