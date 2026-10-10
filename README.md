@@ -3,6 +3,7 @@
 每天从 X（Twitter）公开数据汇总 AI 热点，中文呈现：X 原帖卡片 + AI 摘要，可回看历史、搜索、收藏、看趋势。
 
 - 线上：https://ai-daily.qiao-ai-daily.workers.dev
+- 公开仓库：欢迎查看；**请勿在 Issue/PR 中粘贴任何密钥**
 - 技术：Cloudflare Workers（API）+ Static Assets（前端）+ D1（SQLite），无框架、无构建步骤
 
 ## 目录
