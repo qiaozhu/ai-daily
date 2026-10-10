@@ -40,6 +40,8 @@ R('3 columns 240/680/320 '+cols, cols.join()==='240,680,320');
 R('热度榜 top 8 '+await pg.$$eval('#heatrank li',x=>x.length), (await pg.$$eval('#heatrank li',x=>x.length))===Math.min(8,N));
 { const byHeat=[...day.stories].sort((a,b)=>(b.heat??-1)-(a.heat??-1)||a.rank-b.rank).slice(0,8).map(s=>s.id);
   const hr=await pg.$$eval('#heatrank li',x=>x.map(e=>e.dataset.id)); R('热度榜 sorted by heat (cards stay in rank order) '+hr.join(), JSON.stringify(hr)===JSON.stringify(byHeat)); }
+{ const al=await pg.evaluate(()=>{const t=document.querySelector('#title').getBoundingClientRect(),b=document.querySelector('#titleActions');if(!b||!b.offsetHeight)return null;const r=b.getBoundingClientRect();return {tb:Math.round(t.bottom),bb:Math.round(r.bottom),bt:Math.round(r.top),tt:Math.round(t.top)};});
+  R('desktop search + share bottom-aligned with the title '+JSON.stringify(al), !!al && Math.abs(al.tb-al.bb)<=8 && al.bt>al.tt); }
 R('topic count shown once on desktop (only in the subtitle) ', await pg.$eval('#mainCol',e=>(e.innerText.match(/个话题/g)||[]).length)===1);
 R('two-column cards on desktop', await pg.$$eval('#tl .story',x=>x.length>1&&Math.round(x[0].getBoundingClientRect().top)===Math.round(x[1].getBoundingClientRect().top)));
 const card=await pg.$eval('#tl .story',e=>{const c=getComputedStyle(e),h=getComputedStyle(e.querySelector('h3'));return {r:c.borderTopLeftRadius,bg:c.backgroundColor,sh:c.boxShadow,fs:h.fontSize,fw:h.fontWeight}});

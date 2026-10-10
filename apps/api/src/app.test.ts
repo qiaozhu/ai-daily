@@ -2,7 +2,7 @@
 // covered by the black-box suite in tests/api.
 import { dayFromPath, redirectKeepingQuery } from './routes/pages.ts';
 import { describe, expect, it, vi } from 'vitest';
-import { createApp, isApi, isFileLike, isSpaFallbackForFile } from './app.ts';
+import { assetOr404, createApp, isApi, isFileLike, isSpaFallbackForFile } from './app.ts';
 import { SQL } from './db/sql.ts';
 
 type Handler = (sql: string, args: unknown[]) => { first?: unknown; all?: unknown[]; changes?: number };
@@ -213,5 +213,30 @@ describe('page routes (old URLs, /day/<date>)', () => {
     expect(dayFromPath('/day/2026-13-45')).toBeNull();
     expect(dayFromPath('/day/%ZZ')).toBeNull();
     expect(dayFromPath('/day/a/b')).toBeNull();
+  });
+});
+
+describe('assetOr404 (/assets/*)', () => {
+  it('passes an existing file through with its cache header', () => {
+    const r = assetOr404(
+      new Response('x', {
+        headers: { 'Content-Type': 'text/javascript', 'Cache-Control': 'public, max-age=31536000, immutable' },
+      }),
+    );
+    expect(r.status).toBe(200);
+    expect(r.headers.get('Cache-Control')).toContain('immutable');
+    expect(r.headers.get('X-Frame-Options')).toBe('DENY');
+  });
+  it('SPA fallback HTML or a 404 -> 404 no-store', () => {
+    for (const res of [
+      new Response('<html>', {
+        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'max-age=31536000' },
+      }),
+      new Response(null, { status: 404 }),
+    ]) {
+      const r = assetOr404(res);
+      expect(r.status).toBe(404);
+      expect(r.headers.get('Cache-Control')).toBe('no-store');
+    }
   });
 });

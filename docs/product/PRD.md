@@ -1,6 +1,7 @@
 # PRD：AI 热点日报（现状版 v5，2026-10-10）
 
 > 状态：已上线 · 负责人：qiao · 线上：https://ai-daily.qiao-ai-daily.workers.dev
+> 下一版需求见 [`PRD-v6.md`](PRD-v6.md)（2026-10-10 确认）。
 > 本文描述**当前已实现**的产品，作为后续需求（Issue）的基线。新需求请走 `docs/workflow.md` 的流程。
 
 ## 1. 背景与目标

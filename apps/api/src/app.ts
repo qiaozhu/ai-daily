@@ -22,14 +22,34 @@ export function isSpaFallbackForFile(pathname: string, res: Response): boolean {
   );
 }
 
+/** a real 404 for a missing static file: never cached (no long-cache header from _headers), no SPA shell */
+export const missingFile = (): Response =>
+  withSecurityHeaders(new Response(null, { status: 404, headers: { 'Cache-Control': 'no-store' } }));
+
+/**
+ * /assets/* (content-hashed build output, run_worker_first): an existing file is returned as the asset layer
+ * served it (incl. the 1-year immutable Cache-Control from _headers); anything else — not found, or the SPA
+ * fallback's index.html — is a 404 with no-store, so a typo'd/stale hash is never cached as HTML for a year.
+ */
+export function assetOr404(res: Response): Response {
+  const html = (res.headers.get('Content-Type') || '').startsWith('text/html');
+  return res.ok && !html ? withSecurityHeaders(res) : missingFile();
+}
+
 export function createApp() {
   const app = new Hono<AppEnv>();
 
   app.route('/api', readRoutes);
   app.route('/api', favoriteRoutes);
   app.route('/', pageRoutes);
+  // /assets itself, /assets/ and anything below: a real file or 404 (never the SPA shell); a malformed path that
+  // the asset layer rejects is a 404 too
+  const assets = async (c: { env: AppEnv['Bindings']; req: { raw: Request } }) =>
+    assetOr404(await c.env.ASSETS.fetch(c.req.raw).catch(() => new Response(null, { status: 404 })));
+  app.get('/assets', assets);
+  app.get('/assets/*', assets);
 
-  // Non-API requests only reach the Worker when no static asset matched (run_worker_first: ["/api/*"]).
+  // Other non-API requests reach the Worker only for the run_worker_first paths (apps/api/wrangler.jsonc).
   app.all('/favicon.ico', () => new Response(null, { status: 204 }));
 
   app.notFound(async (c) => {
@@ -41,7 +61,7 @@ export function createApp() {
     }
     const res = await c.env.ASSETS.fetch(c.req.raw);
     // a missing *file* must not be answered with the SPA shell (broken <img>/<script> would get HTML with 200)
-    if (isSpaFallbackForFile(pathname, res)) return withSecurityHeaders(new Response(null, { status: 404 }));
+    if (isSpaFallbackForFile(pathname, res)) return missingFile();
     return withSecurityHeaders(res);
   });
 

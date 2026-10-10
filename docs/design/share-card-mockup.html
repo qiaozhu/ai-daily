@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Inter","Noto Sans CJK SC",sans-serif;color:#1D1D1F;-webkit-font-smoothing:antialiased;background:#F5F5F7}
+.f{display:flex}.col{display:flex;flex-direction:column}
+.cl{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.pill{display:flex;align-items:center;border-radius:999px;font-weight:600}
+</style></head><body><div id="a"></div><script>
+const c=new URLSearchParams(location.search).get('c');
+const logo=s=>`<svg width="${s}" height="${s}" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9576F7"/><stop offset="1" stop-color="#7D5AF0"/></linearGradient></defs><rect width="100" height="100" rx="23" fill="url(#g)"/><rect x="22" y="27" width="36" height="11" rx="5.5" fill="#fff"/><circle cx="70" cy="32.5" r="6.5" fill="#fff"/><rect x="22" y="45" width="56" height="11" rx="5.5" fill="#fff" fill-opacity=".78"/><rect x="22" y="63" width="56" height="11" rx="5.5" fill="#fff" fill-opacity=".5"/></svg>`;
+const brand=(s,fs)=>`<div class="f" style="align-items:center;gap:${s*.3}px">${logo(s)}<span style="font-size:${fs}px;font-weight:700;letter-spacing:-.5px">AI 热点日报</span></div>`;
+Promise.all([fetch('../../data/2026-10-10.json').then(r=>r.json()),fetch('assets/share/qr-day.svg').then(r=>r.text()),fetch('assets/share/qr-story.svg').then(r=>r.text())]).then(([d,qh,qs])=>{
+ const H=d.highlights.slice(0,3),S=[...d.stories].sort((a,b)=>b.heat-a.heat),st=d.stories.find(s=>s.id.includes('openai-gpt61'));
+ const num=(i,s)=>`<div class="f" style="width:${s}px;height:${s}px;border-radius:50%;background:rgba(125,90,240,.10);color:#6440D6;font-weight:700;font-size:${s*.48}px;align-items:center;justify-content:center;flex:none">${i}</div>`;
+ const qr=(svg,s)=>`<div style="width:${s}px;height:${s}px;background:#fff;border-radius:${s*.12}px;padding:${s*.09}px;display:flex">${svg.replace('<svg','<svg width="100%" height="100%"')}</div>`;
+ let h='';
+ if(c==='day-v')h=`<div class="col" style="width:1080px;height:1440px;padding:84px 80px 72px">
+  <div class="f" style="justify-content:space-between;align-items:center">${brand(72,40)}<span style="font-size:30px;color:#6E6E73;font-weight:500">每天五分钟，看懂 AI 圈</span></div>
+  <div style="font-size:132px;font-weight:700;letter-spacing:-4px;line-height:1;margin-top:84px">10月10日</div>
+  <div style="font-size:38px;color:#6E6E73;margin-top:22px;font-weight:500">星期六 · 今日三件事</div>
+  <div class="col" style="background:#fff;border-radius:44px;padding:20px 48px;margin-top:56px">${H.map((t,i)=>`<div class="f" style="gap:28px;padding:34px 0;${i?'border-top:2px solid rgba(0,0,0,.06);':''}">${num(i+1,60)}<div class="cl" style="flex:1;min-width:0;-webkit-line-clamp:3;font-size:36px;line-height:54px">${t}</div></div>`).join('')}</div>
+  <div style="flex:1"></div>
+  <div class="f" style="justify-content:space-between;align-items:center"><div class="col" style="gap:12px"><span style="font-size:34px;font-weight:600">扫码看全部 ${d.stories.length} 个话题</span><span style="font-size:28px;color:#6E6E73">ai-daily.qiao-ai-daily.workers.dev</span></div>${qr(qh,184)}</div></div>`;
+ if(c==='day-og')h=`<div class="f" style="width:1200px;height:630px;padding:64px;gap:56px">
+  <div class="col" style="width:400px;flex:none">${brand(56,30)}<div style="font-size:88px;font-weight:700;letter-spacing:-3px;line-height:1;margin-top:auto;white-space:nowrap">10月10日</div><div style="font-size:30px;color:#6E6E73;margin-top:18px;font-weight:500">星期六 · ${d.stories.length} 个话题</div><div class="pill" style="margin-top:28px;align-self:flex-start;background:#7D5AF0;color:#fff;font-size:24px;padding:10px 22px">今日三件事</div></div>
+  <div class="col" style="flex:1;background:#fff;border-radius:36px;padding:14px 40px;justify-content:center">${H.map((t,i)=>`<div class="f" style="gap:20px;padding:24px 0;align-items:flex-start;${i?'border-top:2px solid rgba(0,0,0,.06);':''}">${num(i+1,44)}<div class="cl" style="flex:1;min-width:0;-webkit-line-clamp:2;font-size:26px;line-height:38px">${t}</div></div>`).join('')}</div></div>`;
+ const tags=(fs)=>`<div class="f" style="gap:12px"><span class="pill" style="background:rgba(125,90,240,.10);color:#6440D6;font-size:${fs}px;padding:${fs*.3}px ${fs*.7}px">新</span>${st.categories.map(x=>`<span class="pill" style="background:rgba(118,118,128,.12);color:#636369;font-size:${fs}px;padding:${fs*.3}px ${fs*.7}px">${x}</span>`).join('')}</div>`;
+ const heat=(fs,w)=>`<div class="f" style="align-items:center;gap:${fs*.6}px"><div style="width:${w}px;height:${fs*.32}px;border-radius:99px;background:rgba(118,118,128,.16);display:flex"><div style="width:${st.heat}%;background:#7D5AF0;border-radius:99px"></div></div><span style="font-size:${fs}px;font-weight:600">热度 ${st.heat}</span></div>`;
+ if(c==='story-v')h=`<div class="col" style="width:1080px;height:1440px;padding:84px 80px 72px">
+  <div class="f" style="justify-content:space-between;align-items:center">${brand(72,40)}<span style="font-size:30px;color:#6E6E73;font-weight:500">10月10日</span></div>
+  <div style="margin-top:64px">${tags(28)}</div>
+  <div class="cl" style="flex-shrink:0;-webkit-line-clamp:3;font-size:68px;line-height:88px;font-weight:700;letter-spacing:-1.5px;margin-top:30px">${st.headline_zh}</div>
+  <div style="font-size:30px;color:#6E6E73;margin-top:24px">${st.org_tag} · ${st.source_posts.length} 条原帖</div>
+  <div class="col" style="background:#fff;border-radius:44px;padding:40px 48px;margin-top:40px;gap:24px"><div class="cl" style="flex-shrink:0;-webkit-line-clamp:4;font-size:34px;line-height:54px">${st.summary_zh}</div><div style="height:2px;background:rgba(0,0,0,.06)"></div><div class="col" style="gap:8px"><span style="font-size:26px;color:#6E6E73;font-weight:600">为什么重要</span><div class="cl" style="flex-shrink:0;-webkit-line-clamp:2;font-size:32px;line-height:48px">${st.why_it_matters}</div></div></div>
+  <div style="margin-top:36px">${heat(32,180)}</div>
+  <div style="flex:1"></div>
+  <div class="f" style="justify-content:space-between;align-items:center"><div class="col" style="gap:12px"><span style="font-size:34px;font-weight:600">扫码看原帖和全文</span><span style="font-size:28px;color:#6E6E73">ai-daily.qiao-ai-daily.workers.dev</span></div>${qr(qs,184)}</div></div>`;
+ if(c==='story-og')h=`<div class="col" style="width:1200px;height:630px;padding:60px 72px">
+  <div class="f" style="justify-content:space-between;align-items:center">${brand(52,28)}<span style="font-size:24px;color:#6E6E73;font-weight:500">10月10日 · ${st.org_tag}</span></div>
+  <div style="margin-top:44px">${tags(22)}</div>
+  <div class="cl" style="flex-shrink:0;-webkit-line-clamp:2;font-size:52px;line-height:68px;font-weight:700;letter-spacing:-1px;margin-top:20px">${st.headline_zh}</div>
+  <div class="cl" style="flex-shrink:0;-webkit-line-clamp:2;font-size:26px;line-height:40px;color:#6E6E73;margin-top:18px">${st.summary_zh}</div>
+  <div style="flex:1"></div>${heat(24,140)}</div>`;
+ document.getElementById('a').innerHTML=h;
+});
+</script></body></html>
