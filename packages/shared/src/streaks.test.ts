@@ -6,6 +6,7 @@ import {
   broadTopicsOfDay,
   computeStreaks,
   isBlacklisted,
+  normTopic,
   type TopicDay,
 } from './streaks.ts';
 
@@ -40,24 +41,32 @@ describe('PRD v6 §3.1 acceptance examples', () => {
     expect(badgeOf(today, hist, 's')).toEqual({ badge: null, streak_days: null });
   });
 
-  it('a topic in 3 stories of the day (马斯克) is broad that day and does not match', () => {
+  it('a topic in 3 stories of the day is broad that day and does not match', () => {
+    // PRD's example uses 马斯克, which is now on the blacklist anyway (#23 review); 星舰 exercises the per-day rule
     const today = day(
       '2026-10-10',
-      ['s1', ['马斯克', 'Grok']],
-      ['s2', ['马斯克', '特朗普']],
-      ['s3', ['马斯克', 'SpaceX']],
+      ['s1', ['星舰', '猎鹰9号']],
+      ['s2', ['星舰', '发射许可']],
+      ['s3', ['星舰', '星链']],
     );
-    const hist = [day('2026-10-09', ['a', ['马斯克']])];
+    const hist = [day('2026-10-09', ['a', ['星舰']])];
     const r = computeStreaks(today, hist);
     expect(r.get('s1')).toEqual({ badge: 'new', streak_days: 1 });
     expect(r.get('s2')).toEqual({ badge: 'new', streak_days: 1 });
+  });
+
+  it('马斯克 / Grok / 特朗普 are blacklisted: a story with only those has no badge', () => {
+    const today = day('2026-10-10', ['s1', ['马斯克', 'Grok']], ['s2', ['马斯克', '特朗普']]);
+    const r = computeStreaks(today, [day('2026-10-09', ['a', ['马斯克', 'Grok']])]);
+    expect(r.get('s1')).toEqual({ badge: null, streak_days: null });
+    expect(r.get('s2')).toEqual({ badge: null, streak_days: null });
   });
 });
 
 describe('matching details', () => {
   it('a topic broad on the past day (3+ stories there) does not match either', () => {
-    const today = day('2026-10-10', ['s', ['马斯克']]);
-    const hist = [day('2026-10-09', ['a', ['马斯克']], ['b', ['马斯克']], ['c', ['马斯克']])];
+    const today = day('2026-10-10', ['s', ['星舰']]);
+    const hist = [day('2026-10-09', ['a', ['星舰']], ['b', ['星舰']], ['c', ['星舰']])];
     expect(badgeOf(today, hist, 's')).toEqual({ badge: 'new', streak_days: 1 });
   });
 
@@ -108,6 +117,25 @@ describe('blacklist', () => {
     expect(BROAD_TOPICS).toContain('中文圈');
     expect(isBlacklisted('Codex')).toBe(false);
     expect(isBlacklisted(' openai ')).toBe(true);
+  });
+  it('people, model families and field umbrellas from the #23 product review are blacklisted', () => {
+    for (const t of ['马斯克', '特朗普', '奥特曼', 'Sam Altman', '黄仁勋']) expect(isBlacklisted(t)).toBe(true);
+    for (const t of ['ChatGPT', 'GPT', 'Claude', 'Gemini', 'Grok', 'Llama', 'Qwen', '通义千问', 'DeepSeek'])
+      expect(isBlacklisted(t)).toBe(true);
+    for (const t of ['美国政策', 'AI就业', 'AI医疗', 'AI数学', '预测市场', '具身智能', '机器人', 'AI编程'])
+      expect(isBlacklisted(t)).toBe(true);
+  });
+  it('specific models and small / mid-size companies stay specific', () => {
+    for (const t of ['GPT-6', 'Codex', 'Gemini 4', 'Claude Opus 5', 'DeepSeek-V4', 'Broadcom', 'Super Micro'])
+      expect(isBlacklisted(t)).toBe(false);
+  });
+  it('normalisation: NFKC (full/half width), all whitespace removed, case-insensitive', () => {
+    expect(normTopic('ＡＩ 智能体')).toBe('ai智能体');
+    expect(normTopic(' Sam\u3000Altman\t')).toBe('samaltman');
+    for (const t of ['AI 智能体', 'ＡＩ智能体', 'AI 编程', 'sam altman', 'ＧＰＴ', 'Deep Seek'])
+      expect(isBlacklisted(t)).toBe(true);
+    const today = day('2026-10-10', ['s', ['Ｇｅｍｉｎｉ ４']]);
+    expect(badgeOf(today, [day('2026-10-09', ['a', ['Gemini4']])], 's')).toEqual({ badge: 'ongoing', streak_days: 2 });
   });
   it('broadTopicsOfDay counts each story once', () => {
     const b = broadTopicsOfDay([

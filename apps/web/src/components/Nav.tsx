@@ -67,7 +67,8 @@ export function TabBar({ active }: { active: Page }) {
               on ? 'text-brand-text' : 'text-text-2'
             }`}
           >
-            <Icon name={ICON[t.page]} size={24} />
+            {/* selected: icon brand, label brand-text (brand on the light bar is only 4.2:1) */}
+            <Icon name={ICON[t.page]} size={24} className={on ? 'text-brand' : undefined} />
             {t.label}
           </a>
         );

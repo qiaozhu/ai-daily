@@ -1,4 +1,4 @@
-/* Copy of docs/design/tokens.css (visual spec v1, PR #5) — the design doc is the source of truth; keep in sync. */
+/* Copy of docs/design/tokens.css (visual spec v1, PR #5; text-on-fill from PR #20 9e8d740) — the design doc is the source of truth; keep in sync. */
 /* 视觉规范 v1 的 Tailwind 4 主题变量（docs/design/visual-spec-v1.md）。
  * 用法：在 apps/web 的样式入口里，先 @import "tailwindcss"，再引入本文件；数值以规范文档为准。
  *
@@ -21,6 +21,7 @@
   --ad-text: #1d1d1f;
   --ad-text-2: #6e6e73;
   --ad-text-3: #aeaeb2;
+  --ad-text-on-fill: #636369; /* 灰底（surface-2）上的文字：chips、搜索框占位，4.79:1 */
   --ad-brand: #7d5af0;
   --ad-brand-text: #6440d6;
   --ad-brand-soft: rgb(125 90 240 / 0.1);
@@ -41,6 +42,7 @@
   --ad-text: #f5f5f7;
   --ad-text-2: #98989d;
   --ad-text-3: #636366;
+  --ad-text-on-fill: #a1a1a6; /* 卡片上的灰底 4.96:1；#98989D 只有 4.45 */
   --ad-brand: #a88bff;
   --ad-brand-text: #a88bff;
   --ad-brand-soft: rgb(168 139 255 / 0.18);
@@ -60,6 +62,7 @@
   --color-text: var(--ad-text);
   --color-text-2: var(--ad-text-2);
   --color-text-3: var(--ad-text-3);
+  --color-text-on-fill: var(--ad-text-on-fill);
   --color-brand: var(--ad-brand);
   --color-brand-text: var(--ad-brand-text);
   --color-brand-soft: var(--ad-brand-soft);

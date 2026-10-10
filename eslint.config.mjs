@@ -7,6 +7,45 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+// apps/web runs the React API on preact/compat (docs/adr/0001-preact-compat.md). These React 19 APIs are not
+// implemented there (they would be undefined at runtime / silently ignored), so CI rejects them.
+// Self-test: tests/unit/eslint-preact-compat.test.mjs.
+export const PREACT_COMPAT_UNSUPPORTED = [
+  'use',
+  'useActionState',
+  'useOptimistic',
+  'useFormStatus',
+  'requestFormReset',
+];
+const unsupportedMsg = 'not supported by preact/compat (see docs/adr/0001-preact-compat.md)';
+export const preactCompatRules = {
+  'no-restricted-imports': [
+    'error',
+    {
+      paths: ['react', 'react-dom'].map((name) => ({
+        name,
+        importNames: PREACT_COMPAT_UNSUPPORTED,
+        message: `React 19 API ${unsupportedMsg}.`,
+      })),
+    },
+  ],
+  'no-restricted-syntax': [
+    'error',
+    {
+      // React.use(...), ReactDOM.useFormStatus(...), etc. through a namespace / default import
+      selector: `MemberExpression[property.name=/^(${PREACT_COMPAT_UNSUPPORTED.join('|')})$/][object.name=/^React(DOM)?$/]`,
+      message: `React 19 API ${unsupportedMsg}.`,
+    },
+    {
+      // form actions on DOM elements: <form action={fn}>, <button formAction={fn}> (a plain URL string and an
+      // `action` prop of our own components are fine)
+      selector:
+        "JSXOpeningElement[name.name=/^(form|button|input)$/] > JSXAttribute[name.name=/^(action|formAction)$/] > JSXExpressionContainer:not([expression.type='Literal']):not([expression.type='TemplateLiteral'])",
+      message: `Form actions (action={fn}) are ${unsupportedMsg}; use onSubmit.`,
+    },
+  ],
+};
+
 export default tseslint.config(
   {
     ignores: [
@@ -40,6 +79,7 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      ...preactCompatRules,
     },
   },
   {

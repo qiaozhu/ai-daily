@@ -55,7 +55,7 @@ function HeatRank({ day, onPick }: { day: DayDetail; onPick: (id: string) => voi
       <h2 className="mb-1.5 text-headline font-bold">热度榜</h2>
       <ol>
         {topByHeat(day.stories, 8).map((s, i) => (
-          <li key={s.id} className="border-t-[0.5px] border-separator first:border-t-0">
+          <li key={s.id} data-id={s.id} className="border-t-[0.5px] border-separator first:border-t-0">
             <button
               type="button"
               className="flex w-full gap-3 py-[11px] text-left text-subhead"
@@ -144,7 +144,7 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
           expanded={expanded}
         />
         {day.data_quality_notes.length > 0 && (
-          <div className="notes mt-6 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-fill">
+          <div className="notes mt-6 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-on-fill">
             <div className="mb-1 font-semibold">数据说明</div>
             <ul className="list-disc pl-4">
               {day.data_quality_notes.map((n, i) => (
@@ -168,7 +168,6 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
                 {date ? `${dateShort(date)} ${weekdayCN(date)}` : '\u00a0'}
               </a>
               {arrow('chev', newer, '后一天')}
-              {day && <span className="hidden font-normal lg:inline">· {day.stories.length} 个话题</span>}
             </div>
             <div className="flex gap-2.5">
               <span className="hidden lg:contents">

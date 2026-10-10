@@ -19,19 +19,21 @@ const write = d => { const f = path.join(dir, d.date + '.json'); fs.writeFileSyn
 
 // 09-01..09-03: Codex every day (example 1)        09-05 (09-04 has no report): Codex again -> skip the gap (example 2)
 // 09-06: report without Codex; 09-07: Codex -> N=1, seen within 30 days -> no badge (example 3)
-// 09-07 also: broad-only topics (example 4) and 马斯克 in 3 stories (example 5)
+// 09-07 also: broad-only topics (example 4) and a topic in 3 stories (example 5; 星舰 — 马斯克 itself is blacklisted since the #23 review)
 const files = [
-  day('2026-09-01', [story('2026-09-01', 'codex', ['Codex', 'OpenAI'], 40), story('2026-09-01', 'musk', ['马斯克'])]),
+  day('2026-09-01', [story('2026-09-01', 'codex', ['Codex', 'OpenAI'], 40), story('2026-09-01', 'musk', ['星舰'])]),
   day('2026-09-02', [story('2026-09-02', 'codex', ['Codex'], 55)]),
   day('2026-09-03', [story('2026-09-03', 'codex', ['codex', 'GPT-6'], 60)]),
   day('2026-09-05', [story('2026-09-05', 'codex', ['Codex'])]),
-  day('2026-09-06', [story('2026-09-06', 'other', ['别的事'])]),
+  day('2026-09-06', [story('2026-09-06', 'other', ['别的事']), story('2026-09-06', 'g4', ['Gemini4'])]),
   day('2026-09-07', [
     story('2026-09-07', 'codex', ['Codex']),
     story('2026-09-07', 'broad', ['OpenAI', '大模型']),
-    story('2026-09-07', 'm1', ['马斯克', 'Grok']),
-    story('2026-09-07', 'm2', ['马斯克', '特朗普']),
-    story('2026-09-07', 'm3', ['马斯克', 'SpaceX']),
+    story('2026-09-07', 'm1', ['星舰', '猎鹰9号']),
+    story('2026-09-07', 'm2', ['星舰', '发射许可']),
+    story('2026-09-07', 'm3', ['星舰', '星链']),
+    story('2026-09-07', 'people', ['马斯克', 'Claude', 'AI 编程']),
+    story('2026-09-07', 'wide', ['Ｇｅｍｉｎｉ ４']),
   ]),
 ].map(write);
 
@@ -59,8 +61,13 @@ describe('GET /api/days/:date — badge / streak_days (PRD §3.1)', () => {
     const b = await badges('2026-09-07');
     assert.deepEqual(b.codex, { badge: null, streak_days: 1 });
     assert.deepEqual(b.broad, { badge: null, streak_days: null }, 'only broad topics -> no badge');
-    // 马斯克 is in 3 stories today -> broad today; they only have their other (new) topics
+    // 星舰 is in 3 stories today -> broad today; they only have their other (new) topics
     for (const k of ['m1', 'm2', 'm3']) assert.deepEqual(b[k], { badge: 'new', streak_days: 1 }, k);
+  });
+  it('#23 blacklist: people / model families only -> no badge; full-width + spaces normalised', async () => {
+    const b = await badges('2026-09-07');
+    assert.deepEqual(b.people, { badge: null, streak_days: null });
+    assert.deepEqual(b.wide, { badge: 'ongoing', streak_days: 2 }, 'Ｇｅｍｉｎｉ ４ matches Gemini4 of 09-06');
   });
   it('legacy fields untouched, latest alias carries the badges too', async () => {
     const r = await api.req('/api/days/latest');

@@ -38,6 +38,9 @@ R('desktop: side nav visible, tab bar hidden', await pg.$eval('#sidenav',e=>e.of
 const cols=await pg.evaluate(()=>[document.querySelector('#sidenav').getBoundingClientRect().width,document.querySelector('#mainCol').getBoundingClientRect().width,document.querySelector('.rcol').getBoundingClientRect().width].map(Math.round));
 R('3 columns 240/680/320 '+cols, cols.join()==='240,680,320');
 R('热度榜 top 8 '+await pg.$$eval('#heatrank li',x=>x.length), (await pg.$$eval('#heatrank li',x=>x.length))===Math.min(8,N));
+{ const byHeat=[...day.stories].sort((a,b)=>(b.heat??-1)-(a.heat??-1)||a.rank-b.rank).slice(0,8).map(s=>s.id);
+  const hr=await pg.$$eval('#heatrank li',x=>x.map(e=>e.dataset.id)); R('热度榜 sorted by heat (cards stay in rank order) '+hr.join(), JSON.stringify(hr)===JSON.stringify(byHeat)); }
+R('topic count shown once on desktop (only in the subtitle) ', await pg.$eval('#mainCol',e=>(e.innerText.match(/个话题/g)||[]).length)===1);
 R('two-column cards on desktop', await pg.$$eval('#tl .story',x=>x.length>1&&Math.round(x[0].getBoundingClientRect().top)===Math.round(x[1].getBoundingClientRect().top)));
 const card=await pg.$eval('#tl .story',e=>{const c=getComputedStyle(e),h=getComputedStyle(e.querySelector('h3'));return {r:c.borderTopLeftRadius,bg:c.backgroundColor,sh:c.boxShadow,fs:h.fontSize,fw:h.fontWeight}});
 R('light card: white, radius 18, soft shadow, headline 17/600 '+JSON.stringify(card), card.r==='18px'&&card.bg==='rgb(255, 255, 255)'&&card.sh!=='none'&&card.fs==='17px'&&card.fw==='600');
@@ -135,6 +138,8 @@ for (const th of ['light','dark']) {
  if(th==='dark'){ await pg.click('#tabbar [data-tab=me]'); await W(300); await pg.click('[data-theme-toggle]'); await W(200); R('mobile 我的 switch -> dark', await theme()==='dark'); await pg.click('#tabbar [data-tab=day]'); await W(500); }
  else R('mobile default light', await theme()==='light');
  R(`mobile ${th}: tab bar 4 tabs, no side nav / right column`, (await pg.$$eval('#tabbar a',x=>x.map(e=>e.textContent).join()))==='今日,往期,搜索,我的' && await pg.$eval('#sidenav',e=>e.offsetHeight===0) && await pg.$eval('.rcol',e=>e.offsetHeight===0));
+ { const c=await pg.$eval('#tabbar [aria-current=page]',e=>[getComputedStyle(e).color,getComputedStyle(e.querySelector('svg')).color]); const want=th==='dark'?['rgb(168, 139, 255)','rgb(168, 139, 255)']:['rgb(100, 64, 214)','rgb(125, 90, 240)'];
+  R(`mobile ${th}: selected tab label brand-text, icon brand ${c}`, JSON.stringify(c)===JSON.stringify(want)); }
  R(`mobile ${th}: no h-overflow `+await pg.evaluate(()=>document.documentElement.scrollWidth), await pg.evaluate(()=>document.documentElement.scrollWidth)<=390);
  const fs=await pg.evaluate(()=>{const bar=document.querySelector('#tabbar').getBoundingClientRect().top,t=document.querySelector('#three').getBoundingClientRect(),h=document.querySelector('#tl .story h3').getBoundingClientRect();return {bar:Math.round(bar),three:Math.round(t.bottom),h3:Math.round(h.bottom)}});
  R(`mobile ${th}: first screen (390×844) shows 三件事 + first card headline `+JSON.stringify(fs), fs.three<=fs.bar && fs.h3<=fs.bar);

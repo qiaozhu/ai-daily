@@ -2,7 +2,7 @@
 # Local CI — the single entry point that every bot MUST run (and pass) before every commit/push.
 # .github/workflows/ci.yml calls this same script, so local == CI by construction.
 #
-# Same as `pnpm ci` / `pnpm run ci`. Steps: pnpm install → lint (ESLint + Prettier) → typecheck (tsc) → unit tests (Vitest)
+# Same as `pnpm ci` / `pnpm run ci`. Steps: pnpm install (or, when skipped, a frozen-lockfile check) → lint (ESLint + Prettier) → typecheck (tsc) → unit tests (Vitest)
 # → check.sh (vite build, syntax, data, assets, wrangler dry-run) → bundle budget (first-load JS gzip) → daily.sh --dry-run
 # → secret scan
 # → black-box unit/API tests (node:test, real Worker + local D1) → [--ui] headless UI test.
@@ -55,10 +55,21 @@ step() {  # step <name> <command...>   — runs command, records PASS/FAIL + dur
 skip() { echo; echo "▷ $1 — SKIPPED: $2"; RESULTS+=("| $1 | ⏭ skipped: $2 | – |"); }
 
 # 1. dependencies (CI: pnpm install --frozen-lockfile)
-deps_fresh() { [ -f node_modules/.pnpm/lock.yaml ] && [ ! pnpm-lock.yaml -nt node_modules/.pnpm/lock.yaml ]; }
+# node_modules counts as fresh only if neither the lockfile nor any package.json changed since the last install.
+deps_fresh() {
+  [ -f node_modules/.pnpm/lock.yaml ] || return 1
+  local f; for f in pnpm-lock.yaml package.json apps/*/package.json packages/*/package.json; do
+    [ -f "$f" ] && [ "$f" -nt node_modules/.pnpm/lock.yaml ] && return 1
+  done; return 0
+}
+# Even when the install is skipped, pnpm-lock.yaml must match every package.json exactly as deploy.sh/CI see it
+# (`pnpm install --frozen-lockfile` fails on a specifier mismatch). --lockfile-only --offline: no network, no writes.
+LOCK_CHECK="lockfile matches package.json (pnpm install --frozen-lockfile --lockfile-only --offline)"
 if deps_fresh; then skip "pnpm install" "node_modules is up to date"
+  step "$LOCK_CHECK" pnpm install --frozen-lockfile --lockfile-only --offline
 elif [ $FAST = 1 ]; then
   if [ -d node_modules ]; then skip "pnpm install" "--fast (node_modules may be stale; run without --fast)"; else step "pnpm install" false; echo "  node_modules missing: run bash scripts/ci-local.sh (without --fast)"; fi
+  step "$LOCK_CHECK" pnpm install --frozen-lockfile --lockfile-only --offline
 else step "pnpm install --frozen-lockfile" pnpm install --frozen-lockfile; fi
 
 # 2. lint + format check, 3. typecheck, 4. Vitest unit tests (TypeScript workspaces)

@@ -29,7 +29,7 @@ export function Tweet({ post }: { post: SourcePost }) {
       title="在 X 上打开原帖"
     >
       <div
-        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-subhead font-bold text-text-fill"
+        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-subhead font-bold text-text-on-fill"
         aria-hidden="true"
       >
         {name.trim().charAt(0).toUpperCase()}

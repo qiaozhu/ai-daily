@@ -20,7 +20,7 @@ export function StatusBadge({ story }: { story: { badge?: 'new' | 'ongoing' | nu
 /** neutral tag (category) */
 export function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-tag bg-surface-2 px-[9px] py-[3px] text-caption whitespace-nowrap text-text-fill">
+    <span className="inline-flex items-center rounded-tag bg-surface-2 px-[9px] py-[3px] text-caption whitespace-nowrap text-text-on-fill">
       {children}
     </span>
   );

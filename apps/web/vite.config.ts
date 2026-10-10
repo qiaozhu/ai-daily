@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 //
 // First-load budget (#16, PRD §5: initial JS <= 60 KB gzip, enforced by scripts/check-bundle.mjs):
 // - The app is written against the React API (types from @types/react) but runs on preact/compat:
-//   react-dom alone is ~67 KB gzip, preact/compat ~6 KB. Remove the aliases below to run on real React.
+//   react-dom alone is ~67 KB gzip, preact/compat ~6 KB. Decision + how to switch back: docs/adr/0001-preact-compat.md.
 // - Routes other than the home page are lazy-loaded (React.lazy), the framework lives in its own `vendor` chunk.
 // - Every built file is content-hashed under /assets/ and cached for a year (public/_headers);
 //   index.html and /theme.js keep stable URLs and are revalidated.
@@ -30,7 +30,8 @@ export default defineConfig({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]',
-        manualChunks: (id) => (/[\\/]node_modules[\\/]preact[\\/]/.test(id) ? 'vendor' : undefined),
+        manualChunks: (id) =>
+          /[\\/]node_modules[\\/](preact|react|react-dom|scheduler)[\\/]/.test(id) ? 'vendor' : undefined,
       },
     },
   },

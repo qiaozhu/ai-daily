@@ -1,8 +1,9 @@
 // Cross-day topic matching (PRD v6 §3.1) — shared by the API (F1 badges; later F2 trend/related, F5 weekly).
 // Story ids differ every day, so stories are matched by their `topics` (stored as `tags`), never by id.
 //
-// 1. Broad topics never match:
-//    - BROAD_TOPICS (below): organisations/companies, every category name, generic terms like 大模型;
+// 1. Broad topics never match (topics are compared after normTopic: NFKC, no whitespace, lower case):
+//    - BROAD_TOPICS (below): organisations/companies, people, model families, every category name, generic and
+//      field terms like 大模型 / AI编程;
 //    - per day: a topic used by >= DAY_BROAD_MIN_STORIES stories *that day* is broad on that day only.
 // 2. Today's story S and story T of an earlier report day D match when they share a topic that is not in the
 //    blacklist and is broad neither today nor on D. D "has" S when any of its stories matches.
@@ -37,6 +38,25 @@ export const BROAD_ORG_TOPICS: readonly string[] = [
   '华为',
 ];
 
+/** People: they span many unrelated events (e.g. 马斯克 in both an xAI and a policy story on 10-10). */
+export const BROAD_PERSON_TOPICS: readonly string[] = ['马斯克', '特朗普', '奥特曼', 'Sam Altman', '黄仁勋'];
+
+/**
+ * Model families / brands: as broad as company names. Specific models (GPT-6, Codex, Gemini 4) stay specific —
+ * only an exact (normalised) match is blacklisted.
+ */
+export const BROAD_MODEL_FAMILY_TOPICS: readonly string[] = [
+  'ChatGPT',
+  'GPT',
+  'Claude',
+  'Gemini',
+  'Grok',
+  'Llama',
+  'Qwen',
+  '通义千问',
+  'DeepSeek',
+];
+
 /** Every category name used by the daily JSON (`categories`). */
 export const CATEGORY_TOPICS: readonly string[] = [
   '大模型',
@@ -62,10 +82,28 @@ export const GENERIC_TOPICS: readonly string[] = [
   '智能体',
   'AI Agent',
   'AI安全',
+  // field umbrellas (product review in PR #23)
+  '美国政策',
+  'AI就业',
+  'AI医疗',
+  'AI数学',
+  '预测市场',
+  '具身智能',
+  '机器人',
+  'AI编程',
 ];
 
-/** The maintained blacklist (PRD §3.1 rule 1, first bullet). */
-export const BROAD_TOPICS: readonly string[] = [...BROAD_ORG_TOPICS, ...CATEGORY_TOPICS, ...GENERIC_TOPICS];
+/**
+ * The maintained blacklist (PRD §3.1 rule 1, first bullet; extended per the product review in PR #23).
+ * Small / mid-size companies (Broadcom, Super Micro …) are deliberately NOT listed: rare and close to one event.
+ */
+export const BROAD_TOPICS: readonly string[] = [
+  ...BROAD_ORG_TOPICS,
+  ...BROAD_PERSON_TOPICS,
+  ...BROAD_MODEL_FAMILY_TOPICS,
+  ...CATEGORY_TOPICS,
+  ...GENERIC_TOPICS,
+];
 
 /** a topic used by this many stories (or more) on one day is broad on that day */
 export const DAY_BROAD_MIN_STORIES = 3;
@@ -93,7 +131,8 @@ export interface TopicDay {
   stories: readonly TopicStory[];
 }
 
-export const normTopic = (t: string): string => t.trim().toLowerCase();
+/** NFKC (full-width -> half-width), drop all whitespace, lower case: `ＡＩ 智能体` ≡ `AI智能体` ≡ `ai智能体` */
+export const normTopic = (t: string): string => t.normalize('NFKC').replace(/\s+/gu, '').toLowerCase();
 
 const BLACKLIST = new Set(BROAD_TOPICS.map(normTopic));
 

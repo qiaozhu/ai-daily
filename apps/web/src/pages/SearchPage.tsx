@@ -87,7 +87,7 @@ export default function SearchPage({ q, cat, dayCount }: { q: string; cat: strin
       </h1>
       <label
         id="searchbar"
-        className="mb-4 flex h-10 items-center gap-2 rounded-control bg-surface-2 px-3 text-text-fill"
+        className="mb-4 flex h-10 items-center gap-2 rounded-control bg-surface-2 px-3 text-text-on-fill"
       >
         <Icon name="search" size={18} />
         <input
@@ -100,7 +100,7 @@ export default function SearchPage({ q, cat, dayCount }: { q: string; cat: strin
           aria-label="搜索"
           enterKeyHint="search"
           maxLength={Q_MAX}
-          className="min-w-0 flex-1 bg-transparent text-body text-text outline-none placeholder:text-text-fill"
+          className="min-w-0 flex-1 bg-transparent text-body text-text outline-none placeholder:text-text-on-fill"
         />
       </label>
       {body}

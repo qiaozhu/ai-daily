@@ -109,7 +109,7 @@ export function StoryCard({ story: s, showDate, expanded, onToggle }: Props) {
               </div>
             )}
             {s.data_quality && (
-              <div className="flex gap-2 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-fill">
+              <div className="flex gap-2 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-on-fill">
                 <span className="font-semibold whitespace-nowrap">数据说明</span>
                 <span>{s.data_quality}</span>
               </div>
