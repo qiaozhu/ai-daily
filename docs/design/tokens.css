@@ -1,0 +1,50 @@
+/* 视觉规范 v1 的 Tailwind 4 主题变量草案（docs/design/visual-spec-v1.md）。
+ * 开发时复制到 apps/web 的样式入口；数值以规范文档为准。 */
+@theme {
+  --color-bg: #F5F5F7;
+  --color-surface: #FFFFFF;
+  --color-surface-2: rgb(118 118 128 / .12);
+  --color-separator: rgb(0 0 0 / .06);
+  --color-text: #1D1D1F;
+  --color-text-2: #6E6E73;
+  --color-text-3: #AEAEB2;
+  --color-brand: #7D5AF0;
+  --color-brand-text: #6440D6;
+  --color-brand-soft: rgb(125 90 240 / .10);
+  --color-on-brand: #FFFFFF;
+  --color-hot: #FF9500;
+  --color-hot-text: #B45309;
+  --color-up: #34C759;
+  --color-up-text: #1F7A36;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Inter", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+
+  --radius-tag: 9999px;
+  --radius-control: 10px;
+  --radius-button: 14px;
+  --radius-card: 18px;
+  --radius-hero: 22px;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / .04), 0 4px 16px rgb(0 0 0 / .04);
+  --ease-standard: cubic-bezier(.25, .1, .25, 1);
+}
+
+/* 深色主题：覆盖同名变量 */
+[data-theme="dark"] {
+  --color-bg: #000000;
+  --color-surface: #1C1C1E;
+  --color-surface-2: rgb(118 118 128 / .24);
+  --color-separator: rgb(255 255 255 / .08);
+  --color-text: #F5F5F7;
+  --color-text-2: #98989D;
+  --color-text-3: #636366;
+  --color-brand: #A88BFF;
+  --color-brand-text: #A88BFF;
+  --color-brand-soft: rgb(168 139 255 / .18);
+  --color-on-brand: #1C1C1E;
+  --color-hot: #FF9F0A;
+  --color-hot-text: #FF9F0A;
+  --color-up: #30D158;
+  --color-up-text: #30D158;
+  --shadow-card: none;
+}
