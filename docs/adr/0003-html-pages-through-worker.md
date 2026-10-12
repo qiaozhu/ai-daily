@@ -24,6 +24,7 @@ F1 时 `/` 直接由静态资源层返回 `index.html`，不调用 Worker，也�
   - 浏览器不缓存，每次都重新验证。Worker 对注入后的 HTML 算内容哈希，作为弱 ETag（`W/"<sha-256 前 16 位>"`）；`If-None-Match` 命中时返回 304，不必重新下载。不会用静态 `index.html` 的 ETag，因为正文已经改写。
   - 这样发版后浏览器不会继续用旧 HTML 去请求已被删除的旧哈希 JS（否则会 404 白屏，测试工程师 2026-10-10 指出）。
   - 只允许共享缓存或边缘缓存存 5 分钟（`s-maxage=300`）。每天 08:50 更新后，爬虫最多 5 分钟就能拿到当天的卡片。
+  - **注意（部署工程师指出，2026-10-12）**：Worker 自己生成的响应，Cloudflare 边缘不会按 `s-maxage` 缓存，除非代码显式用 Cache API（`caches.default`）。所以 `s-maxage=300` 在 workers.dev 上基本不生效：每次 HTML 请求都会经过 Worker，`/` 每次都会查一次 D1。按现在的访问量可以接受；需要时再用 `caches.default` 把注入后的 HTML 缓存 5 分钟（回给浏览器的头仍是 `max-age=0`）。
   - 404 页仍然是 `no-store`。
 - `/?d=<date>` 仍由前端替换成 `/day/<date>`（PRD #26 允许首个请求返回 200）。
 - `/assets/*` 的处理不变（ADR 0002）；`/theme.js`、`/brand/*` 仍不经过 Worker。

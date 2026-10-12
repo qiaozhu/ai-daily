@@ -248,7 +248,9 @@ export default function StoryPage({ id }: { id: string }) {
             <div className="grid gap-3">
               {s.summary_zh && (
                 <Card title="摘要">
-                  <p className="text-body">{s.summary_zh}</p>
+                  <p className="text-body whitespace-pre-line" id="storySummary">
+                    {s.summary_zh}
+                  </p>
                 </Card>
               )}
               {s.why_it_matters && (

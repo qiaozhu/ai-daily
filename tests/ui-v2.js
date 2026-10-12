@@ -74,7 +74,7 @@ R('no sort control / no "按热度" on the home page (#20)', (await pg.$$('#sort
   await pg.click('#heatrank li a'); await pg.waitForSelector('#storyTitle',{timeout:15000});
   const top=[...day.stories].sort((a,b)=>(b.heat??-1)-(a.heat??-1)||a.rank-b.rank)[0];
   R('热度榜 item -> its detail page', (await url())==='/story/'+encodeURIComponent(top.id)); }
-{ let tws=0, ok=true, why=0; const posts=[];
+{ let tws=0, ok=true, why=0; const posts=[], summaryBad=[];
   for (const s of day.stories) {
     await pg.goto(BASE+'/story/'+encodeURIComponent(s.id),{waitUntil:'networkidle0'}); await pg.waitForSelector('#storyTitle',{timeout:15000});
     const tw=await pg.$$eval('#posts a.tw',a=>a.map(x=>({h:x.href,t:x.target,rel:x.rel,time:x.querySelector('time')?.textContent})));
@@ -83,11 +83,14 @@ R('no sort control / no "按热度" on the home page (#20)', (await pg.$$('#sort
     const meta=await pg.$eval('#storyMeta',e=>e.textContent);
     if(meta!==`${s.org_tag?s.org_tag+' · ':''}${s.source_posts.length} 条原帖 · ${s.date.replace(/^\d+-0?(\d+)-0?(\d+)$/,'$1月$2日')}`) { ok=false; console.log('meta',meta); }
     if((await pg.$$eval('#news a',x=>x.length))!==s.news_refs.length) ok=false;
+    if(s.summary_zh){ const sm=await pg.$eval('#storySummary',e=>{const c=getComputedStyle(e);return {t:e.textContent,full:e.scrollHeight<=e.clientHeight+1,clamp:c.webkitLineClamp,ov:c.textOverflow};}).catch(()=>null);
+      if(!sm||sm.t!==s.summary_zh||!sm.full||(sm.clamp&&sm.clamp!=='none')||sm.ov==='ellipsis'){ ok=false; summaryBad.push(s.id); } }
     if(!!(await pg.$('#dataNote'))!==!!s.data_quality) ok=false;
   }
   R(`detail pages: tweets ${tws}/${nPosts} all x.com/_blank, meta / news / 数据说明 per story`, ok && tws===nPosts && posts.every(x=>/^https:\/\/x\.com\/[^/]+\/status\/\d+/.test(x.h)&&x.t==='_blank'&&x.rel.includes('noopener')));
   R('timestamps '+posts[0]?.time, posts.length>0&&posts.every(x=>/月\d+日 \d\d:\d\d/.test(x.time||'')));
-  R('why_it_matters shown on the detail page', why===day.stories.filter(s=>s.why_it_matters).length); }
+  R('why_it_matters shown on the detail page', why===day.stories.filter(s=>s.why_it_matters).length);
+  R('detail page shows the full summary (= API summary_zh, no clamp / ellipsis) '+JSON.stringify(summaryBad), summaryBad.length===0); }
 // detail page states (only data/*.json locally -> every story is 首次出现; the chart uses an intercepted /trend)
 { const s=day.stories[0], sid=s.id;
   await pg.goto(BASE+'/story/'+encodeURIComponent(sid),{waitUntil:'networkidle0'}); await pg.waitForSelector('#storyTitle'); await W(200);
