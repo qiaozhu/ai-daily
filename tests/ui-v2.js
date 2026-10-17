@@ -22,6 +22,35 @@ const nPosts=day.stories.reduce((a,s)=>a+s.source_posts.length,0);
 let pg=await page(D,true);
 const ns=()=>pg.$$eval('#tl .story',x=>x.length);
 const css=(sel,prop)=>pg.$eval(sel,(e,pr)=>getComputedStyle(e)[pr],prop);
+// #28: click on card blank space -> detail page; selecting summary text -> no navigation
+async function clickChecks(tag) {
+  const s0=day.stories.find(s=>s.summary_zh)||day.stories[0];
+  const box=await pg.$eval(`#tl .story[data-id="${s0.id}"]`,e=>{e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return {x:r.right-8,y:r.top+6};});
+  await W(100); await pg.mouse.click(box.x,box.y); await pg.waitForSelector('#storyTitle',{timeout:15000});
+  R(`${tag}: click on card blank space -> detail page `+await url(), (await url())==='/story/'+encodeURIComponent(s0.id));
+  await pg.goBack(); await pg.waitForSelector('#tl .story'); await W(300);
+  const sm=await pg.$eval(`#tl .story[data-id="${s0.id}"] .summary`,e=>{e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return {x0:r.left+4,y0:r.top+8,x1:r.left+r.width*0.6,y1:r.top+8};});
+  await W(100); await pg.mouse.move(sm.x0,sm.y0); await pg.mouse.down(); await pg.mouse.move(sm.x1,sm.y1,{steps:8}); await pg.mouse.up(); await W(400);
+  const sel=await pg.evaluate(()=>String(window.getSelection()));
+  R(`${tag}: selecting summary text does not navigate (selected ${sel.length} chars) `+await url(), sel.length>0 && (await url())==='/');
+  await pg.evaluate(()=>{window.getSelection().removeAllRanges();scrollTo(0,0);}); await W(100);
+}
+// Issue #28 card checks: one column (same x, stacked, given gap), padding, title size, FULL summary = API text
+// with no truncation styles, a 详情 link per card
+async function cardChecks(tag, want) {
+  const c=await pg.$$eval('#tl .story',(x)=>x.map(e=>{const r=e.getBoundingClientRect(),cs=getComputedStyle(e),h=e.querySelector('h3'),sm=e.querySelector('.summary'),ss=sm&&getComputedStyle(sm);
+    return {id:e.dataset.id,x:Math.round(r.left),w:Math.round(r.width),top:r.top,bottom:r.bottom,pad:cs.padding,fs:getComputedStyle(h).fontSize,fw:getComputedStyle(h).fontWeight,
+      sum:sm?sm.textContent:null,full:sm?sm.scrollHeight<=sm.clientHeight+1:true,clamp:ss?ss.webkitLineClamp:'none',ell:ss?ss.textOverflow:'',ov:ss?ss.overflow:'',mh:ss?ss.maxHeight:'none',
+      sfs:ss?ss.fontSize:'',slh:ss?ss.lineHeight:'',scol:ss?ss.color:'',hcol:getComputedStyle(h).color,det:!!e.querySelector('a[data-detail][href^="/story/"]')};}));
+  const one=c.length>0&&c.every(k=>k.x===c[0].x&&k.w===c[0].w)&&c.slice(1).every((k,i)=>Math.abs(k.top-c[i].bottom-want.gap)<=1);
+  R(`${tag}: single column (same x/width, gap ${want.gap}px) x=${c[0]?.x} w=${c[0]?.w}`, one && (!want.vw ? c[0].w<=680 : c[0].x===want.side && c[0].x+c[0].w===want.vw-want.side));
+  R(`${tag}: card padding ${want.pad}, title ${want.fs}/600 `+JSON.stringify(c[0]&&{pad:c[0].pad,fs:c[0].fs,fw:c[0].fw}), c.every(k=>k.pad===want.pad&&k.fs===want.fs&&k.fw==='600'));
+  const bySum=Object.fromEntries(day.stories.map(s=>[s.id,s.summary_zh||null]));
+  const bad=c.filter(k=>k.sum!==bySum[k.id]||!k.full||(k.clamp&&k.clamp!=='none')||k.ell==='ellipsis'||(k.ov==='hidden'&&k.mh!=='none'));
+  R(`${tag}: every summary is the full API text, no line-clamp/ellipsis/overflow+max-height `+JSON.stringify(bad.map(k=>k.id)), bad.length===0 && c.length===N);
+  R(`${tag}: summary 15px / 1.65, color text `+JSON.stringify(c[0]&&{fs:c[0].sfs,lh:c[0].slh}), c.filter(k=>k.sum).every(k=>k.sfs==='15px'&&Math.abs(parseFloat(k.slh)-24.75)<0.1&&k.scol===k.hcol));
+  R(`${tag}: 详情 link on every card`, c.every(k=>k.det));
+}
 const url=()=>pg.evaluate(()=>location.pathname+location.search+location.hash);
 const theme=()=>pg.evaluate(()=>document.documentElement.dataset.theme);
 await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await pg.evaluate(()=>localStorage.clear()); await pg.reload({waitUntil:'networkidle0'}); await W(300);
@@ -47,9 +76,11 @@ R('热度榜 top 8 '+await pg.$$eval('#heatrank li',x=>x.length), (await pg.$$ev
 { const al=await pg.evaluate(()=>{const t=document.querySelector('#title').getBoundingClientRect(),b=document.querySelector('#titleActions');if(!b||!b.offsetHeight)return null;const r=b.getBoundingClientRect();return {tb:Math.round(t.bottom),bb:Math.round(r.bottom),bt:Math.round(r.top),tt:Math.round(t.top)};});
   R('desktop search + share bottom-aligned with the title '+JSON.stringify(al), !!al && Math.abs(al.tb-al.bb)<=8 && al.bt>al.tt); }
 R('topic count shown once on desktop (only in the subtitle) ', await pg.$eval('#mainCol',e=>(e.innerText.match(/个话题/g)||[]).length)===1);
-R('two-column cards on desktop', await pg.$$eval('#tl .story',x=>x.length>1&&Math.round(x[0].getBoundingClientRect().top)===Math.round(x[1].getBoundingClientRect().top)));
+// Issue #28: single column, full summaries
+await cardChecks('desktop light', {gap:16, pad:'20px 24px', fs:'18px'});
 const card=await pg.$eval('#tl .story',e=>{const c=getComputedStyle(e),h=getComputedStyle(e.querySelector('h3'));return {r:c.borderTopLeftRadius,bg:c.backgroundColor,sh:c.boxShadow,fs:h.fontSize,fw:h.fontWeight}});
-R('light card: white, radius 18, soft shadow, headline 17/600 '+JSON.stringify(card), card.r==='18px'&&card.bg==='rgb(255, 255, 255)'&&card.sh!=='none'&&card.fs==='17px'&&card.fw==='600');
+R('light card: white, radius 18, soft shadow, headline 18/600 '+JSON.stringify(card), card.r==='18px'&&card.bg==='rgb(255, 255, 255)'&&card.sh!=='none'&&card.fs==='18px'&&card.fw==='600');
+await clickChecks('desktop light');
 const nb=await pg.$('[data-badge="new"]'); if(nb) R('"新" = brand-text on brand-soft '+await pg.$eval('[data-badge="new"]',e=>getComputedStyle(e).color), await pg.$eval('[data-badge="new"]',e=>getComputedStyle(e).color)==='rgb(100, 64, 214)');
 R('no prev/next beyond the available days', await pg.$eval('[data-nav=next]',e=>e.disabled) && await pg.$eval('[data-nav=prev]',(e,n)=>e.disabled===(n<2),daysList.length));
 await pg.screenshot({path:`${PFX}light-desktop.png`});
@@ -59,16 +90,16 @@ R(`category ${cat}: ${await ns()} `+await url(), (await ns())===day.stories.filt
 await pg.click('#cats [data-key=""]'); await W(300); R('category 全部 '+await ns(), (await ns())===N);
 R('no sort control / no "按热度" on the home page (#20)', (await pg.$$('#sort')).length===0 && !(await pg.$eval('#mainCol',e=>e.textContent.includes('按热度'))));
 // 详情 (F2): every card is a link to /story/<id>; the detail page shows why_it_matters and all X posts
-{ const hrefs=await pg.$$eval('#tl .story > a',x=>x.map(a=>a.getAttribute('href')));
+{ const hrefs=await pg.$$eval('#tl .story a.story-link',x=>x.map(a=>a.getAttribute('href')));
   R('cards link to /story/<id>', JSON.stringify(hrefs)===JSON.stringify(day.stories.map(s=>'/story/'+encodeURIComponent(s.id)))); }
 { const first=day.stories[0];
-  await pg.click('#tl .story > a'); await pg.waitForSelector('#storyTitle',{timeout:15000}); await W(200);
+  await pg.click('#tl .story a.story-link'); await pg.waitForSelector('#storyTitle',{timeout:15000}); await W(200);
   R('card click -> detail page '+await url(), (await url())==='/story/'+encodeURIComponent(first.id) && await pg.$eval('#storyTitle',e=>e.textContent)===first.headline_zh);
   R('detail: side nav keeps 今日 selected', await pg.$eval('#sidenav [aria-current=page]',e=>e.dataset.tab).catch(()=>null)==='day');
   R('detail: document.title = headline', (await pg.title())===first.headline_zh+' · AI 热点日报');
   await pg.click('#storyNav a'); await W(400); R('back link -> previous page '+await url(), (await url())==='/' && (await ns())===N);
   // keyboard: focus the first card link, Enter opens it
-  await pg.focus('#tl .story > a'); await pg.keyboard.press('Enter'); await pg.waitForSelector('#storyTitle',{timeout:15000});
+  await pg.focus('#tl .story a.story-link'); await pg.keyboard.press('Enter'); await pg.waitForSelector('#storyTitle',{timeout:15000});
   R('keyboard Enter on a card opens the detail page', (await url())==='/story/'+encodeURIComponent(first.id));
   await pg.goBack(); await W(400);
   await pg.click('#heatrank li a'); await pg.waitForSelector('#storyTitle',{timeout:15000});
@@ -131,13 +162,13 @@ await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await W(300);
 // favorites (server-side): favorite the first story on its detail page, see it under 我的, unfavorite it there
 const before=(await J('/api/favorites')).count;
 const sid=await pg.$eval('#tl .story',e=>e.dataset.id);
-await pg.click('#tl .story > a'); await pg.waitForSelector('#storyTitle');
+await pg.click('#tl .story a.story-link'); await pg.waitForSelector('#storyTitle');
 await pg.click('#storyNav button[aria-label="收藏"]'); await W(700);
 let f=await J('/api/favorites'); R('fav saved on server ('+before+'->'+f.count+')', f.ids.includes(sid) && await pg.$eval('#storyNav button[aria-pressed]',e=>e.getAttribute('aria-pressed'))==='true');
 R('fav count in side nav '+await pg.$eval('[data-favcount]',e=>e.textContent), (await pg.$eval('[data-favcount]',e=>e.textContent))===String(f.count));
 await pg.click('#sidenav [data-tab=me]'); await pg.waitForSelector('#favs .story,#favs [data-state]',{timeout:15000}); await W(200);
 R('我的 lists favorites '+await ns(), (await ns())===f.count);
-await pg.click(`#tl .story[data-id="${sid}"] > a`); await pg.waitForSelector('#storyTitle'); await pg.click('#storyNav button[aria-label="取消收藏"]'); await W(900);
+await pg.click(`#tl .story[data-id="${sid}"] a.story-link`); await pg.waitForSelector('#storyTitle'); await pg.click('#storyNav button[aria-label="取消收藏"]'); await W(900);
 f=await J('/api/favorites'); R('unfav restored ('+f.count+')', !f.ids.includes(sid) && f.count===before);
 await pg.click('#sidenav [data-tab=me]'); await W(400);
 R('export link on 我的', (await pg.$$eval('a[href="/api/export"][download]',x=>x.length))===1);
@@ -181,9 +212,10 @@ R('toggle -> dark', await theme()==='dark');
 await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await W(300);
 R('dark persisted after reload, bg '+await css('body','backgroundColor'), await theme()==='dark' && await css('body','backgroundColor')==='rgb(0, 0, 0)');
 {const c=await pg.$eval('#tl .story',e=>({bg:getComputedStyle(e).backgroundColor,sh:getComputedStyle(e).boxShadow})); R('dark card: #1C1C1E, no shadow '+JSON.stringify(c), c.bg==='rgb(28, 28, 30)'&&c.sh==='none');}
+await cardChecks('desktop dark', {gap:16, pad:'20px 24px', fs:'18px'}); await clickChecks('desktop dark');
 if(nb) R('dark "新" = #A88BFF', await pg.$eval('[data-badge="new"]',e=>getComputedStyle(e).color)==='rgb(168, 139, 255)');
 await pg.screenshot({path:`${PFX}dark-desktop.png`});
-{ const s=day.stories[0]; await pg.click('#tl .story > a'); await pg.waitForSelector('#storyTitle'); await W(300);
+{ const s=day.stories[0]; await pg.click('#tl .story a.story-link'); await pg.waitForSelector('#storyTitle'); await W(300);
   await pg.screenshot({path:`${PFX}story-dark-desktop.png`,fullPage:true});
   await pg.setRequestInterception(true);
   const onT=r=>r.url().endsWith('/trend')?r.respond({status:200,contentType:'application/json',body:JSON.stringify({points:[{date:'2026-10-08',heat:62.3,story_id:'x'},{date:s.date,heat:s.heat,story_id:s.id}]})}):r.continue();
@@ -231,8 +263,10 @@ for (const th of ['light','dark']) {
  R(`mobile ${th}: first screen (390×844) shows 三件事 + first card headline `+JSON.stringify(fs), fs.three<=fs.bar && fs.h3<=fs.bar);
  const seg=await pg.$eval('#cats',e=>({sw:e.scrollWidth,cw:e.clientWidth,clip:[...e.children].some(b=>b.scrollWidth>b.clientWidth+1)}));
  R(`mobile ${th}: categories scroll horizontally, labels not squeezed `+JSON.stringify(seg), seg.sw>seg.cw && !seg.clip);
- R(`mobile ${th}: single-column cards`, await pg.$$eval('#tl .story',x=>x.length<2||x[1].getBoundingClientRect().top>x[0].getBoundingClientRect().bottom));
+ await cardChecks(`mobile ${th}`, {gap:12, pad:'16px', fs:'17px', side:16, vw:390});
  await pg.screenshot({path:`${PFX}${th}-mobile.png`,fullPage:false});
+ await pg.screenshot({path:`${PFX}${th}-mobile-full.png`,fullPage:true});
+ await clickChecks(`mobile ${th}`);
  if(th==='light'){
   await pg.click('#tabbar [data-tab=search]'); await W(300); R('mobile search input at top', await pg.$eval('#searchbar',e=>e.offsetHeight>0&&e.getBoundingClientRect().top<200));
   await pg.type('#q','Qwen'); await W(900); R('mobile search '+await pg.$$eval('#tl .story',x=>x.length), (await pg.$$eval('#tl .story',x=>x.length))>=1);
@@ -243,7 +277,7 @@ for (const th of ['light','dark']) {
   R('mobile story 404: tab bar shown, no tab selected', r404.status()===404 && await pg.$eval('#tabbar',e=>e.offsetHeight>0) && (await pg.$$('#tabbar [aria-current]')).length===0);
   await pg.screenshot({path:`${PFX}story-404-mobile.png`});
  }
- { await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await W(200); await pg.tap('#tl .story > a'); await pg.waitForSelector('#storyTitle',{timeout:15000}); await W(300);
+ { await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await W(200); await pg.tap('#tl .story a.story-link'); await pg.waitForSelector('#storyTitle',{timeout:15000}); await W(300);
   const t=await pg.$eval('#storyTitle',e=>getComputedStyle(e).fontSize);
   const act=await pg.$eval('#storyActions',e=>({h:e.offsetHeight,t:[...e.children].map(c=>c.textContent).join()}));
   R(`mobile ${th} detail: title 26px, 复制链接 + 保存分享图 at the bottom, no right column ${t} ${JSON.stringify(act)}`, t==='26px' && act.h>0 && act.t==='复制链接,保存分享图' && await pg.$eval('.rcol',e=>e.offsetHeight===0));

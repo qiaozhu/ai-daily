@@ -7,7 +7,7 @@ export function Main({ children }: { children: React.ReactNode }) {
   return (
     <main
       id="mainCol"
-      className="min-w-0 px-[18px] pt-[max(14px,env(safe-area-inset-top))] pb-[calc(110px+env(safe-area-inset-bottom))] lg:px-0 lg:pt-10 lg:pb-16"
+      className="min-w-0 px-4 pt-[max(14px,env(safe-area-inset-top))] pb-[calc(110px+env(safe-area-inset-bottom))] lg:px-0 lg:pt-10 lg:pb-16"
     >
       {children}
     </main>
