@@ -138,7 +138,6 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
           stories={day.stories}
           cat={cat}
           title={cat ?? '全部话题'}
-          twoCols
           empty={day.stories.length ? '该分类下暂无内容' : '这一天没有话题'}
         />
         {day.data_quality_notes.length > 0 && (

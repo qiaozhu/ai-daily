@@ -26,12 +26,10 @@ interface Props<T extends Story> {
   cat: string | null;
   title: string;
   showDate?: boolean;
-  /** two columns from 1024px (home page) */
-  twoCols?: boolean;
   empty: string;
 }
 
-export function StoryList<T extends Story>({ stories, cat, title, showDate, twoCols, empty }: Props<T>) {
+export function StoryList<T extends Story>({ stories, cat, title, showDate, empty }: Props<T>) {
   // API order, no sort control: a day is in editorial `rank` order (PRD F1, like v5; hifi-v1 §1.5 as revised
   // in #20), search results newest day first, favorites newest first
   const list = filterByCategory([...stories], cat);
@@ -41,7 +39,7 @@ export function StoryList<T extends Story>({ stories, cat, title, showDate, twoC
         <h2 className="text-title2">{title}</h2>
       </div>
       {list.length ? (
-        <div id="tl" className={`grid items-start gap-3 ${twoCols ? 'lg:grid-cols-2 lg:gap-3.5' : ''}`}>
+        <div id="tl" className="grid gap-3 lg:gap-4">
           {list.map((s) => (
             <StoryCard key={s.id} story={s} showDate={showDate} />
           ))}
