@@ -23,6 +23,8 @@
 
 ## 代价
 
-- 每个 `/assets/*` 请求都会调用一次 Worker，计入 Workers 免费额度（**每天 10 万次请求**）。
+- 每个 `/assets/*` 请求都会调用一次 Worker：**每个 JS / CSS 文件各算一次 Worker 调用**，计入 Workers 免费额度（**每天 10 万次请求**）。
 - 目前够用：首屏经过 Worker 的只有 `/assets/` 下 3 个文件（JS 入口、vendor chunk、CSS；`index.html` 和 `/theme.js` 不经过 Worker），文件名带哈希，浏览器缓存一年，回访用户基本不会再请求。按每位新访客约 3–6 次计算，每天约 1.5 万个新访客才会用到额度的一半。
-- 访问量上来后再评估。可选方案：给 `/assets/*` 加一条缓存规则或 Cache API；或者恢复 `!/assets/*`，改为在部署时保留旧哈希文件，让缺失文件不再出现。
+- 访问量上来后再评估。退路（部署工程师建议）：把 `!/assets/*` 加回 `run_worker_first`，让静态文件重新不经过 Worker；缺失文件的问题改在前端处理（例如入口脚本加载失败时整页刷新、拿到新的 `index.html`），并在部署时保留上一版的哈希文件，减少缺失。也可以先给 `/assets/*` 加一条缓存规则或用 Cache API。
+
+> 补充（2026-10-10）：F2 起 `/`、`/search`、`/archive`、`/me` 也经过 Worker（输出 og 标签），见 [ADR 0003](0003-html-pages-through-worker.md)；上文"`index.html` 不经过 Worker"的估算按 0003 更新。

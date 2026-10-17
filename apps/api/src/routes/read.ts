@@ -1,10 +1,11 @@
-import { DayParamSchema, StoriesQuerySchema } from '@ai-daily/shared';
+import { DayParamSchema, StoriesQuerySchema, storyIdFromSegment } from '@ai-daily/shared';
 import { Hono } from 'hono';
 import type { AppEnv } from '../env.ts';
 import { json, jsonError, rawPathname } from '../lib/http.ts';
 import { parseOr400 } from '../lib/validate.ts';
 import { getDay, health, latestDate, listDays } from '../services/days.ts';
 import { exportAll } from '../services/favorites.ts';
+import { getRelated, getStory, getTrend } from '../services/story-page.ts';
 import { searchStories } from '../services/stories.ts';
 import { trends } from '../services/trends.ts';
 
@@ -38,6 +39,22 @@ export const readRoutes = new Hono<AppEnv>()
     });
     const stories = await searchStories(c.env.DB, query);
     return json({ count: stories.length, stories });
+  })
+
+  // v6 F2 (PRD §3.2): /stories/:id, /stories/:id/trend, /stories/:id/related — unknown / malformed id -> JSON 404.
+  // Parsed from the raw path (ids are percent-encoded path segments; Hono's params decode leniently).
+  .get('/stories/*', async (c) => {
+    const [seg = '', sub, ...rest] = rawPathname(c.req.raw).slice('/api/stories/'.length).split('/');
+    const id = storyIdFromSegment(seg);
+    if (!id || rest.length || (sub !== undefined && sub !== 'trend' && sub !== 'related'))
+      return jsonError(404, '没有这个话题');
+    const data =
+      sub === 'trend'
+        ? await getTrend(c.env.DB, id)
+        : sub === 'related'
+          ? await getRelated(c.env.DB, id)
+          : await getStory(c.env.DB, id);
+    return data ? json(data) : jsonError(404, '没有这个话题');
   })
 
   .get('/trends', async (c) => json(await trends(c.env.DB)))

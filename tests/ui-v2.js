@@ -2,13 +2,17 @@
 // v6 UI (F1 home redesign, visual spec v1). The v5 functional regression checks are kept with the same meaning
 // (stories/rank order, X posts, search + highlight, category filter, favorites, trend, export, history, theme,
 // legacy links) plus text contrast >= 4.5:1 (tests/ui-contrast.js); the v5 *visual* checks (blue borders, X-style cards) were replaced by the v1 token checks.
-// Screenshots: <prefix>{light,dark}-{desktop,mobile}.png (+ search-desktop.png).
+// F2 (#9): the story detail page /story/<id> (cards link to it; 首次出现 state; trend chart with an intercepted
+// multi-day /trend response, since the local DB only has data/*.json; 404 page; share actions).
+// Screenshots: <prefix>{light,dark}-{desktop,mobile}.png (+ search-desktop.png, story-{light,dark}-{desktop,mobile}.png,
+// story-trend-{light,dark}-desktop.png, story-{light,dark}-mobile-bottom.png, story-404-mobile.png).
 // WARNING: toggles one favorite on and off again on the target site (restores the original state).
 const p=require('puppeteer-core');const BASE=process.argv[2]||'http://127.0.0.1:8787', PFX=process.argv[3]||'';
 const W=ms=>new Promise(r=>setTimeout(r,ms));let fails=0;const R=(n,c)=>{console.log((c?'PASS ':'FAIL ')+n);if(!c)fails++;};
 const J=async u=>(await fetch(BASE+u)).json();
 (async()=>{
 const b=await p.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--lang=zh-CN']});
+await b.defaultBrowserContext().overridePermissions(BASE,['clipboard-read','clipboard-write','clipboard-sanitized-write']);
 const errs=[];
 async function page(vp,sysDark){const pg=await b.newPage();pg.on('pageerror',e=>errs.push(e.message));pg.on('console',m=>m.type()==='error'&&!/Failed to load resource.*(500|404)/.test(m.text())&&errs.push(m.text()));
  await pg.setViewport(vp); if(sysDark) await pg.emulateMediaFeatures([{name:'prefers-color-scheme',value:'dark'}]); return pg;}
@@ -54,25 +58,88 @@ const cat=day.stories[0].categories[0]; await pg.click(`#cats [data-key="${cat}"
 R(`category ${cat}: ${await ns()} `+await url(), (await ns())===day.stories.filter(s=>s.categories.includes(cat)).length && (await url()).includes('c='));
 await pg.click('#cats [data-key=""]'); await W(300); R('category 全部 '+await ns(), (await ns())===N);
 R('no sort control / no "按热度" on the home page (#20)', (await pg.$$('#sort')).length===0 && !(await pg.$eval('#mainCol',e=>e.textContent.includes('按热度'))));
-// 详情: expand every card in place -> all X posts of the day (v5 inline content)
-for (const h of await pg.$$('#tl .story > [role=button]')) { await h.click(); await W(30); }
-await W(200);
-const tw=await pg.$$eval('#tl a.tw',a=>a.map(x=>({h:x.href,t:x.target,rel:x.rel,time:x.querySelector('time')?.textContent})));
-R(`tweets ${tw.length}/${nPosts} all x.com/_blank`, tw.length===nPosts&&tw.every(x=>/^https:\/\/x\.com\/[^/]+\/status\/\d+/.test(x.h)&&x.t==='_blank'&&x.rel.includes('noopener')));
-R('timestamps '+tw[0]?.time, tw.length>0&&tw.every(x=>/月\d+日 \d\d:\d\d/.test(x.time||'')));
-R('why_it_matters shown in details', (await pg.$$eval('#tl .details',x=>x.filter(e=>e.textContent.includes('为什么重要')).length))===day.stories.filter(s=>s.why_it_matters).length);
-for (const h of await pg.$$('#tl .story > [role=button]')) { await h.click(); await W(20); }
-// favorites (server-side): favorite the first story, see it under 我的, unfavorite it there
+// 详情 (F2): every card is a link to /story/<id>; the detail page shows why_it_matters and all X posts
+{ const hrefs=await pg.$$eval('#tl .story > a',x=>x.map(a=>a.getAttribute('href')));
+  R('cards link to /story/<id>', JSON.stringify(hrefs)===JSON.stringify(day.stories.map(s=>'/story/'+encodeURIComponent(s.id)))); }
+{ const first=day.stories[0];
+  await pg.click('#tl .story > a'); await pg.waitForSelector('#storyTitle',{timeout:15000}); await W(200);
+  R('card click -> detail page '+await url(), (await url())==='/story/'+encodeURIComponent(first.id) && await pg.$eval('#storyTitle',e=>e.textContent)===first.headline_zh);
+  R('detail: side nav keeps 今日 selected', await pg.$eval('#sidenav [aria-current=page]',e=>e.dataset.tab).catch(()=>null)==='day');
+  R('detail: document.title = headline', (await pg.title())===first.headline_zh+' · AI 热点日报');
+  await pg.click('#storyNav a'); await W(400); R('back link -> previous page '+await url(), (await url())==='/' && (await ns())===N);
+  // keyboard: focus the first card link, Enter opens it
+  await pg.focus('#tl .story > a'); await pg.keyboard.press('Enter'); await pg.waitForSelector('#storyTitle',{timeout:15000});
+  R('keyboard Enter on a card opens the detail page', (await url())==='/story/'+encodeURIComponent(first.id));
+  await pg.goBack(); await W(400);
+  await pg.click('#heatrank li a'); await pg.waitForSelector('#storyTitle',{timeout:15000});
+  const top=[...day.stories].sort((a,b)=>(b.heat??-1)-(a.heat??-1)||a.rank-b.rank)[0];
+  R('热度榜 item -> its detail page', (await url())==='/story/'+encodeURIComponent(top.id)); }
+{ let tws=0, ok=true, why=0; const posts=[], summaryBad=[];
+  for (const s of day.stories) {
+    await pg.goto(BASE+'/story/'+encodeURIComponent(s.id),{waitUntil:'networkidle0'}); await pg.waitForSelector('#storyTitle',{timeout:15000});
+    const tw=await pg.$$eval('#posts a.tw',a=>a.map(x=>({h:x.href,t:x.target,rel:x.rel,time:x.querySelector('time')?.textContent})));
+    tws+=tw.length; posts.push(...tw); if(tw.length!==s.source_posts.length) ok=false;
+    if(s.why_it_matters && (await pg.$eval('article[data-story]',e=>e.textContent.includes('为什么重要')))) why++;
+    const meta=await pg.$eval('#storyMeta',e=>e.textContent);
+    if(meta!==`${s.org_tag?s.org_tag+' · ':''}${s.source_posts.length} 条原帖 · ${s.date.replace(/^\d+-0?(\d+)-0?(\d+)$/,'$1月$2日')}`) { ok=false; console.log('meta',meta); }
+    if((await pg.$$eval('#news a',x=>x.length))!==s.news_refs.length) ok=false;
+    if(s.summary_zh){ const sm=await pg.$eval('#storySummary',e=>{const c=getComputedStyle(e);return {t:e.textContent,full:e.scrollHeight<=e.clientHeight+1,clamp:c.webkitLineClamp,ov:c.textOverflow};}).catch(()=>null);
+      if(!sm||sm.t!==s.summary_zh||!sm.full||(sm.clamp&&sm.clamp!=='none')||sm.ov==='ellipsis'){ ok=false; summaryBad.push(s.id); } }
+    if(!!(await pg.$('#dataNote'))!==!!s.data_quality) ok=false;
+  }
+  R(`detail pages: tweets ${tws}/${nPosts} all x.com/_blank, meta / news / 数据说明 per story`, ok && tws===nPosts && posts.every(x=>/^https:\/\/x\.com\/[^/]+\/status\/\d+/.test(x.h)&&x.t==='_blank'&&x.rel.includes('noopener')));
+  R('timestamps '+posts[0]?.time, posts.length>0&&posts.every(x=>/月\d+日 \d\d:\d\d/.test(x.time||'')));
+  R('why_it_matters shown on the detail page', why===day.stories.filter(s=>s.why_it_matters).length);
+  R('detail page shows the full summary (= API summary_zh, no clamp / ellipsis) '+JSON.stringify(summaryBad), summaryBad.length===0); }
+// detail page states (only data/*.json locally -> every story is 首次出现; the chart uses an intercepted /trend)
+{ const s=day.stories[0], sid=s.id;
+  await pg.goto(BASE+'/story/'+encodeURIComponent(sid),{waitUntil:'networkidle0'}); await pg.waitForSelector('#storyTitle'); await W(200);
+  const tr=await J('/api/stories/'+encodeURIComponent(sid)+'/trend');
+  if (tr.points.length<2) R('首次出现 · 热度 N (no chart) '+await pg.$eval('[data-trend]',e=>e.textContent), await pg.$eval('[data-trend]',e=>e.dataset.trend)==='first' && await pg.$eval('[data-trend]',(e,h)=>e.textContent.includes('首次出现 · 热度 '+h),String(s.heat)) && (await pg.$$('[data-trend] linearGradient')).length===0);
+  const t=await pg.$eval('#storyTitle',e=>({fs:getComputedStyle(e).fontSize,fw:getComputedStyle(e).fontWeight}));
+  R('desktop title 30/700 '+JSON.stringify(t), t.fs==='30px'&&t.fw==='700');
+  R('desktop: 分享这条 in the right column, no bottom bar', await pg.$eval('#shareBox',e=>e.offsetHeight>0&&e.textContent.includes('分享这条')) && await pg.$eval('#storyActions',e=>e.offsetHeight===0));
+  const save=await pg.$eval('#shareBox [data-action=save-image]',e=>e.getAttribute('href'));
+  const img=await fetch(BASE+save); R(`保存分享图 -> ${save} ${img.status} ${img.headers.get('content-type')}`, save==='/og/story/'+encodeURIComponent(sid)+'.png?size=portrait' && img.status===200 && img.headers.get('content-type')==='image/png');
+  await pg.click('#shareBox [data-action=copy-link]'); await W(300);
+  const toast=await pg.$eval('[role=status]',e=>e.textContent).catch(()=>null);
+  const clip=await pg.evaluate(()=>navigator.clipboard.readText().catch(()=>null));
+  R('复制链接 -> clipboard + toast '+clip+' '+toast, clip===BASE+'/story/'+encodeURIComponent(sid) && toast==='链接已复制');
+  const html=await (await fetch(BASE+'/story/'+encodeURIComponent(sid))).text();
+  R('served HTML has og:image /og/story/<id>.png + twitter:card', html.includes(`/og/story/${encodeURIComponent(sid)}.png"`) && html.includes('name="twitter:card" content="summary_large_image"'));
+  const rel=await J('/api/stories/'+encodeURIComponent(sid)+'/related');
+  R(`关联话题 chips = /related (${rel.stories.length})`, JSON.stringify(await pg.$$eval('#related a',x=>x.map(a=>a.dataset.id)))===JSON.stringify(rel.stories.map(r=>r.id)));
+  await pg.screenshot({path:`${PFX}story-light-desktop.png`,fullPage:true});
+  // chart state: a fake 3-day /trend for this story
+  const pts=[{date:'2026-10-07',heat:31.5,story_id:'x1'},{date:'2026-10-08',heat:48.2,story_id:'x2'},{date:s.date,heat:s.heat,story_id:sid}];
+  await pg.setRequestInterception(true);
+  const onT=r=>r.url().endsWith('/api/stories/'+encodeURIComponent(sid)+'/trend')?r.respond({status:200,contentType:'application/json',body:JSON.stringify({points:pts})}):r.continue();
+  pg.on('request',onT); await pg.reload({waitUntil:'networkidle0'}); await pg.waitForSelector('[data-trend=chart]',{timeout:15000});
+  const ch=await pg.$eval('[data-trend=chart]',e=>({n:e.dataset.points,d:e.querySelector('[data-delta]').dataset.delta,txt:e.textContent,stroke:getComputedStyle(e.querySelector('svg path[stroke]')).stroke,sw:e.querySelector('svg path[stroke]').getAttribute('stroke-width'),grad:e.querySelector('stop').getAttribute('stop-opacity')}));
+  const dl=Math.round((s.heat-48.2)*10)/10;
+  R('trend chart: 3 points, 2px brand line, 18% gradient, change vs previous day '+JSON.stringify(ch), ch.n==='3' && Number(ch.d)===dl && ch.txt.includes('热度走势 · 近 30 天') && ch.stroke==='rgb(125, 90, 240)' && ch.sw==='2' && ch.grad==='0.18');
+  const dots=await pg.$$eval('[data-trend=chart] [data-dot]',x=>x.map(e=>{const r=e.getBoundingClientRect();return {w:Math.round(r.width),h:Math.round(r.height),l:e.dataset.dot,bg:getComputedStyle(e).backgroundColor};}));
+  R('trend < 7 points: a 6px brand dot per point, the latest one bigger '+JSON.stringify(dots), dots.length===3 && dots.every(d=>d.bg==='rgb(125, 90, 240)'&&d.w===d.h) && dots.slice(0,2).every(d=>d.w===6&&d.l==='') && dots[2].l==='latest' && dots[2].w>6);
+  await pg.screenshot({path:`${PFX}story-trend-light-desktop.png`,fullPage:false});
+  pg.off('request',onT); await pg.setRequestInterception(false); }
+// 404 story: HTTP 404, no og tags, 找不到这个话题, nothing selected in the navigation (PR #20)
+{ const resp=await pg.goto(BASE+'/story/2026-10-10-no-such-story',{waitUntil:'networkidle0'}); await W(200);
+  const nf=await pg.$eval('[data-state=not-found]',e=>({t:e.querySelector('h1').textContent,p:e.querySelector('p').textContent,b:[...e.querySelectorAll('a')].map(a=>a.textContent+'>'+a.getAttribute('href')).join()})).catch(()=>null);
+  R(`story 404: HTTP ${resp.status()} ${JSON.stringify(nf)}`, resp.status()===404 && nf && nf.t==='找不到这个话题' && nf.p==='链接可能写错了，或者这个话题已经不在了' && nf.b==='回到今日>/');
+  R('story 404: no og tags, no nav item selected', (await pg.$$('meta[property^="og:"]')).length===0 && (await pg.$$('#sidenav [aria-current]')).length===0); }
+await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await W(300);
+// favorites (server-side): favorite the first story on its detail page, see it under 我的, unfavorite it there
 const before=(await J('/api/favorites')).count;
 const sid=await pg.$eval('#tl .story',e=>e.dataset.id);
-await pg.click('#tl .story > [role=button]'); await W(200);
-await pg.click(`#tl .story[data-id="${sid}"] .star`); await W(700);
-let f=await J('/api/favorites'); R('fav saved on server ('+before+'->'+f.count+')', f.ids.includes(sid));
+await pg.click('#tl .story > a'); await pg.waitForSelector('#storyTitle');
+await pg.click('#storyNav button[aria-label="收藏"]'); await W(700);
+let f=await J('/api/favorites'); R('fav saved on server ('+before+'->'+f.count+')', f.ids.includes(sid) && await pg.$eval('#storyNav button[aria-pressed]',e=>e.getAttribute('aria-pressed'))==='true');
 R('fav count in side nav '+await pg.$eval('[data-favcount]',e=>e.textContent), (await pg.$eval('[data-favcount]',e=>e.textContent))===String(f.count));
 await pg.click('#sidenav [data-tab=me]'); await pg.waitForSelector('#favs .story,#favs [data-state]',{timeout:15000}); await W(200);
 R('我的 lists favorites '+await ns(), (await ns())===f.count);
-await pg.click(`#tl .story[data-id="${sid}"] > [role=button]`); await W(200); await pg.click(`#tl .story[data-id="${sid}"] .star`); await W(900);
+await pg.click(`#tl .story[data-id="${sid}"] > a`); await pg.waitForSelector('#storyTitle'); await pg.click('#storyNav button[aria-label="取消收藏"]'); await W(900);
 f=await J('/api/favorites'); R('unfav restored ('+f.count+')', !f.ids.includes(sid) && f.count===before);
+await pg.click('#sidenav [data-tab=me]'); await W(400);
 R('export link on 我的', (await pg.$$eval('a[href="/api/export"][download]',x=>x.length))===1);
 const ex=await fetch(BASE+'/api/export'); R('export '+ex.status+' '+ex.headers.get('content-disposition'), ex.ok && /attachment/.test(ex.headers.get('content-disposition')||''));
 // 往期: dates, trend, weekly
@@ -95,7 +162,7 @@ const earliest=daysList[daysList.length-1].date.replace(/^\d+-0?(\d+)-0?(\d+)$/,
 for (const bad of ['/day/2000-01-01','/day/2026-13-45','/day/abc']) {
  const resp=await pg.goto(BASE+bad,{waitUntil:'networkidle0'}); await W(200);
  const nf=await pg.$eval('[data-state=not-found]',e=>({t:e.querySelector('h1').textContent,p:e.querySelector('p').textContent,b:[...e.querySelectorAll('a')].map(a=>a.textContent+'>'+a.getAttribute('href')).join()})).catch(()=>null);
- R(`404 page ${bad}: HTTP ${resp.status()} ${JSON.stringify(nf)}`, resp.status()===404 && nf && nf.t==='这一天没有日报' && nf.p===`日报从 ${earliest} 开始` && nf.b==='回到今日>/,看往期>/archive' && await pg.$eval('#sidenav',e=>e.offsetHeight>0));
+ R(`404 page ${bad}: HTTP ${resp.status()} ${JSON.stringify(nf)}`, resp.status()===404 && nf && nf.t==='这一天没有日报' && nf.p===`日报从 ${earliest} 开始` && nf.b==='回到今日>/,看往期>/archive' && await pg.$eval('#sidenav',e=>e.offsetHeight>0) && (await pg.$$('#sidenav [aria-current]')).length===0);
 }
 R('404 page has no og: tags', (await pg.$$('meta[property^="og:"]')).length===0);
 await pg.click('[data-state=not-found] a[href="/"]'); await W(500); R('404 回到今日 -> / '+await ns(), (await url())==='/' && (await ns())===N);
@@ -116,6 +183,15 @@ R('dark persisted after reload, bg '+await css('body','backgroundColor'), await 
 {const c=await pg.$eval('#tl .story',e=>({bg:getComputedStyle(e).backgroundColor,sh:getComputedStyle(e).boxShadow})); R('dark card: #1C1C1E, no shadow '+JSON.stringify(c), c.bg==='rgb(28, 28, 30)'&&c.sh==='none');}
 if(nb) R('dark "新" = #A88BFF', await pg.$eval('[data-badge="new"]',e=>getComputedStyle(e).color)==='rgb(168, 139, 255)');
 await pg.screenshot({path:`${PFX}dark-desktop.png`});
+{ const s=day.stories[0]; await pg.click('#tl .story > a'); await pg.waitForSelector('#storyTitle'); await W(300);
+  await pg.screenshot({path:`${PFX}story-dark-desktop.png`,fullPage:true});
+  await pg.setRequestInterception(true);
+  const onT=r=>r.url().endsWith('/trend')?r.respond({status:200,contentType:'application/json',body:JSON.stringify({points:[{date:'2026-10-08',heat:62.3,story_id:'x'},{date:s.date,heat:s.heat,story_id:s.id}]})}):r.continue();
+  pg.on('request',onT); await pg.reload({waitUntil:'networkidle0'}); await pg.waitForSelector('[data-trend=chart]',{timeout:15000});
+  const c=await pg.$eval('[data-trend=chart] [data-delta]',e=>({d:Number(e.dataset.delta),c:getComputedStyle(e).color}));
+  R('dark trend chart: a drop is text-2, not up-text '+JSON.stringify(c), c.d>=0 || c.c==='rgb(152, 152, 159)');
+  await pg.screenshot({path:`${PFX}story-trend-dark-desktop.png`,fullPage:false});
+  pg.off('request',onT); await pg.setRequestInterception(false); }
 await pg.goto(BASE+'/me',{waitUntil:'networkidle0'}); await pg.click('[data-theme-toggle]'); await W(100);
 R('toggle back -> light stored', await pg.evaluate(()=>localStorage.getItem('aidaily.theme'))==='"light"');
 // path routes: deep links are served by the SPA fallback; old links are rewritten / redirected
@@ -163,15 +239,30 @@ for (const th of ['light','dark']) {
   await pg.click('#tabbar [data-tab=day]'); await W(400); await pg.click('#dateLabel'); await W(400);
   R('mobile date label -> 往期 '+await url(), (await url())==='/archive');
   await pg.click('#dates .dt'); await W(500); R('mobile 往期 date -> day', (await pg.$$eval('#tl .story',x=>x.length))===day.stories.length);
+  const r404=await pg.goto(BASE+'/story/2026-10-10-no-such-story',{waitUntil:'networkidle0'}); await W(200);
+  R('mobile story 404: tab bar shown, no tab selected', r404.status()===404 && await pg.$eval('#tabbar',e=>e.offsetHeight>0) && (await pg.$$('#tabbar [aria-current]')).length===0);
+  await pg.screenshot({path:`${PFX}story-404-mobile.png`});
  }
+ { await pg.goto(BASE+'/',{waitUntil:'networkidle0'}); await W(200); await pg.tap('#tl .story > a'); await pg.waitForSelector('#storyTitle',{timeout:15000}); await W(300);
+  const t=await pg.$eval('#storyTitle',e=>getComputedStyle(e).fontSize);
+  const act=await pg.$eval('#storyActions',e=>({h:e.offsetHeight,t:[...e.children].map(c=>c.textContent).join()}));
+  R(`mobile ${th} detail: title 26px, 复制链接 + 保存分享图 at the bottom, no right column ${t} ${JSON.stringify(act)}`, t==='26px' && act.h>0 && act.t==='复制链接,保存分享图' && await pg.$eval('.rcol',e=>e.offsetHeight===0));
+  R(`mobile ${th} detail: tab bar with 今日 selected`, await pg.$eval('#tabbar [aria-current=page]',e=>e.dataset.tab)==='day');
+  R(`mobile ${th} detail: no h-overflow `+await pg.evaluate(()=>document.documentElement.scrollWidth), await pg.evaluate(()=>document.documentElement.scrollWidth)<=390);
+  await pg.screenshot({path:`${PFX}story-${th}-mobile.png`,fullPage:true});
+  await pg.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight)); await W(300);
+  const ov=await pg.evaluate(()=>{const a=document.querySelector('#storyActions').getBoundingClientRect(),t=document.querySelector('#tabbar').getBoundingClientRect();return {actBottom:Math.round(a.bottom),barTop:Math.round(t.top),vh:innerHeight};});
+  R(`mobile ${th} detail: scrolled to the bottom, 复制链接 / 保存分享图 clear of the tab bar `+JSON.stringify(ov), ov.actBottom<=ov.barTop && ov.actBottom>0);
+  await pg.screenshot({path:`${PFX}story-${th}-mobile-bottom.png`,fullPage:false}); }
  await pg.close();
 }
-// text contrast >= 4.5:1 (WCAG AA) in light and dark, with a story expanded (tags, notes, posts)
+// text contrast >= 4.5:1 (WCAG AA) in light and dark, incl. the detail page (tags, notes, posts, chips, actions)
+const storyUrls=[...new Set([day.stories[0],day.stories.find(s=>s.data_quality&&s.news_refs.length&&s.badge)].filter(Boolean).map(s=>'/story/'+encodeURIComponent(s.id)))];
 { const CHECK=require('fs').readFileSync(require('path').join(__dirname,'ui-contrast.js'),'utf8');
- for (const th of ['light','dark']) for (const [vp,urls] of [[D,['/','/search','/archive','/archive?tab=trend','/archive?tab=weekly','/me','/day/2000-01-01']],[M,['/','/search']]]) {
+ for (const th of ['light','dark']) for (const [vp,urls] of [[D,['/','/search','/archive','/archive?tab=trend','/archive?tab=weekly','/me','/day/2000-01-01',...storyUrls,'/story/2026-10-10-no-such-story']],[M,['/','/search',...storyUrls]]]) {
   const pg=await page(vp); await pg.goto(BASE+'/me',{waitUntil:'networkidle0'}); await pg.evaluate(t=>localStorage.setItem('aidaily.theme',JSON.stringify(t)),th);
   for (const u of urls) { await pg.goto(BASE+u,{waitUntil:'networkidle0'}); await W(200);
-   if (u==='/') { await pg.click('#tl article.story [role=button]'); await W(300); }
+   if (u.startsWith('/story/') && !u.includes('no-such')) await pg.waitForSelector('#storyTitle',{timeout:15000});
    const bad=await pg.evaluate(CHECK); R(`contrast >= 4.5 ${th} ${vp.width} ${u} ${bad.length?JSON.stringify(bad.slice(0,5)):''}`, bad.length===0); }
   await pg.evaluate(()=>localStorage.removeItem('aidaily.theme')); await pg.close(); } }
 R('no JS errors '+JSON.stringify(errs), errs.length===0);

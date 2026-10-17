@@ -4,13 +4,12 @@ import { Icon } from '../components/Icon.tsx';
 import { NotFound } from '../components/NotFound.tsx';
 import { Aside, Footnote, IconButton, Main, Toast } from '../components/Layout.tsx';
 import { useShare } from '../state/useShare.ts';
-import { useExpanded } from '../state/useExpanded.ts';
 import { HeroSkeleton, EmptyState, ErrorState, ListSkeleton } from '../components/States.tsx';
 import { CategoryFilter, StoryList } from '../components/StoryList.tsx';
 import { dateShort, generatedClock, weekdayCN } from '../lib/format.ts';
 import { navigate, onLinkClick } from '../lib/router.ts';
 import { topByHeat } from '../lib/stories.ts';
-import { buildPath } from '../state/route.ts';
+import { buildPath, storyPath } from '../state/route.ts';
 import { useAsync } from '../state/useAsync.ts';
 
 export type Boot = { status: 'loading' } | { status: 'error' } | { status: 'ready'; days: DaySummary[] };
@@ -49,21 +48,22 @@ function Highlights({ items, isLatest }: { items: string[]; isLatest: boolean })
   );
 }
 
-function HeatRank({ day, onPick }: { day: DayDetail; onPick: (id: string) => void }) {
+/** desktop right column: top 8 by heat, each a link to its detail page */
+function HeatRank({ day }: { day: DayDetail }) {
   return (
     <section className="rounded-card bg-surface p-4 shadow-card" id="heatrank">
       <h2 className="mb-1.5 text-headline font-bold">热度榜</h2>
       <ol>
         {topByHeat(day.stories, 8).map((s, i) => (
           <li key={s.id} data-id={s.id} className="border-t-[0.5px] border-separator first:border-t-0">
-            <button
-              type="button"
+            <a
+              href={storyPath(s.id)}
+              onClick={onLinkClick}
               className="flex w-full gap-3 py-[11px] text-left text-subhead"
-              onClick={() => onPick(s.id)}
             >
               <b className={`w-4 flex-none font-semibold ${i < 3 ? 'text-brand-text' : 'text-text-2'}`}>{i + 1}</b>
               <span className="line-clamp-2 flex-1">{s.headline_zh}</span>
-            </button>
+            </a>
           </li>
         ))}
       </ol>
@@ -76,7 +76,6 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
   const date = wanted ?? latest;
   const known = !!date && days.some((d) => d.date === date);
   const res = useAsync(known ? 'day:' + date : null, () => api.day(date as string));
-  const expanded = useExpanded();
   const [toast, share] = useShare();
 
   const idx = days.findIndex((d) => d.date === date);
@@ -141,7 +140,6 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
           title={cat ?? '全部话题'}
           twoCols
           empty={day.stories.length ? '该分类下暂无内容' : '这一天没有话题'}
-          expanded={expanded}
         />
         {day.data_quality_notes.length > 0 && (
           <div className="notes mt-6 rounded-[14px] bg-surface-2 px-3.5 py-3 text-footnote text-text-on-fill">
@@ -191,17 +189,7 @@ export function HomePage({ date: wanted, cat, boot, latest, onRetryBoot }: Props
         <Footnote />
       </Main>
       <Aside>
-        {day && day.stories.length > 0 && (
-          <HeatRank
-            day={day}
-            onPick={(id) => {
-              expanded.show(id);
-              requestAnimationFrame(() =>
-                document.querySelector(`[data-id="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center' }),
-              );
-            }}
-          />
-        )}
+        {day && day.stories.length > 0 && <HeatRank day={day} />}
         <p className="mx-1 mt-3.5 text-caption font-normal text-text-2">数据来自 X 公开内容，每天 08:50 更新。</p>
       </Aside>
       <Toast text={toast} />

@@ -25,9 +25,14 @@ export interface NavigateOptions {
   top?: boolean;
 }
 
+let pushed = 0;
+/** true when history.back() stays inside the app (at least one in-app navigate() pushed an entry) */
+export const canGoBack = (): boolean => pushed > 0 && (history.state as { app?: number } | null)?.app !== undefined;
+
 export function navigate(to: string, opts: NavigateOptions = {}) {
   if (to !== snapshot()) {
-    history[opts.replace ? 'replaceState' : 'pushState'](null, '', to);
+    if (opts.replace) history.replaceState(history.state, '', to);
+    else history.pushState({ app: ++pushed }, '', to);
     for (const l of [...listeners]) l();
   }
   if (opts.top) window.scrollTo(0, 0);

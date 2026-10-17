@@ -34,6 +34,13 @@ describe('parseRoute / buildPath', () => {
     expect(buildPath({ page: 'archive', tab: 'weekly' })).toBe('/archive?tab=weekly');
     expect(route('/me')).toEqual({ page: 'me' });
   });
+  it('story detail', () => {
+    expect(route('/story/2026-10-10-xai-grok-bot')).toEqual({ page: 'story', id: '2026-10-10-xai-grok-bot' });
+    expect(route('/story/2026-10-10-a%20b/')).toEqual({ page: 'story', id: '2026-10-10-a b' });
+    expect(buildPath({ page: 'story', id: '2026-10-10-a b' })).toBe('/story/2026-10-10-a%20b');
+    expect(redirect('/story')).toBe('/');
+    expect(redirect('/story/a/b')).toBe('/');
+  });
   it('round-trips', () => {
     for (const u of ['/', '/day/2026-10-09?c=x', '/search?q=Gemini&c=x', '/archive?tab=trend', '/me']) {
       const [p, s = ''] = u.split('?');
@@ -50,7 +57,7 @@ describe('parseRoute / buildPath', () => {
   });
   it('unknown paths redirect home', () => {
     expect(redirect('/nope')).toBe('/');
-    expect(redirect('/story/abc')).toBe('/'); // F2 (#9) not shipped yet
+    expect(redirect('/stories/abc')).toBe('/');
   });
 });
 

@@ -17,3 +17,6 @@ export function useUi(): UiContextValue {
   if (!v) throw new Error('useUi() outside <UiContext.Provider>');
   return v;
 }
+
+/** NotFound pages report themselves so the navigation highlights no tab (PR #20) */
+export const NotFoundContext = createContext<(on: boolean) => void>(() => undefined);

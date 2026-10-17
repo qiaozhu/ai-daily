@@ -33,6 +33,11 @@ export const SQL = {
   // v6 (additive): report days / story topics in [from, before) for the cross-day badges (PRD §3.1)
   daysBetween: 'SELECT date FROM days WHERE date<?1 AND date>=?2',
   storyTopicsBetween: 'SELECT id, date, tags_json FROM stories WHERE date<?1 AND date>=?2',
+  // v6 F2 (additive): one story; stories (topics + heat) in [from, to] for its trend / related topics
+  storyById: `${STORY_SELECT} WHERE s.id=?`,
+  storyDate: 'SELECT date FROM stories WHERE id=?',
+  storyLinksBetween:
+    'SELECT id, date, rank, headline_zh, org_tag, heat, tags_json FROM stories WHERE date<=?1 AND date>=?2 ORDER BY date DESC, rank',
 } as const;
 
 /** one search term = one bound parameter (D1 caps bound params at 100), used twice via ?N */

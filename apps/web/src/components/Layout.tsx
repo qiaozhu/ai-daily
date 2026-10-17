@@ -2,12 +2,12 @@ import { Icon } from './Icon.tsx';
 
 export const FOOTNOTE = '数据来自 X 平台公开内容 · 互动数为抓取时数值 · 时间为北京时间（UTC+8）';
 
-/** middle column (phone: the whole page, leaves room for the tab bar) */
+/** middle column (phone: the whole page, leaves room for the tab bar incl. the home-indicator safe area) */
 export function Main({ children }: { children: React.ReactNode }) {
   return (
     <main
       id="mainCol"
-      className="min-w-0 px-[18px] pt-[max(14px,env(safe-area-inset-top))] pb-[110px] lg:px-0 lg:pt-10 lg:pb-16"
+      className="min-w-0 px-[18px] pt-[max(14px,env(safe-area-inset-top))] pb-[calc(110px+env(safe-area-inset-bottom))] lg:px-0 lg:pt-10 lg:pb-16"
     >
       {children}
     </main>
@@ -15,8 +15,8 @@ export function Main({ children }: { children: React.ReactNode }) {
 }
 
 /** desktop right column (>= 1280px only) */
-export function Aside({ children }: { children?: React.ReactNode }) {
-  return <aside className="rcol hidden pt-[118px] pb-10 xl:block">{children}</aside>;
+export function Aside({ children, top = 'pt-[118px]' }: { children?: React.ReactNode; top?: string }) {
+  return <aside className={`rcol hidden ${top} pb-10 xl:block`}>{children}</aside>;
 }
 
 export function Footnote({ className = '' }: { className?: string }) {

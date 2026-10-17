@@ -1,6 +1,7 @@
 import type { SourcePost } from '@ai-daily/shared';
 
-// display names returned by X user expansions during collection; unknown handles fall back to @handle
+// Display name of a post's account: the post's own `name` field first (the daily JSON / API do not carry it
+// today, but the type allows it), then this table (display names from X user lookups), then the bare handle.
 const NAMES: Record<string, string> = {
   claudeai: 'Claude',
   AnthropicAI: 'Anthropic',
@@ -33,6 +34,32 @@ const NAMES: Record<string, string> = {
   sama: 'Sam Altman',
   xai: 'xAI',
   grok: 'Grok',
+  // 2026-10-11 / 10-12 accounts (X user lookup, 2026-10-12)
+  '22Astronauts_': '22Astronauts',
+  AiForAmericans: 'Ai for Americans',
+  Bigant_cd: '大蚂蚁',
+  CausMoney: '加美财经caus.com',
+  ChnEmbassy_jp: '中華人民共和国駐日本国大使館',
+  DavidSacks: 'David Sacks',
+  GavinSBaker: 'Gavin Baker',
+  IPONewsroom_: 'IPO Newsroom',
+  Kaoscity_now: 'Thomas',
+  WorldInMotionHQ: 'World in Motion',
+  beingivish: 'ivish',
+  daniel_mac8: 'Dan McAteer',
+  fourweekmba: 'Gennaro',
+  karpathy: 'Andrej Karpathy',
+  luchonglie: '车圈Tony',
+  sergeo_n: 'Sergeo',
+  traphabits101: 'trap habits llc',
+  v_shakthi: 'Shakthi',
+  yuemingruiteng: '追AI的人',
+  yuji1871: 'yuji187',
+  zeisschoice: 'zeisschoice | 八爪鱼🐙',
+  zerohedge: 'zerohedge',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
+
+/** the handle has an entry in the table (tests: every account in data/ is covered) */
+export const hasKnownName = (handle: string): boolean => Object.hasOwn(NAMES, handle);

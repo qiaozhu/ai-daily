@@ -47,3 +47,13 @@ test('parseCli: valid forms, including --env=preview', () => {
   assert.equal(c.dry, true);
   assert.equal(c.date, '2026-10-10');
 });
+
+import { loadRenderer } from '../../scripts/prerender-cards.mjs';
+
+test('loadRenderer: the share-card skeleton (IS_PLACEHOLDER) still counts as placeholder (production guard)', async () => {
+  const r = await loadRenderer();
+  const { IS_PLACEHOLDER } = await import('../../packages/share-card/src/index.ts');
+  assert.equal(r.name, IS_PLACEHOLDER ? 'placeholder' : 'share-card');
+  const png = Buffer.from(await r.render({ kind: 'story', size: 'og', data: { story: { id: 'x', headline_zh: 'x' } } }));
+  assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+});

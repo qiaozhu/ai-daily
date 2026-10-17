@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.base.json",
+  // erasableSyntaxOnly: Node 22 runs src/index.ts directly by stripping types, so no enums / namespaces /
+  // parameter properties (anything that needs a TS transform) are allowed here.
+  "compilerOptions": { "types": ["node"], "erasableSyntaxOnly": true },
+  "include": ["src"]
+}

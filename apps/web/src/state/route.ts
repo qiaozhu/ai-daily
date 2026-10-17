@@ -2,6 +2,7 @@
 //   /                    今日 (latest day)          /day/2026-10-09      a given day      (?c=分类 on both)
 //   /search?q=Gemini     搜索 (?c= too)             /archive[?tab=daily|trend|weekly]     往期
 //   /me                  我的 (收藏、关注、设置)
+//   /story/<id>          话题详情 (F2; the Worker answers 404 for an unknown id and adds og tags for a known one)
 // Old URLs (product decision, F1):
 //   /?d=D[&c=…] -> /day/D[?c=…]   /trend -> /archive?tab=trend   /fav -> /me   (other query params kept)
 //   The Worker answers /trend and /fav with a 301 (apps/api/src/routes/pages.ts). `/?d=` cannot be: `/` is a
@@ -15,12 +16,16 @@ export type Route =
   | { page: 'day'; date: string | null; cat: string | null }
   | { page: 'search'; q: string; cat: string | null }
   | { page: 'archive'; tab: ArchiveTab }
-  | { page: 'me' };
+  | { page: 'me' }
+  | { page: 'story'; id: string };
 
 export type Page = Route['page'];
 
+/** pages that own a tab (the story page belongs to none) */
+export type TabPage = Exclude<Page, 'story'>;
+
 /** the 4 tabs of the bottom bar / side nav */
-export const TABS: readonly { page: Page; label: string; path: string }[] = [
+export const TABS: readonly { page: TabPage; label: string; path: string }[] = [
   { page: 'day', label: '今日', path: '/' },
   { page: 'archive', label: '往期', path: '/archive' },
   { page: 'search', label: '搜索', path: '/search' },
@@ -29,6 +34,7 @@ export const TABS: readonly { page: Page; label: string; path: string }[] = [
 
 export const Q_MAX = 100;
 const DAY_PATH = /^\/day\/([^/]+)$/;
+const STORY_PATH = /^\/story\/([^/]+)$/;
 const ARCHIVE_TABS: readonly ArchiveTab[] = ['daily', 'trend', 'weekly'];
 
 const qs = (pairs: [string, string | null | undefined][]): string => {
@@ -55,8 +61,12 @@ export function buildPath(r: Route, latest: string | null = null): string {
       return '/archive' + qs([['tab', r.tab === 'daily' ? null : r.tab]]);
     case 'me':
       return '/me';
+    case 'story':
+      return storyPath(r.id);
   }
 }
+
+export const storyPath = (id: string): string => '/story/' + encodeURIComponent(id);
 
 /** `path` (may have a query) + the params of `sp` except `drop` and those `path` already sets */
 function withQuery(path: string, sp: URLSearchParams, drop: string[]): string {
@@ -81,6 +91,8 @@ export function parseRoute(pathname: string, search: string): Parsed {
   }
   const m = DAY_PATH.exec(p);
   if (m) return { route: { page: 'day', date: decodeURIComponentSafe(m[1] as string), cat } };
+  const st = STORY_PATH.exec(p);
+  if (st) return { route: { page: 'story', id: decodeURIComponentSafe(st[1] as string) } };
   if (p === '/search') return { route: { page: 'search', q: (sp.get('q') || '').slice(0, Q_MAX), cat } };
   if (p === '/archive') {
     const t = sp.get('tab') as ArchiveTab | null;
