@@ -111,6 +111,21 @@ const NAMES: Record<string, string> = {
   xiongchun007: '程序员大熊',
   xueyu1125: '雪瑜',
   YamaTraders22: 'Junior Guerrero',
+  // 2026-10-19 accounts (X user lookup, 2026-10-19)
+  BrianRoemmele: 'Brian Roemmele',
+  ItsmeAjayKV: 'AJ',
+  JEFETRADES: 'JEFE TRADES 🔪',
+  Kalshi: 'Kalshi',
+  PrimareApp: 'Primare',
+  WuBlockchain: 'Wu Blockchain',
+  antibearthesis: 'Noah',
+  arena: 'Arena.ai',
+  ataosky: 'grep',
+  blueemi99: 'bluedev',
+  deanwball: 'Dean W. Ball',
+  ftr_investors: 'The Future Investors',
+  incprodmon: 'Inclusive Productivity Network',
+  vllm_project: 'vLLM',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
