@@ -35,7 +35,7 @@ export function SideNav({ active, favCount }: Props) {
               <Icon name={ICON[t.page]} />
               <span className="flex-1">{t.label}</span>
               {t.page === 'me' && favCount > 0 && (
-                <em className="text-footnote not-italic text-text-2" data-favcount="">
+                <em className={`text-footnote not-italic ${on ? 'text-brand-text' : 'text-text-2'}`} data-favcount="">
                   {favCount}
                 </em>
               )}
