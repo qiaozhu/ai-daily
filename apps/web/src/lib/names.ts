@@ -149,6 +149,19 @@ const NAMES: Record<string, string> = {
   tsnmediahub: 'tsn_hub',
   Crypto_Briefing: 'Crypto Briefing',
   MarcusSchuler: 'Marcus Schuler',
+  ArtificialAnlys: 'Artificial Analysis',
+  Diyi_Yang: 'Diyi Yang',
+  LuminaBench: 'Lumina',
+  MistralAI: 'Mistral AI',
+  PaulGugAI: 'GooGZ AI',
+  RoundtableSpace: '0xMarioNawfal - The Roundtable Show',
+  ashokaraj_: 'Ashoka Rajendra',
+  coinbureau: 'Coin Bureau',
+  coulditbecoley: 'Coley Grantham',
+  gharik: 'Georges Harik',
+  leo114119: 'Leo · Building w/ AI',
+  ornith_: 'Ornith',
+  shuizhuyu: 'Crio Songo',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
