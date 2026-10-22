@@ -162,6 +162,14 @@ const NAMES: Record<string, string> = {
   leo114119: 'Leo · Building w/ AI',
   ornith_: 'Ornith',
   shuizhuyu: 'Crio Songo',
+  canva: 'Canva',
+  '0xCarnagee': 'Carnage',
+  Fantastic_AI888: 'Fantastic AI',
+  MTSlive: 'MTS',
+  luellamech: 'Luella',
+  StockMKTNewz: 'Evan',
+  MAXdeg0: 'MAX',
+  alexlifexyz: 'Alex 带 AI 干活',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
