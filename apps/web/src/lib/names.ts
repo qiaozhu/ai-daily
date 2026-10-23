@@ -170,6 +170,14 @@ const NAMES: Record<string, string> = {
   StockMKTNewz: 'Evan',
   MAXdeg0: 'MAX',
   alexlifexyz: 'Alex 带 AI 干活',
+  // 2026-10-23 accounts (X user fields)
+  googlecloud: 'Google Cloud',
+  EvanOtero: 'Evan Otero',
+  FirstSquawk: 'First Squawk',
+  WangNextDoor2: 'WangNextDoor',
+  freearkshaw: '投研荟',
+  rohanpaul_ai: 'Rohan Paul',
+  vamsibatchuk: 'Vamsi Batchu',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
