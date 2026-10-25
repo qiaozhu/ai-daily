@@ -187,6 +187,28 @@ const NAMES: Record<string, string> = {
   Mr_HenryMorgan: 'HenryMorgan',
   crypto_king_ai: 'crypto_king',
   gptzone_net: 'GptZone',
+
+  // 2026-10-25 accounts (X user fields)
+  '0xLinehigher': 'Line',
+  AiBattle_: 'AiBattle',
+  Argona0x: 'Argona',
+  JacksAISites: 'Jack',
+  Sprytixl: 'Sprytix',
+  StatsWire: 'Stats Wire',
+  a16z: 'a16z',
+  arceyul: 'arc.',
+  conradlotz: 'Conrad Lotz',
+  digg: 'Digg',
+  dravenip: 'draven',
+  howlemont: '皓樂芒',
+  iCleanAI: 'Hekate',
+  kwafam7: 'Khoa',
+  marquistrillx: 'MarQuis Trill',
+  mylifcc: 'lifcc',
+  sairahul1: 'Rahul',
+  stretchcloud: 'Prasenjit Sarkar',
+  willzero: 'will',
+  xluchuan: '鹿川 Luchuan',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
