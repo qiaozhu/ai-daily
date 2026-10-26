@@ -209,6 +209,24 @@ const NAMES: Record<string, string> = {
   stretchcloud: 'Prasenjit Sarkar',
   willzero: 'will',
   xluchuan: '鹿川 Luchuan',
+  // 2026-10-26 accounts (X user fields)
+  DYoung_AI: 'DY',
+  DocumentingAGI: 'Documenting AGI',
+  Kalshi_Finance: 'Kalshi Finance',
+  OCEANVIN10: 'OCEAN',
+  SINERD16: 'SuperintelligenceNerd',
+  Smlay_ero: 'smlay',
+  T3chFalcon: 'IT Guy',
+  VarunChopr17597: 'Varun Chopra',
+  ZainanZhou: 'Zainan Victor Zhou',
+  bboczeng: '勃勃OC',
+  mars_ulan: 'ulan mars',
+  mspd4100: '鸡骑猫',
+  nanbeige: 'Nanbeige',
+  srikanthvaluri: 'Sree',
+  theo: 'Theo - t3.gg',
+  wallstengine: 'Wall St Engine',
+  zxwdlive: 'doroo.zhu',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
