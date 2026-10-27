@@ -227,6 +227,23 @@ const NAMES: Record<string, string> = {
   theo: 'Theo - t3.gg',
   wallstengine: 'Wall St Engine',
   zxwdlive: 'doroo.zhu',
+  // 2026-10-27 accounts (X user fields)
+  AndrewCurran_: 'Andrew Curran',
+  ChrisGPT: 'Chris',
+  HashItOut_: 'HashItOut',
+  JoshXie1: '鹿子野',
+  Meta8Mate: '机灵的杰尼君',
+  PawelHuryn: 'Paweł Huryn',
+  Pirat_Nation: 'Pirat_Nation',
+  Reuters: 'Reuters',
+  RobertTLange: 'Robert Lange',
+  SpaceInvestor_D: 'Space Investor',
+  TeksEdge: 'David Hendrickson',
+  Zen_with_AI: '山景城小路',
+  andrewarruda: 'andrew arruda',
+  gdb: 'Greg Brockman',
+  mirendil: 'Mirendil',
+  tldrnewsletter: 'TLDR Newsletter',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
