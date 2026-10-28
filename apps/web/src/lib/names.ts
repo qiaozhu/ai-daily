@@ -244,6 +244,20 @@ const NAMES: Record<string, string> = {
   gdb: 'Greg Brockman',
   mirendil: 'Mirendil',
   tldrnewsletter: 'TLDR Newsletter',
+  // 2026-10-28 accounts (X user fields)
+  AlexFinn: 'Alex Finn',
+  GoogleAI: 'Google AI',
+  PatrickMoorhead: 'Patrick Moorhead',
+  ReignSwords: 'ReignSwords',
+  econographs: 'Econographs',
+  huggingface: 'Hugging Face',
+  martinvars: 'Martin Varsavsky',
+  modal: 'Modal',
+  ronvo2000: 'Ron',
+  rryssf: 'Robert Youssef',
+  shaoxiao_si: 'Shaoxiao | AI × 出海增长',
+  theSethian: 'Sethian',
+  xionghuanwei: '熊叔的茅草屋',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
