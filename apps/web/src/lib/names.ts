@@ -258,6 +258,20 @@ const NAMES: Record<string, string> = {
   shaoxiao_si: 'Shaoxiao | AI × 出海增长',
   theSethian: 'Sethian',
   xionghuanwei: '熊叔的茅草屋',
+  // 2026-10-29/30 accounts (X user fields)
+  _Songzioeve: '松子 Songzi',
+  Biggest: 'shaun',
+  Chaos2Cured: 'Kirk Patrick Miller',
+  eddiboi: 'EdDiboi',
+  EricLDaugh: 'Eric Daugherty',
+  GKev1n: 'gKev1n',
+  Investingcom: 'Investing.com',
+  minchoi: 'Min Choi',
+  NewsFromGoogle: 'News from Google',
+  Polymarket: 'Polymarket',
+  sabrinaesaquino: 'Sabrina',
+  TheKathAI: 'Kathia',
+  TheRundownAI: 'The Rundown AI',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
