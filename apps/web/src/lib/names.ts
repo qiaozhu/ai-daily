@@ -272,6 +272,11 @@ const NAMES: Record<string, string> = {
   sabrinaesaquino: 'Sabrina',
   TheKathAI: 'Kathia',
   TheRundownAI: 'The Rundown AI',
+  // 2026-10-31 accounts (X user fields)
+  Math_files: 'Math Files',
+  mboverell: 'mike overell',
+  StockSavvyShay: 'Shay Boloor',
+  XiaomiTech_: 'Xiaomi Tech',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
