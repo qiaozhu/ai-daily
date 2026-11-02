@@ -292,6 +292,23 @@ const NAMES: Record<string, string> = {
   mboverell: 'mike overell',
   StockSavvyShay: 'Shay Boloor',
   XiaomiTech_: 'Xiaomi Tech',
+  // 2026-11-02 accounts (X user fields)
+  levelsio: '@levelsio',
+  maarcoofdezz: 'Marco',
+  Yumzlef: 'Yumzlef',
+  Sownjuinho: 'Sownju',
+  jiqizhixin: '机器之心 JIQIZHIXIN',
+  mikesulsenti: '🐺 Mike ⚡️🇺🇸🇮🇹',
+  GregoryConti19: 'Gregory Conti',
+  BusinessInsider: 'Business Insider',
+  noclipepe: 'noclipepe',
+  MarioNawfal: 'Mario Nawfal',
+  Michaelzsguo: 'Michael Guo',
+  OKCX66: '欧K',
+  FrozenEel427: '一条忧郁的工科蛆',
+  meow2149: 'meow',
+  shshajs85: '陈有数',
+  nikilravi: 'Nikil Ravi',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
