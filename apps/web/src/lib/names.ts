@@ -309,6 +309,16 @@ const NAMES: Record<string, string> = {
   meow2149: 'meow',
   shshajs85: '陈有数',
   nikilravi: 'Nikil Ravi',
+  // 2026-11-03 accounts (X user fields)
+  Cointelegraph: 'Cointelegraph',
+  DeItaone: 'Walter Bloomberg',
+  PDChinese: '人民日报',
+  Summer_ikiki: '一碗咕咪酱·AI GTM',
+  ZixuanLi_: 'Zixuan Li',
+  _arohan_: 'Rohan Anil',
+  adityaa_behera: 'INDIE | KAI',
+  alwayspriyesh: 'Priy',
+  noctus91: 'Noctus',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
