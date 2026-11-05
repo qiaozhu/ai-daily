@@ -336,6 +336,25 @@ const NAMES: Record<string, string> = {
   scaling01: 'Lisan al Gaib',
   sweis: 'Steve Weis',
   t9j2f6UVkhTuX2Q: 'Kyle',
+
+  // 2026-11-05 accounts (display names from X user expansions)
+  BaluGorade: 'Balu Gorade',
+  DLKFZWilliam2: '独立开发者William',
+  Eric_Wallace_: 'Eric Wallace',
+  PANewsCN: 'PANews丨APP全面升级',
+  ValsAI: 'Vals AI',
+  _LiYuXuan_: 'Yuxuan Li',
+  aiZttt__: 'mengtao wang',
+  alexcding: 'Alex',
+  bitinning: 'Bitinning',
+  clintgibler: 'Clint Gibler',
+  leozhangai: 'TellerAI-Leo',
+  miaojiang88: 'AnAn❤️',
+  piazzzzzz: 'easyjackson',
+  rosenacry: 'rose',
+  spectnfa: 'spect',
+  wanerfu: '摆烂程序媛',
+  zzaba_a: 'Zaba',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
