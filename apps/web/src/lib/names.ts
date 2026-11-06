@@ -355,6 +355,17 @@ const NAMES: Record<string, string> = {
   spectnfa: 'spect',
   wanerfu: '摆烂程序媛',
   zzaba_a: 'Zaba',
+  ClaudeDevs: 'ClaudeDevs',
+  KobeissiLetter: 'The Kobeissi Letter',
+  METR_Evals: 'METR',
+  AndyL5cc: 'Andy L',
+  ChaiWithAi: 'Chai with AI',
+  TekonBurns: 'Tekon Burns',
+  WOLF_Terminal: 'WOLF Terminal',
+  bebuu_ai: 'bebu',
+  nikolayxyz: 'Niko',
+  Asehunyoyo: '小野',
+  '0xLogicrw': '思维怪怪',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
