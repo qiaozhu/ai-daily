@@ -366,6 +366,20 @@ const NAMES: Record<string, string> = {
   nikolayxyz: 'Niko',
   Asehunyoyo: '小野',
   '0xLogicrw': '思维怪怪',
+  Hesamation: 'ℏεsam',
+  superalesha: 'Alexey Fateev',
+  kdnbmb: 'Intius',
+  pushmeet: 'Pushmeet Kohli',
+  Adewalwar: 'Akshay Anil Dewalwar',
+  s4yonnara: 'Andrew',
+  irongiantXBT: 'Iron Giant',
+  '0xApexAi': 'Apex',
+  chrysanthemumXX: 'chrysanthemum',
+  negligible_cap: 'Negligible Capital',
+  BrightLabsMedia: 'One Bright Lab',
+  dummerspast39: 'Binkg',
+  piotrparzyszek_: 'Piotr Parzyszek',
+  noxflux: 'Nox|',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
