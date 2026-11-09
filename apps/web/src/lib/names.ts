@@ -380,6 +380,27 @@ const NAMES: Record<string, string> = {
   dummerspast39: 'Binkg',
   piotrparzyszek_: 'Piotr Parzyszek',
   noxflux: 'Nox|',
+  // 2026-11-09 accounts (display names from X user expansions)
+  BreezeOg1: 'BreezeOg',
+  CuriousDevX: 'CuriousDev',
+  DevAdventur3s: 'Developing Adventures',
+  GraciousVik: 'Gracious',
+  HMLGGGG: 'HMLG',
+  JRB_AI: 'JRB',
+  Layton_Gott: 'Layton Gott',
+  TheTiredGM: 'TheTiredGM',
+  YFeng2022: 'LanFeng',
+  adnaannasir_: 'Adnaan',
+  compounded_mind: 'Mino',
+  engniiokai: 'Emmanuel Nii Okai',
+  follistatindev: 'follistatin',
+  gadi_neelesh: 'Neelesh',
+  izag82161: 'Itomaru 📿',
+  niumoney: '牛宝富',
+  sonuv_dev: 'sou',
+  tokenflux_com: 'tokenflux',
+  vartekxx: 'vartekx',
+  xbquan: 'quanxb',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
