@@ -401,6 +401,14 @@ const NAMES: Record<string, string> = {
   tokenflux_com: 'tokenflux',
   vartekxx: 'vartekx',
   xbquan: 'quanxb',
+  // 2026-11-10 accounts (display names from X user expansions)
+  GoogleAIStudio: 'Google AI Studio',
+  alexandr_wang: 'Alexandr Wang',
+  bidyut_io: 'bidyut',
+  feishutoday: 'feishu',
+  jessexai_: 'jesse',
+  modretro: 'ModRetro',
+  xingzengji: '知一',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
