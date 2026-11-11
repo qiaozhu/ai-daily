@@ -409,6 +409,13 @@ const NAMES: Record<string, string> = {
   jessexai_: 'jesse',
   modretro: 'ModRetro',
   xingzengji: '知一',
+  // 2026-11-11 accounts (display names from X user expansions)
+  sundarpichai: 'Sundar Pichai',
+  carolina_parada: 'Carolina Parada',
+  drmapavone: 'Marco Pavone',
+  Arturojrobles: 'Arturo Robles',
+  edwardeachday: 'Edward Sturm',
+  heyshrutimishra: 'Shruti',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
