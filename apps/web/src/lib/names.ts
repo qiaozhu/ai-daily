@@ -416,6 +416,21 @@ const NAMES: Record<string, string> = {
   Arturojrobles: 'Arturo Robles',
   edwardeachday: 'Edward Sturm',
   heyshrutimishra: 'Shruti',
+  // 2026-11-12 accounts (display names from X user expansions)
+  Baidu_ERNIE: 'Baidu ERNIE',
+  Chinazhidx: '智东西China AI News',
+  DropSiteNews: 'Drop Site',
+  ElevenLabs: 'ElevenLabs',
+  RealNickMugalli: 'Nicholas Mugalli',
+  ShuohuanWang: 'Shuohuan Wang',
+  _aidenlow: 'Aiden Low',
+  alin_zone: '阿蔺A-Lin',
+  bot: 'Grok Bot',
+  dylan522p: 'Dylan Patel',
+  guilleflorvs: 'Guillermo Flor',
+  harshit_sikchi: 'Harshit Sikchi',
+  jeffreygwang: 'Jeffrey Wang',
+  xiaohu: '小互',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
