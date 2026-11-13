@@ -431,6 +431,23 @@ const NAMES: Record<string, string> = {
   harshit_sikchi: 'Harshit Sikchi',
   jeffreygwang: 'Jeffrey Wang',
   xiaohu: '小互',
+  // 2026-11-13 accounts (X user lookup, 2026-11-13)
+  AIHourlyCN: 'AI 时报',
+  Activewurld_: 'Activewurld',
+  Android: 'Android',
+  Baidu_Inc: 'Baidu Inc.',
+  CryptoRank_io: 'CryptoRank.io',
+  OfficialLoganK: 'Logan Kilpatrick',
+  SamuelZengML: 'Samuel Zeng',
+  TJeparskis: 'Timurs Jeparskis',
+  ZZHning: '大肉包ZZH',
+  deviumcoin: 'RusWar',
+  izadi_shahram: 'Shahram Izadi',
+  katelyn_lesse: 'Katelyn Lesse',
+  kimmonismus: 'Chubby♨️',
+  tszzl: 'roon',
+  wellwue: 'openwell',
+  willdepue: 'will depue',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
