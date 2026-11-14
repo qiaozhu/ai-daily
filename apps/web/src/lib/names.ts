@@ -448,6 +448,13 @@ const NAMES: Record<string, string> = {
   tszzl: 'roon',
   wellwue: 'openwell',
   willdepue: 'will depue',
+  // 2026-11-14 accounts (X user lookup, 2026-11-14)
+  NVIDIAAI: 'NVIDIA AI',
+  _mohansolo: 'Varun Mohan',
+  antigravity: 'Google Antigravity',
+  kevinhou22: 'Kevin Hou',
+  thinkymachines: 'Thinking Machines',
+  yunta_tsai: 'Yun-Ta Tsai',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
