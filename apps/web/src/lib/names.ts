@@ -465,6 +465,25 @@ const NAMES: Record<string, string> = {
   NielsRogge: 'Niels Rogge',
   synthwavedd: 'leo 🐾',
   RRweb3: 'RR',
+  // 2026-11-16 accounts (X user lookup, 2026-11-16)
+  AnaSwanson: 'Ana Swanson',
+  Chug2024: 'Chug',
+  DAlperovitch: 'Dmitri Alperovitch',
+  PaulYoungX: 'Paul Young',
+  PolymarketMoney: 'Polymarket Money',
+  SRuhle: 'Stephanie Ruhle',
+  SenBlumenthal: 'Richard Blumenthal',
+  ThePrimeagen: 'ThePrimeagen',
+  TheWarMonitor: 'WarMonitor',
+  TimSweeneyEpic: 'Tim Sweeney',
+  Voxyz_ai: 'Vox',
+  WSJ: 'The Wall Street Journal',
+  __morse: 'Tommy D. Rossi',
+  annmarie: 'Annmarie Hordern',
+  dani_avila7: 'Daniel San',
+  farzyness: 'Farzad 🇺🇸 🇮🇷',
+  gtconway3d: 'George Conway ⚖️🇺🇸',
+  tn_sanatani: 'Dr.Doom',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
