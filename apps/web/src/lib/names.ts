@@ -484,6 +484,20 @@ const NAMES: Record<string, string> = {
   farzyness: 'Farzad 🇺🇸 🇮🇷',
   gtconway3d: 'George Conway ⚖️🇺🇸',
   tn_sanatani: 'Dr.Doom',
+  // 2026-11-17 accounts (X user lookup, 2026-11-17)
+  AMD: 'AMD',
+  BullTheoryio: 'Bull Theory',
+  Focus_Taiwan: 'Focus Taiwan (CNA English News)',
+  LisaSu: 'Lisa Su',
+  QwenDevs: 'Qwen Developers',
+  TencentHunyuan: 'Tencent Hy',
+  UnslothAI: 'Unsloth AI',
+  amitisinvesting: 'amit',
+  drfeifei: 'Fei-Fei Li',
+  firstadopter: 'tae kim',
+  himanshustwts: 'himanshu',
+  nytimes: 'The New York Times',
+  opencode: 'OpenCode',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
