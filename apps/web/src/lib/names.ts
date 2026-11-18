@@ -498,6 +498,17 @@ const NAMES: Record<string, string> = {
   himanshustwts: 'himanshu',
   nytimes: 'The New York Times',
   opencode: 'OpenCode',
+  // 2026-11-18 accounts (X user expansions, 2026-11-18)
+  ArashMassoudi: 'Arash Massoudi',
+  Byron_Wan: 'Byron Wan',
+  ChatGPT: 'ChatGPT',
+  GWHayduke97: 'Connor Williams ⏹️',
+  Osint613: 'Open Source Intel',
+  SenseTime_AI: 'SenseTime',
+  cheatyyyy: 'cheaty',
+  mattshumer_: 'Matt Shumer',
+  muddywatersre: 'MuddyWatersResearch',
+  thsottiaux: 'Tibo',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
