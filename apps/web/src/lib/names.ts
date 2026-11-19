@@ -509,6 +509,15 @@ const NAMES: Record<string, string> = {
   mattshumer_: 'Matt Shumer',
   muddywatersre: 'MuddyWatersResearch',
   thsottiaux: 'Tibo',
+  // 2026-11-19 accounts (X user expansions, 2026-11-19)
+  BRICSinfo: 'BRICS News',
+  ElectionWiz: 'Election Wizard',
+  VictorTaelin: 'Taelin',
+  architectlabs: 'Architect Labs',
+  natolambert: 'Nathan Lambert',
+  poddotnetwork: 'Pod Network',
+  spcxGOD: 'Panke',
+  zhou_xian_: 'Zhou Xian',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
