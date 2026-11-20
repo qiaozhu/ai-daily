@@ -518,6 +518,25 @@ const NAMES: Record<string, string> = {
   poddotnetwork: 'Pod Network',
   spcxGOD: 'Panke',
   zhou_xian_: 'Zhou Xian',
+  // 2026-11-20 accounts (X user expansions, 2026-11-20)
+  AravSrinivas: 'Aravind Srinivas',
+  askalphaxiv: 'alphaXiv',
+  ByteEcosystem: 'Byte',
+  Dr_Singularity: 'Dr Singularity',
+  financialjuice: 'FinancialJuice',
+  FoxBusiness: 'FOX Business',
+  GoogleQuantumAI: 'Google Quantum AI',
+  hasantoxr: 'Hasan Toor',
+  moneycontrolcom: 'Moneycontrol',
+  perplexity_ai: 'Perplexity',
+  Qtumanalysis: 'QuantumAnalysis',
+  rsraisul_islam: 'Raisul Islam',
+  skel: 'SKEL',
+  SRSchmidgall: 'Samuel Schmidgall',
+  VentureBeat: 'VentureBeat',
+  WesRoth: 'Wes Roth',
+  zhangboknight: 'Tony Zhang',
+  '5xyxh': '新高地',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
