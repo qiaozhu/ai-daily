@@ -537,6 +537,10 @@ const NAMES: Record<string, string> = {
   WesRoth: 'Wes Roth',
   zhangboknight: 'Tony Zhang',
   '5xyxh': '新高地',
+  // 2026-11-21 accounts (X user expansions, 2026-11-21)
+  BitcoinArchive: 'Bitcoin Archive',
+  itnavi2022: 'IT navi',
+  Vincent_AINotes: 'Vincent',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
