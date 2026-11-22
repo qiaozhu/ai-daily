@@ -541,6 +541,23 @@ const NAMES: Record<string, string> = {
   BitcoinArchive: 'Bitcoin Archive',
   itnavi2022: 'IT navi',
   Vincent_AINotes: 'Vincent',
+  // 2026-11-22 accounts (X user expansions, 2026-11-22)
+  leanprover: 'Lean',
+  ItakGol: 'Itamar Golan',
+  yacineMTB: 'kache',
+  eliadele: 'Elia De Leo',
+  Oracle: 'Oracle',
+  edzitron: 'Ed Zitron',
+  matthewstoller: 'Matt Stoller',
+  tenobrus: 'Tenobrus',
+  ramez: 'Ramez Naam',
+  nikitabier: 'Nikita Bier',
+  fchollet: 'François Chollet',
+  CultFinance_: 'Finance Culture',
+  rasbt: 'Sebastian Raschka',
+  coldniko: 'Niko Veit',
+  exolabs: 'EXO Labs',
+  liebert_2026: 'Johan',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
