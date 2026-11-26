@@ -585,6 +585,22 @@ const NAMES: Record<string, string> = {
   ArfurGrok: 'Arfur Grok',
   MadisonMills22: 'Madison Mills',
   jasshone_: 'Jasmine Shone',
+  // 2026-11-26 accounts (X user expansions, 2026-11-26)
+  skirano: 'Pietro Schirano',
+  drjoshcsimmons: 'Dr. J',
+  christasyd: 'Christa Sydney',
+  cognition: 'Cognition',
+  dabit3: 'nader dabit',
+  charlielamb: 'Charlie Lamb',
+  iruletheworldmo: '🍓🍓🍓',
+  axios: 'Axios',
+  jukan05: 'Jukan',
+  weijia: 'Weijia Jiang',
+  CBSNews: 'CBS News',
+  rgoodlaw: 'Ryan Goodman',
+  JoshTBoswell: 'Josh Boswell',
+  vikktorrrre: 'Veee',
+  TaylorLorenz: 'Taylor Lorenz',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
