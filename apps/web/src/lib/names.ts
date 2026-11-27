@@ -601,6 +601,14 @@ const NAMES: Record<string, string> = {
   JoshTBoswell: 'Josh Boswell',
   vikktorrrre: 'Veee',
   TaylorLorenz: 'Taylor Lorenz',
+  // 2026-11-27 accounts (X user expansions, 2026-11-27)
+  spectatorindex: 'The Spectator Index',
+  FT: 'Financial Times',
+  TencentAI_News: 'Tencent AI',
+  TheInclusionAI: 'InclusionAI',
+  UBERSOY1: 'UBERSOY',
+  NeoAIForecast: 'Neo',
+  Schuldensuehner: 'Holger Zschaepitz',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
