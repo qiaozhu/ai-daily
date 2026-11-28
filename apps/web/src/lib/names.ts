@@ -609,6 +609,28 @@ const NAMES: Record<string, string> = {
   UBERSOY1: 'UBERSOY',
   NeoAIForecast: 'Neo',
   Schuldensuehner: 'Holger Zschaepitz',
+  // 2026-11-28 accounts (X user expansions, 2026-11-28)
+  jakozloski: 'Jake Kozloski',
+  RealAstropulse: 'Astropulse',
+  dhh: 'DHH',
+  NoLimitGains: 'NoLimit',
+  business: 'Bloomberg',
+  carlquintanilla: 'Carl Quintanilla',
+  benln: 'Ben Lang',
+  larsencc: 'Larsen Cundric',
+  teslayoda: 'Yoda',
+  tslaming: 'Ming',
+  liquidai: 'Liquid AI',
+  ramin_m_h: 'Ramin',
+  ClementDelangue: 'clem 🤗',
+  SiftByte: 'Dhaval',
+  mweinbach: 'Max Weinbach',
+  Ex0byt: 'Eric',
+  burkov: 'BURKOV',
+  anpaure: 'anpaure',
+  eliebakouch: 'elie',
+  spicey_lemonade: 'spicylemonade',
+  insane_analyst: 'Irrational Analysis',
 };
 
 export const displayName = (p: Pick<SourcePost, 'handle' | 'name'>): string => p.name || NAMES[p.handle] || p.handle;
